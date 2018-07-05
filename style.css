@@ -1,0 +1,790 @@
+body {
+	
+	font-family: "Open Sans",Helvetica,Arial,Verdana,sans-serif;
+}
+
+.g-recaptcha div { 
+	margin-left: auto; 
+	margin-right: auto;
+    width: 70%;
+    display: inline-block;
+}
+
+ /* Big Title */
+h1 {
+	margin-top:40px;
+	margin-bottom:40px;
+	font-size: 25px;
+	text-align: center;
+	color: #3f3f3f;
+	font-family: "Oxygen",Helvetica,Arial,Verdana,sans-serif;
+}
+
+ /* Small Title */
+h2 {
+	font-size: 16px;
+	color: #1498d3;
+	font-weight:600;
+}
+
+ /* Text overall */
+p {
+	line-height: 1.6;
+	font-size: 16px;
+	color: #3f3f3f;
+}
+
+ /* All links */
+#link {
+	color: #169ad4;
+	text-decoration:none;
+	border-bottom: 1px dotted;
+}
+
+ /* First field under p text */
+.above {
+	margin-top:5px;
+	overflow:hidden;
+}
+
+/* The first paragrapah of the first page */
+.introUitleg {		margin-bottom: 40px;	}
+
+ /* Container form */
+#formContainer {
+	max-width: 665px;
+	min-width: 200px;
+	margin: 25px auto 0;
+}
+
+ /* Red stars */
+.red {
+	color:red;
+}
+
+ /* Validation error messages */
+.error {
+	color:red;
+}
+
+label.error  {
+	text-align: left;
+	padding: 0px;
+	margin: 10px 0px 0px -1px;
+	cursor: auto;
+}
+
+ /* Form row margins */
+.formRow {
+	margin: 23px 0px;
+	overflow: auto;
+}
+
+/* hidden elements */
+.hidden {
+	display: none;
+}
+
+ /* Form text */
+.label {
+	color: #909090;
+	display: inline-block;
+	min-width: 330px;
+	float: left;
+}
+
+.bijdrage {
+	display: block;
+	float: none;
+}
+
+/* Radio buttons */
+#optie1, #optie2, #optie3, #optie4 {
+	float: left;
+}
+
+/* Radio buttons */
+.radio input{
+	margin: 5px 0 0 0;
+}
+
+label[for=optie1], label[for=optie2], label[for=optie3], label[for=optie4]{
+	display: block;
+	margin: 0px 0px 10px 20px;
+	text-align: left;
+}
+
+ /* Lidmaatschapsbijdrage line spacing */
+.bijdrage {
+	line-height: 1.6;
+}
+
+ /* padding formFields */
+.value {
+	padding:2px;
+}
+
+
+ /* Form field */
+.FormFields {
+	font-size: 14px;
+	background-color: #f2f2f2;
+    border: 1px solid #e1e1e1;
+	border-radius: 3px;
+    box-sizing: border-box;
+    color: #5f5f5f;
+    padding-left: 10px;
+	padding-bottom:4px;
+	width:320px;
+	height:30px;
+	display: inline-block;
+}
+
+ /* Form field Diensten en Producten */
+ /* TODO THIS doesn't work: it is just a high text edit, but you can still only add one line. */
+.FormFieldsGroot {
+	font-size: 14px;
+	background-color: #f2f2f2;
+    border: 1px solid #e1e1e1;
+	border-radius: 3px;
+    box-sizing: border-box;
+    color: #5f5f5f;
+	padding-top:5px;
+    padding-left: 10px;
+	padding-bottom:4px;
+	width:320px;
+	height:90px;
+	display: inline-block;
+	margin: 0px;
+	font-family: "Open Sans",Helvetica,Arial,Verdana,sans-serif;
+	max-width: 320px;
+	min-width: 320px;
+	min-height:90px;
+}
+
+/* In chrome form fields make the checkbox very ugly and big, this should overwrite this */
+input[type=checkbox]{
+	width: auto;
+	height: auto;
+}
+
+
+ /* Button Confirm */
+#button{
+	margin: 0px;
+	background: #169ad4;
+	font-weight:600;
+	float:right;
+	vertical-align: top;
+	width: 250px;
+	height: 60px;
+	font-size: 14px;
+	color: white;
+	text-align: center;
+	border: 0;
+	cursor: pointer;
+	border-radius: 3px;
+}
+
+#button:hover{
+	background: #127caa none repeat scroll 0 0;
+	box-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.18), 0 4px 15px 0 rgba(0, 0, 0, 0.15);
+	color:#dddddd ;
+}
+
+ /* Button Radio */
+label {
+	text-align: center;
+    display: inline-block;
+    cursor: pointer;
+    position: relative;
+    padding-left: 2px;
+    margin-right: 15px;
+    font-size: 16px;
+	color: #909090;
+}
+
+
+ /* Checkbox */
+.checkbox{
+	margin:10px auto;
+}
+
+ /* Checkbox incasso*/
+
+#checkincassolabel {
+    display: inline-block;
+	margin: -25px 0px 0px 28px;
+	text-align: left;
+	line-height: 1.6;
+}
+
+#checkincassolabel input {
+    display: inline-block;
+	
+}
+ 
+ /* Dropdown */
+select {
+   background-color: #f2f2f2;
+   border: 1px solid #e1e1e1;
+   width: 165px;
+   padding-left: 5px;
+   font-size: 14px;
+   line-height: 0;
+   border-radius: 3px;
+   height: 30px;
+   color:#5f5f5f;
+   font-family: "Open Sans",Helvetica,Arial,Verdana,sans-serif;
+}
+   
+.selectOption {
+	padding:5px 0px 5px 10px;
+	color:#909090;
+}
+
+ /* Dropdown branches */
+.Optiongroup {
+	padding:10px 0px 10px 10px;
+	color:#909090;
+	font-weight: bold;
+	font-style:normal;
+	border-bottom: 1px solid #e1e1e1;
+}
+
+.branche{
+   background-color: #f2f2f2;
+   border: 1px solid #e1e1e1;
+   width: 320px;
+   padding-left: 5px;
+   font-size: 14px;
+   line-height: 0;
+   border-radius: 3px;
+   height: 30px;
+   color:#5f5f5f;
+   font-family: "Open Sans",Helvetica,Arial,Verdana,sans-serif;
+}
+   
+ /* Upload afbeelding */ 
+input#uploadFile {
+	width: 200px;
+	height:30px;
+	background-color: #f2f2f2;
+	border: 1px solid #e1e1e1;
+	font-size: 14px;
+	color: #5f5f5f;
+	text-align: left;
+	padding-left:10px;
+	-webkit-border-top-left-radius: 3px;
+	-webkit-border-bottom-left-radius: 3px;
+	-moz-border-radius-topleft: 3px;
+	-moz-border-radius-bottomleft: 3px;
+	border-top-left-radius: 3px;
+	border-bottom-left-radius: 3px;
+	outline: none;
+}
+
+.fileUpload {
+	width: 120px;
+	height: 25px;
+	background: #169ad4;
+	padding-top: 5px;
+	display: inline;
+	position: absolute;
+	overflow: hidden;
+	cursor: pointer;
+	-webkit-border-top-right-radius: 3px;
+	-webkit-border-bottom-right-radius: 3px;
+	-moz-border-radius-topright: 3px;
+	-moz-border-radius-bottomright: 3px;
+	border-top-right-radius: 3px;
+	border-bottom-right-radius: 3px;
+	color: #fff;
+	text-align: center;
+	font-size: 14px;
+	font-weight:600;
+}
+
+.fileUpload:hover {
+	background: #127caa none repeat scroll 0 0;
+	box-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.18), 0 4px 15px 0 rgba(0, 0, 0, 0.15);
+	color:#dddddd ;
+}
+
+.fileUpload input {
+	position: relative;
+	height: 28px;
+	width: 150px;
+	display: inline;
+	cursor: pointer;
+	opacity: 0;
+	color:#3f3f3f;
+}
+
+.fileUpload input.upload {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+    filter: alpha(opacity=0);
+}
+
+ /* Password */
+input[type="password"] {
+  letter-spacing: 2px;
+}
+
+ /* change captcha */
+#label_code {
+	color: #1498d3;
+	display: inline-block;
+	text-align:right;
+	margin-top:10px;
+	margin-right:0;
+	padding-right:0;
+	min-width: 646px;
+}
+	
+/* Devider */
+hr {
+	width: 100%;
+	height: 1px;
+	margin-left: auto;
+	margin-right: auto;
+	background-color:#e1e1e1;
+	color:#e1e1e1;
+	border: 0 none;
+	margin-top: 40px;
+	margin-bottom:40px;
+}
+
+
+ /* Birthdate field */
+.date { 
+    width: 120px;
+}
+
+
+ /*no text on the left side*/
+.geenText{
+	margin-left:320px;
+}
+
+ /*No scrollers in number fields*/
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+
+input[type=number] {
+   -moz-appearance:textfield;
+}
+
+.g-recaptcha {
+	float: right;
+}
+
+/* Foutmelding*/
+
+.schadow {
+	border: 1px solid #dddddd;
+	margin-bottom: 35px;
+}
+
+.errorTop {
+	max-width: 665px;
+	min-width: 200px;
+	background-color: #DE4243;
+	padding-bottom: 10px;
+	padding-top: 10px;
+	text-align: center;
+}
+.errorBottom {
+	font-size: 16px;
+	max-width: 665px;
+	min-width: 200px;
+	background-color: #f3f3f3;
+	padding-bottom: 10px;
+	padding-top: 10px;
+	padding-left: 20px;
+}
+ul {
+	margin-left: -20px
+}
+li {
+	position: relative;
+	list-style: none;
+	padding-bottom: 5px;
+	color: #3f3f3f;
+}
+li:before {
+	content: "\2715";
+	font-size: 16px;
+	font-weight: 600;
+	position: absolute;
+	left: -20px;
+	color: #de4243;
+	vertical-align: top;
+}
+.errorImage {
+	margin-bottom: -12px;
+	margin-right: 15px;
+}
+H3 {
+	text-align: center;
+	font-size: 24px;
+	color: white;
+	font-weight: 400;
+}
+
+.redError {
+	color: #de4243;
+	font-weight: 600;
+}
+.textError {
+	color: #909090;
+}
+
+
+/* Spinner CSS (obtained from: http://codepen.io/adonisk/pen/EeulL) */
+.spinner {
+	content: "";
+	display: inline-block;
+	width: 0;
+	height: 0;
+	border: solid 30px;
+	border-radius: 5em;
+	border-color: #0099ff transparent #0099ff transparent;
+	animation: spin 1s linear infinite;
+}
+
+.dot:before, .dot:after {
+	content: ".";
+}
+
+.dot {
+	animation: fade 1s linear infinite;
+}
+
+.dot:after {
+	animation: fade 2s linear infinite;
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes fade {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+ /* End spinner related CSS */
+ 
+ 
+/******************************************************Layout index ********************************************************/
+ 
+ .section {
+	display: block;
+}
+
+.sectionNumber {
+	float: left;
+	height: 30px;
+	line-height: 28px;
+	width: 30px;
+	border-radius: 30px;
+	background-color: #1498d3;
+	color: white;
+	font-weight: bold;
+	text-align: center;
+}
+
+.sectionContent {
+	display: block;
+	border-left: 1px dashed #b3b5b6;
+}
+
+.sectionTitle {
+	display: block;
+	margin-top: 0px;
+}
+
+.sectionContent {
+	display: block;
+	padding: 0px 0px 10px 30px;
+	margin: 0px 0px 0px 15px;
+}
+
+.communitySelect{
+	margin-bottom: 15px;
+}
+
+
+/****************************************************** Registration finished  ********************************************************/
+
+#formContainer.registrationFinished {
+	margin: 10% auto 0 auto;
+}
+
+.registrationFinished h1{
+	text-align: left;
+}
+
+.betaling {
+	text-align: left;
+}
+
+/****************************************************** BEGIN: Mobile only CSS ********************************************************/
+
+@media only screen and (max-device-width: 900px) {
+
+ /* Container form */
+#formContainer {
+	max-width: 90%;
+	min-width: 200px;
+	margin: 5%;
+}
+
+ /* Button Radio */
+.radio {
+    display: inline-block;
+    position: relative;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	line-height: 1.6;
+}
+
+ /* checkbox profilering */
+.checkbox2{
+	margin-top:-35px;
+}
+
+
+ /* Form text */
+.label {
+	color: #909090;
+	display: inline-block;
+	min-width: 250px;
+	margin-bottom:10px;
+}
+
+ /* padding formFields */
+.value {
+	margin-left:0px;
+	padding:0px 0px 10px 0px;
+}
+
+ /* Form field Diensten en Producten */
+.FormFieldsGroot {
+	width: 100%;
+	max-width: none;
+	font-size: 2em;
+	height: 4.1em;
+}
+
+ /* Upload afbeelding */ 
+input#uploadFile {
+	width: 40%;
+	height: 4.1em;
+	font-size: 1em;
+}
+
+#uploadText {
+	width: 40%;
+	height: 4.1em;
+	font-size: 1em;	
+}
+
+.fileUpload {
+	width: 40%;
+    height: 3.9em;
+    font-size: 1em !important;
+}
+
+.uploadText {
+    font-size: 1.5em;
+    padding-top: 0.5em;	
+}
+
+/* Dropdown branches */
+
+.branche{
+   width: 240px;
+}
+
+.captcha {
+	width: 186px;
+	height: 27px;
+	display: inline-block;
+	background-color: #f2f2f2;
+	border: 1px solid #e1e1e1;
+	font-size: 14px;
+	color: #5f5f5f;
+	text-align: left;
+	border-radius: 3px;
+	outline: none;
+}
+
+#captcha_image{
+	width: 200px;
+	height: 60px;
+	display: inline-block;
+	border:none;
+	background-color:#1498d3;
+	background: url(Test_Afbeelding_Validatie.png) no-repeat right center;
+	margin-top:10px;
+	border-radius: 3px;
+}
+
+ /* Change verification image */
+#label_code {
+	color: #1498d3;
+	text-align:left;
+	margin-top:85px;
+	padding-bottom:0;
+}
+
+ /* Checkbox incasso*/
+.incasso{
+	  width: 250px;
+}
+ 
+#checkincassolabel{
+    display: block;
+	text-align: left;
+	line-height: 1.1em;
+	font-size: 0.7em;
+	width: 80%;
+    margin: -3.0em 0 0 4em;
+}
+
+#checkincassolabel input {
+    display: inline-block;
+}
+ 
+#button {
+	margin: 0px 20px 25px 0px;
+}
+
+.sectionNumber {
+    height: 2em;
+    line-height: 2em;
+    width: 2em;
+    border-radius: 2em;
+    font-size: 2em;
+}
+
+.sectionContent {
+	margin: 0 0 0 2em;
+    padding: 0 0 1em 4em;
+}
+
+.sectionContent {
+	border-left: 0.2em dashed #b3b5b6;
+}
+
+ /* Big Title */
+h1 {
+	margin-top: 2.1 em;
+	margin-bottom: 2.5em;
+	font-size: 1.6em;
+	text-align: left;
+	color: #3f3f3f;
+	font-family: "Oxygen",Helvetica,Arial,Verdana,sans-serif;
+}
+
+ /* Small Title */
+h2 {
+	font-size: 1.1em;
+	color: #1498d3;
+	font-weight: 600;
+}
+
+ /* Text overall */
+p {
+	line-height: 1.6em;
+	font-size: 0.8em;
+	color: #3f3f3f;
+}
+
+ /* Labels for fields */
+.label {
+    font-size: 2em;
+	width: 100%;
+}
+
+.value {
+	width: 100%;
+	font-size: 1.6em;
+}
+
+ /* The fields themselves*/
+.FormFields {
+	width: 100%;
+    font-size: 2em;
+	height: 2.1em;
+}
+
+.radio label {
+	font-size: 1.6em;	
+}
+
+.radio input{
+	height: 2.4em;	
+	width: 2.4em;
+	margin: 1.2em 1em 0 0;
+}
+
+ /* Community dropdown */
+select {
+    height: 2.2em;
+    width: 90%;
+    font-size: 1.8em;
+    line-height: 2em;
+    border-radius: 0.2em;
+    height: 2.3em;
+    font-family: "Open Sans",Helvetica,Arial,Verdana,sans-serif;
+}
+
+#button {
+    width: auto;
+    height: auto;
+    font-size: 1.8em;
+    border-radius: 0.2em;
+    padding: 0.8em 1em;
+	margin-top: 1.5em;
+}
+
+input[type=checkbox] {
+    width: 0.8em;
+    height: 0.8em;
+}
+
+#checkVoorwaarde, #checkincasso {
+    width: 3.2em;
+    height: 3.2em;
+}
+
+
+/* DEZE ER NOG EVEN UIT!!
+input[type=checkbox] {
+    width: 3em !important;
+    height: 3em !important;
+}
+
+/****************************************************** END: Mobile only CSS ********************************************************/
+
