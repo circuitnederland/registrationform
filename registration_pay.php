@@ -6,6 +6,7 @@ include_once 'registration_functions.php';
 //////////// constants ///////////////////////////////////////////////////////////////////////////
 // beware that this only goes well if the files are in the "inschrijfformulier" directory. 
 define('REDIRECT_FINISH',   "http://" . $_SERVER['HTTP_HOST'] . pathinfo($_SERVER['SCRIPT_NAME'], PATHINFO_DIRNAME) . '/' . "registration_finished.php");
+define('WEBHOOK_URL',   "http://" . $_SERVER['HTTP_HOST'] . pathinfo($_SERVER['SCRIPT_NAME'], PATHINFO_DIRNAME) . '/' . "registration_paid.php");
 
 
 session_start();
@@ -31,7 +32,7 @@ if ($captchaError) {
 			$_SESSION['errors'] = $result;
 		} else {
 			$paymentUser = (empty(getNullSafeValue('username'))) ? getNullSafeValue('name') : getNullSafeValue('username');
-			$payment = createPayment($_SESSION['MOLLY_ACCESS'], getAmount(), getLidmaatschapsBijdrage(), getNullSafeAankoop(), $paymentUser, REDIRECT_FINISH);
+			$payment = createPayment($_SESSION['MOLLY_ACCESS'], getAmount(), getLidmaatschapsBijdrage(), getNullSafeAankoop(), $paymentUser, REDIRECT_FINISH, WEBHOOK_URL);
 			$pictureId = (empty($picture)) ? null : $picture['result'];
 			// Create the user
 			$dataAsJson = getDataFromSession($pictureId, $payment->id);

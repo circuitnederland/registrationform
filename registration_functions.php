@@ -194,6 +194,19 @@ function failCaptcha() {
 }
 
 /**
+ * general url post function
+ */
+function httpPost($url, $data) {
+	$curl = curl_init($url);
+	curl_setopt($curl, CURLOPT_POST, true);
+	curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+	$response = curl_exec($curl);
+	curl_close($curl);
+	return $response;
+}
+
+/**
  * uploads the user picture via the get request: /api/images/temp
  * @param unknown $access
  * @return NULL[]|Exception[]|unknown[]|NULL
@@ -321,7 +334,7 @@ function saveCustomFieldValue($user, $fieldName, $fieldValue, $baseUrl) {
 /**
  * creates the payment object for molly.
  */
-function createPayment($access, $amount, $lidbijdrage, $startSaldo, $user, $redirectFinish) {
+function createPayment($access, $amount, $lidbijdrage, $startSaldo, $user, $redirectFinish, $webhookUrl) {
 	if (empty($startSaldo)) {
 		$startSaldo = 0.0;
 	}
@@ -334,10 +347,11 @@ function createPayment($access, $amount, $lidbijdrage, $startSaldo, $user, $redi
 					'amount'=> $amount,
 					'description' => sprintf(lang('payment.description'), $strLidbijdrage, $strStartSaldo, $user),
 					'redirectUrl' => $redirectFinish,
-					'method'      => 'ideal'
-					// 'metadata' => array(
-					//     // More information needed? Not specified in spec.
-					//     )
+					'webhookUrl'  => $webhookUrl,
+					'method'      => 'ideal',
+					'metadata' => array(
+							'user' => $user
+					    )
 			));
 	return $payment;
 }
@@ -393,11 +407,13 @@ function getLidmaatschapsBijdrage() {
 function fillFieldsArray($forNewResponse) {
 	$fields = array();
 	foreach ($forNewResponse['customFields'] as $customField) {
-		$fields[$customField['internalName']] = array(
-				name => $customField['name'],
-				description => isset($customField['informationText']) ? $customField['informationText'] : "",
-				required => isset($customField['required']) && $customField['required']
-		);
+		if ($customField['internalName'] != 'betaald') {
+			$fields[$customField['internalName']] = array(
+					name => $customField['name'],
+					description => isset($customField['informationText']) ? $customField['informationText'] : "",
+					required => isset($customField['required']) && $customField['required']
+			);
+		}
 	}
 	foreach ($forNewResponse['passwordTypes'] as $passwordType) {
 		$fields[$passwordType['internalName']] = array(
