@@ -179,9 +179,8 @@ function failCaptcha() {
 	if (empty($response)) {
 		return "captchaForgotten";
 	}
-	$secret="1234abcd";	// @todo: Refactor this into a constant from registration_strings.php instead of hardcoding it here.
 	//formulate the request URL to reCaptcha API
-	$request =  "https://www.google.com/recaptcha/api/siteverify?secret=" . $secret . "&response=" . $response . "&remoteip=" . $ipUser;
+	$request =  "https://www.google.com/recaptcha/api/siteverify?secret=" . RECAPTCHA_SECRET . "&response=" . $response . "&remoteip=" . $ipUser;
 	//set the recaptcha answer
 	$idealanswer="true";
 	//finally make and retrieve the request

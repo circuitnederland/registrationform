@@ -16,6 +16,16 @@ define('BASE_URL', "https://your-cyclos-domain.com");
  */
 define('CYCLOS_ACCESS', "Access-Client-Token: abcd1234");
 
+/*
+ * The secret key for Google's recaptcha.
+ */
+define('RECAPTCHA_SECRET', 'xxx');
+
+/*
+ * The Webhook URL part for the custom web service that is called on the cyclos domain by the mollie webhook after paying.
+ */
+define('MOLLIE_WEBHOOK_URL_PART', '/xxx');
+
 /**
  * The language function. Pass a key and the translated string will be returned. 
  * @param string $phrase the key under which the translated string is stored

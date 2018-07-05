@@ -6,7 +6,7 @@ include_once 'registration_functions.php';
 //////////// constants ///////////////////////////////////////////////////////////////////////////
 // beware that this only goes well if the files are in the "inschrijfformulier" directory. 
 define('REDIRECT_FINISH',   "http://" . $_SERVER['HTTP_HOST'] . pathinfo($_SERVER['SCRIPT_NAME'], PATHINFO_DIRNAME) . '/' . "registration_finished.php");
-define('WEBHOOK_URL',   "http://" . $_SERVER['HTTP_HOST'] . pathinfo($_SERVER['SCRIPT_NAME'], PATHINFO_DIRNAME) . '/' . "registration_paid.php");
+define('WEBHOOK_URL', BASE_URL . MOLLIE_WEBHOOK_URL_PART);
 
 
 session_start();
