@@ -124,10 +124,11 @@ if (!$noServerContact) {
 }
 
 $mollieRecord = getMollyRecord(BASE_URL);
-$maxAankoop = $mollieRecord['maxAankoopPart'];
-if (empty($maxAankoop)) {
-	$maxAankoop = 150;
-}
+// No longer use the maxAankoopPart, because there is no maximum for particulieren anymore.
+// $maxAankoop = $mollieRecord['maxAankoopPart'];
+// if (empty($maxAankoop)) {
+	// $maxAankoop = 150;
+// }
 $_SESSION['MOLLY_ACCESS']=$mollieRecord['accessKey'];
 
 /*
@@ -494,7 +495,7 @@ if ($noServerContact || !empty($_SESSION['errors'])) {
 					break;
 					
 				case "aankoop_saldo":
-					showAankoop(array(), $fieldsParticulieren, $maxAankoop);
+					showAankoop(array(), $fieldsParticulieren, 'no_maximum');
 					showAankoop($fieldsBedrijven, array(), null);
 					break;
 					
