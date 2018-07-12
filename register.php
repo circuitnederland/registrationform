@@ -388,7 +388,7 @@ if ($noServerContact || !empty($_SESSION['errors'])) {
 	<div class="formRow">
 		<div class="label"><?php echo lang('field.zip')?> <span class="red">*</span></div>
 		<div class="value">
-			<input class="FormFields postcode" type="text" name="zip" maxlength="6" required
+			<input class="FormFields postcode" type="text" name="zip" maxlength="6" placeholder="Bijvoorbeeld 1234AA" required
 				<?php 
 					if (isset($_SESSION["zip"])) {
 						echo " value='" . $_SESSION["zip"] . "'"; 
