@@ -10,6 +10,7 @@ header ('Content-type: text/html; charset=utf-8');
 require "vendor/autoload.php";
 
 define('REDIRECT_FINISH',   "http://" . $_SERVER['HTTP_HOST'] . pathinfo($_SERVER['SCRIPT_NAME'], PATHINFO_DIRNAME) . '/' . "registration_finished.php");
+define('WEBHOOK_URL', BASE_URL . MOLLIE_WEBHOOK_URL_PART);
 
 // store the present url so we can redirect back to it in case something goes wrong
 $_SESSION['backURL'] = $_SERVER['REQUEST_URI'];
@@ -100,7 +101,7 @@ if (empty($profile)) {
 			}  else {
 				$amount = $lidmaatschapParticulieren + $lidmaatschapBedrijven + $aankoopSaldo;
 				//contact mollie, retrieve a new payment object via createPayment. Description includes amounts + username
-				$payment = createPayment($mollyAccess, $amount, $lidmaatschapParticulieren + $lidmaatschapBedrijven, $aankoopSaldo, $username, REDIRECT_FINISH . "?from=repay");
+				$payment = createPayment($mollyAccess, $amount, $lidmaatschapParticulieren + $lidmaatschapBedrijven, $aankoopSaldo, $username, REDIRECT_FINISH . "?from=repay", WEBHOOK_URL);
 				// save payment id to the user's profile with a rest call put /users/{user}.
 				$saveResult = saveCustomFieldValue($user, "payment_id", $payment->id, BASE_URL);
 				if ($saveResult != null) {
