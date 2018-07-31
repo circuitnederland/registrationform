@@ -33,14 +33,6 @@ if (empty($communitiesFromServer)) {
 	<head>
 		<title><?php echo lang('title')?></title>
 		<link rel="stylesheet" type="text/css" href="style.css">
-        <script src="https://code.jquery.com/jquery-3.1.0.min.js" 
-				integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" 
-				crossorigin="anonymous"></script>
-		<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.15.0/jquery.validate.min.js"></script>
-		<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.15.0/additional-methods.min.js"></script>
-		<script src="stro_form_validation.js"></script>
-		<script src="register.js"></script>
-		<script src="moment.min.js"></script>
 	</head>
 <body>
 <div id="formContainer">

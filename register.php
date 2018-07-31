@@ -150,8 +150,8 @@ $_SESSION['MOLLY_ACCESS']=$mollieRecord['accessKey'];
         <script src="https://code.jquery.com/jquery-3.1.0.min.js" 
 				integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" 
 				crossorigin="anonymous"></script>
-		<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.15.0/jquery.validate.min.js"></script>
-		<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.15.0/additional-methods.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/jquery.validate.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/additional-methods.min.js"></script>
 		<script src="stro_form_validation.js?"></script>
 		<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 		<script src="register.js"></script>
