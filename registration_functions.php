@@ -3,7 +3,7 @@
  * File with functions for registration. 
  */
 
-require "restRequest.php";
+require "RestRequest.php";
 include_once 'registration_strings.php';
 
 /**
