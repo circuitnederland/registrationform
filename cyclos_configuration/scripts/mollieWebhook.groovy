@@ -2,7 +2,8 @@
  * This script checks the payment status in Mollie for the posted payment id.
  * 
  * If the payment status in Mollie is 'paid', the 'Betaald' profile field of the
- * Cyclos user that belongs to this payment is updated to 'betaald'.
+ * Cyclos user that belongs to this payment is updated to 'betaald'. Also the 
+ * payment_url profile field of the Cyclos user is emptied, because it is no longer needed.
  *
  * In all other cases, nothing happens. This could be if:
  * - No payment id is posted at all.
@@ -101,6 +102,9 @@ try {
         
         // Set the betaald field of the user to 'betaald'.
 		bean.betaald = "betaald"
+
+		// Empty the payment_url field of the user, because it is not needed anymore.
+		bean.payment_url = ""
 		
 		// Check whether the payment id field of this user in Cyclos is the same as the payment id Mollie posted.
 		if (paymentIdInCyclos != paymentIdFromMollie) {
