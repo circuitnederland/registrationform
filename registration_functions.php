@@ -3,171 +3,183 @@
  * File with functions for registration. 
  */
 
-require "RestRequest.php";
 include_once 'registration_strings.php';
-
-/**
- * alternative to debug function var_dump, which is lousy in arrays. 
- * Usage: 		echo $pretty($fieldsParticulieren);
- */
-$pretty = function($v='',$c="&nbsp;&nbsp;&nbsp;&nbsp;",$in=-1,$k=null)use(&$pretty){
-	$r='';
-	if(in_array(gettype($v),array('object','array'))){
-		$r.=($in!=-1?str_repeat($c,$in):'').(is_null($k)?'':"$k: ").'<br>';
-		foreach($v as $sk=>$vl){
-			$r.=$pretty($vl,$c,$in+1,$sk).'<br>';
-		}
-	}else{
-		$r.=($in!=-1?str_repeat($c,$in):'').(is_null($k)?'':"$k: ").(is_null($v)?'&lt;NULL&gt;':"<strong>$v</strong>");
-	}return$r;
-};
 
 ################################## RETRIEVING/STORING SERVER DATA  ###############################
 #################################################################################
+
 /**
- * gets the communities from the server. 
- * @return a list with community names.  Communities are defined as group names, but 
- * without the " - particulieren" or " - bedrijven" suffixes. Of course, each community
- * is only counted once when a bedrijven and a particulieren group both are met. 
+ * Gets a list of groups that are open for registration.
+ * 
+ * @return array	Array with communitynames as keys each containing an array with 'bedrijven' or 'particulieren' and its Cyclos group id.
  */
-//tested
-function getCommunities($baseUrl) {
-	$groupsHeaders = array(
-			"Accept: application/json",
-			"Content-Type: application/json",
-			CYCLOS_ACCESS
-	);
-	$groupsUrl =  $baseUrl . "/api/users/groups-for-registration";
-	$params = 	array('fields'=>'name');
-	$groupsRequest = new restRequest($groupsUrl, $groupsHeaders, $params, "json", false, "");
+function _getCommunities() {
+	$url = "/api/users/groups-for-registration";
+	$result = restRequest($url, array(), "json", false);
+	handleErrors($result, '200');
+	$groups = $result['response'];
+
+	// Build an array of communites with their name as key and an array of their bedrijven/particulieren group id's as value.
 	$communities = array();
-	$groups = $groupsRequest->exec();
-	if (empty($groups)) {
-		return null;
-	}
-	foreach ($groups as $group) {
-		$rawGroupName = $group['name'];
-		$bedrijf;
-		if (endsWith($rawGroupName, 'bedrijven', false)) {
-			$bedrijf = true;
-		} else if (endsWith($rawGroupName, 'particulieren', false)) {
-			$bedrijf = false;
-		} else {
-			continue; //skip, no bedrijf and no particulier
+	foreach ($groups as $group){
+		$groupNameParts = explode(' - ', $group['name']);
+		if (count($groupNameParts) != 2) {
+			// This Cyclos group does not comply with the naming convention for group names: GroupName - [Bedrijven|Particulieren]. So skip this group.
+			continue;
 		}
-		$communityName = extractCommunityName($rawGroupName, !$bedrijf);
-		//check if it already exists
-		if (!in_array($communityName, $communities)) {
-			array_push($communities, $communityName);
+		list($communityName, $bedrijfOrParticulier) = $groupNameParts;
+		if ($bedrijfOrParticulier != 'Bedrijven' && $bedrijfOrParticulier != 'Particulieren'){
+			// This Cyclos group does not comply with the naming convention, so skip this group.
+			continue;
 		}
+		$communities[$communityName][strtolower($bedrijfOrParticulier)] = $group['id'];
 	}
+
+	// If there are no communities at all, something is wrong with the server.
+	if (empty($communities)) raiseError('error.noServerContact');
+
 	return $communities;
 }
+/**
+ * Gets the names of the communities that are open for registration.
+ * 
+ * @return array	Array with community names.
+ */
+function getCommunityNames() {
+	$communities = _getCommunities();
+	
+	return array_keys($communities);
+}
 
 /**
- * gets the system record with mollie access data from cyclos, via a rest call.  
- * @return an associative array with the custom values. the key is the internal 
- * name of the field in the record, the value is the value of that field. 
+ * Gets the group id of both the particulieren and bedrijven group for the given communityname.
+ *
+ * @param string community	The communityname, like "Zwolse Pepermunt", case-insensitive.
+ * @return array			Array containing the ids of the bedrijven and/or the particulieren group.
  */
-function getMollyRecord($baseUrl) {
-	$headers = array(
-			"Accept: application/json",
-			"Content-Type: application/json",
-			CYCLOS_ACCESS
-	);
-	$url =  $baseUrl . "/api/system/records/mollyConnect";
-	$request = new restRequest($url, $headers, array(), "json", false, "");
-	$response = $request->exec();
-	if (empty($response)) {
+function getGroupIds($community) {
+	// Get the communities, with lowercase communitynames as keys.
+	$communities = array_change_key_case(_getCommunities());
+	// Convert the given communityname to lowercase as well.
+	$communityLowerCase = strtolower($community);
+
+	if (!isset($communities[$communityLowerCase])) {
+		raiseError(null, sprintf(lang('error.unknownCommunity'), htmlspecialchars($community)));
+	}
+
+	return $communities[$communityLowerCase];
+}
+
+/**
+ * Gets the forNew data from the Cyclos server for the given group id.
+ *
+ * @param string groupId	The id of the group to retrieve the data for.
+ * @return array			Array indicating which data is needed to register a new user in the given group.
+ */
+function getForNewResponse($groupId) {
+	$url = "/api/users/data-for-new";
+	$result = restRequest($url, array('group' => $groupId), "json", false);
+	handleErrors($result, '200');
+	return $result['response'];
+}
+
+/**
+ * Uploads the user picture to Cyclos.
+ * 
+ * @return string	The picture id returned by Cyclos, or null if no picture was uploaded by the user.
+ */
+ 
+function uploadPicture() {
+	$picSpecified = array_key_exists("uploadedPic", $_FILES) && !empty($_FILES["uploadedPic"]['tmp_name']);
+	if (!$picSpecified) {
 		return null;
 	}
-	return $response[0]['customValues'];
+	$curlFile = new CURLFile($_FILES["uploadedPic"]['tmp_name'], 'image/png', "image");
+	$data = array(
+			"name" => basename($_FILES["uploadedPic"]['tmp_name']),
+			"image" => $curlFile
+	);
+	$url = "/api/images/temp";
+	$result = restRequest($url, null, "multipart", true, $data);
+	handleErrors($result, '201');
+	return $result['response'];
 }
 
 /**
- * gets the internal group ids from the community's name. It gets both the particulieren
- * and bedrijven group's id. This is retrieved from server. We cannot use the retrieval
- * which was already done by index.php, because most likely the
- * form doesn't come from there but is called with a param url.
+ * Creates a user in Cyclos.
  *
- * @param string $community the community, like "Zwolse Pepermunt".
- *
- * @return an associative array, containing the internal ids which can be used as param
- * in cyclos' rest api. The 'bedrijven' key contains the id of the bedrijven group; the
- * 'particulieren' key of the particulieren group. If some group doesn't exist for this
- * community, the value for that key is null.
+ * @param json		Should be in the format specified in the api docs.
+ * @return array	Array with the user response from Cyclos.
  */
-function getGroupIds($community, $url) {
-	$groupsHeaders = array(
-			"Accept: application/json",
-			"Content-Type: application/json",
-			CYCLOS_ACCESS
-	);
-	$groupsUrl =  $url . "/api/users/groups-for-registration";
-	$groupsRequest = new restRequest($groupsUrl, $groupsHeaders, array(), "json", false, "");
-	$result = array();
-	$groups = $groupsRequest->exec();
-	if (empty($groups)) {
-		return null;
-	}
-	foreach ($groups as $group) {
-		$rawGroupName = $group['name'];
-		if (startsWith($rawGroupName, $community, false)) {
-			if (endsWith($rawGroupName, "bedrijven", false)) {
-				$result['bedrijven'] = $group['id'];
-			} else if (endsWith($rawGroupName, "particulieren", false)){
-				$result['particulieren'] = $group['id'];
-			}
+function createUser($json){
+	$url = "/api/users";
+	$result = restRequest($url, null, "json", true, $json);
+	handleErrors($result, '201');
+	return $result['response']['user'];
+}
+
+/**
+ * Gets the Mollie payment URL of the given Cyclos user.
+ * 
+ * @param user		String with Cyclos user JSON as returned by createUser().
+ * @return string	The payment URL.
+ */
+function getPaymentUrl($user) {
+	$url = "/api/users/" . $user['id'];
+	$result = restRequest($url, array('fields' => 'customValues'), "json", false);
+	handleErrors($result, '200');
+	
+	$profileFields = $result['response']['customValues'];
+	// Loop through the custom values to find the payment_url.
+	foreach ($profileFields as $profileField) {
+		if ('payment_url' == $profileField['field']['internalName']) {
+			// Return the string value of the payment url field.
+			return $profileField['stringValue'];
 		}
-		if (count($result) >= 2) {
-			break;
-		}
 	}
-	return $result;
+	// If no profileField payment_url was found, raise an error.
+	raiseError('error.missingProfileField');
 }
 
 /**
- * gets the user profile of a user via get request: /api/users/<username>
- * @param unknown $user
- * @param unknown $url
- * @return mixed|unknown|string
+ * Validates a user in Cyclos.
+ * 
+ * @param string validationKey	The registration validation key the user has received from Cyclos.
+ * @return array				Array with the user response from Cyclos.
  */
-function getUserProfile($user, $url) {
-	$headers = array(
-			"Accept: application/json",
-			"Content-Type: application/json",
-			CYCLOS_ACCESS
-	);
-	$realUrl =  $url . "/api/users/" . $user;
-	$request = new restRequest($realUrl, $headers, array(), "json", false, "");
-	$result = $request->exec();
-	return $result;
+function validateUser($validationKey){
+	$url = "/api/validate/registration/" . $validationKey;
+	// Note: a bit strange, but Cyclos requires a POST request, but no post data in this case.
+	// Note: another strange thing: this api request requires being called anonymously, so without the secret token.
+	$result = restRequest($url, array(), "json", true, null, false);
+
+	// First check for custom validation errors, because they should be handled differently.
+//	handleCustomValidationErrors($result);
+
+	// Next, handle 'normal' errors.
+	handleErrors($result, 200);
+
+	// Return the Cyclos user.
+	return $result['response']['user'];
 }
 
-
 /**
- * gets the forNew data from the cyclos server.
- *
- * @param $group - the group to retrieve the data of.
- * @param $sourceCommunity - string which is the community name. It will be placed in the url.
+ * Gets the login information of the given Cyclos user.
+ * 
+ * @param user		String with Cyclos user JSON as returned by createUser().
+ * @return array	An array with the username and email of the validated user.
  */
-function getForNewResponse($group, $baseUrl) {
-	$forNewHeaders = array(
-			"Accept: application/json",
-			"Content-Type: application/json",
-			CYCLOS_ACCESS
-	);
-	$forNewUrl = $baseUrl . "/api/users/data-for-new";
-	$forNewParams = array(group=>$group);
-	$forNewRequest = new restRequest($forNewUrl, $forNewHeaders, $forNewParams, "json", false, "");
-	$temp = $forNewRequest->exec();
-	if ($temp == null) {
-		return array();
+function getLoginInformation($user) {
+	$url = "/api/users/" . $user['id'];
+	$result = restRequest($url, array('fields' => 'username, email'), "json", false);
+	handleErrors($result, '200');
+
+	$loginInfo = $result['response'];
+	if (empty($loginInfo['username']) || empty($loginInfo['email'])) {
+		raiseError('error.missingLoginInfo');
 	}
-	if (is_array($temp) && (count($temp)===1) && array_key_exists("entityType", $temp)) {
-		return array();
-	}
-	return $temp;
+
+	return $loginInfo;
 }
 
 /**
@@ -177,7 +189,7 @@ function failCaptcha() {
 	$ipUser=$_SERVER["REMOTE_ADDR"];
 	$response=$_POST["g-recaptcha-response"];
 	if (empty($response)) {
-		return "captchaForgotten";
+		return "error.captchaForgotten";
 	}
 	//formulate the request URL to reCaptcha API
 	$request =  "https://www.google.com/recaptcha/api/siteverify?secret=" . RECAPTCHA_SECRET . "&response=" . $response . "&remoteip=" . $ipUser;
@@ -189,195 +201,220 @@ function failCaptcha() {
 	if((strstr($responserecaptcha,$idealanswer))) {
 		return "";
 	} 
-	return "captchaFail";
+	return "error.captcha";
 }
 
 /**
- * general url post function
- */
-function httpPost($url, $data) {
-	$curl = curl_init($url);
-	curl_setopt($curl, CURLOPT_POST, true);
-	curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
-	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-	$response = curl_exec($curl);
-	curl_close($curl);
-	return $response;
-}
-
-/**
- * uploads the user picture via the get request: /api/images/temp
- * @param unknown $access
- * @return NULL[]|Exception[]|unknown[]|NULL
- */
- 
-function uploadPicture($access) {
-	$picSpecified = array_key_exists("uploadedPic", $_FILES) && !empty($_FILES["uploadedPic"]['tmp_name']);
-	if ($picSpecified) {
-		$curlFile = new CURLFile($_FILES["uploadedPic"]['tmp_name'], 'image/png', "image");
-		$data = array(
-				"name" => basename($_FILES["uploadedPic"]['tmp_name']),
-				"image" => $curlFile
-		);
-		try {
-			$url = BASE_URL . "/api/images/temp";
-			$ch = curl_init($url);
-			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-			curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-					'Content-Type: multipart/form-data' ,
-					$access
-			));
-			
-			$result = curl_exec($ch);
-			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		} catch (Exception $e) {
-			return array(result=>$e, httpCode=> NULL);
-		} finally {
-			curl_close($ch);
-		}
-		return array(result=>$result, httpCode=>$httpCode);
-	}
-	return null;
-}
-
-/**
- * Creates a user in Cyclos.
- * If Mollie returned a payment URL and an unique payment id continue and register the user in Cyclos.
- * This can be done using our REST API. 
- * The documentation of how to register users can be seen here:
- * https://demo.cyclos.org/api#!/Users/createUser
+ * Executes a request to the Cyclos API, via cURL.
  *
- * @param $json Should be in the format specified in the api docs.
- * @return an associative array with the following key-value pairs:
- * <ul>
- * <li>result: the result returned by the server.
- * <li>httpCode: the http response.
- * </ul>
- *
- */
-// probably it could be made a bit more efficient, via the restFunction of some new function alike. Alas...
-function createUser($json, $access){
-	try {
-		$url = BASE_URL . "/api/users";
-		$ch = curl_init($url);
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-		// You can register users as an admin in Cyclos with an access client, using the given string.
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-				'Content-Type: application/json',
-				'Accept: application/json',
-				$access
-		));
-		
-		$result = curl_exec($ch);
-		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-	} catch (Exception $e) {
-		return array(result=>$e, httpCode=> NULL);
-	} finally {
-		curl_close($ch);
-	}
-	return array(result=>$result, httpCode=>$httpCode);
-}
-
-function saveCustomFieldValue($user, $fieldName, $fieldValue, $baseUrl) {
-	// first we need to retrieve the server's data-for-edit:
+ * @param string	$url	The REST URL to send the request to.
+ * 							Will be appended to the BASE_URL of Cyclos, so use a path of the form: /api/something.
+ * @param array		$params	Array of query parameters to add to the url or empty array if no parameters are needed.
+ * @param string	$format	The format of the request. Must be 'json' or 'multipart'.
+ * @param boolean	$isPost	Indicates whether the request method is a POST (or GET).
+ * @param string	$data	Optional. The data to be posted in case of a POST request.
+ * @param boolean	$useToken	Optional. Indicates whether the request should be done with the secret token or anonymously.
+ * @return array	The returned array contains a 'httpCode' with the original HTTP Status code and a 'response' with the response body.
+ **/
+function restRequest($url, $params, $format, $isPost, $data = null, $useToken = true) {
+// error_log(__FUNCTION__ . " is going to do a requst on $url.");
 	$headers = array(
-			"Accept: application/json",
-			"Content-Type: application/json",
-			CYCLOS_ACCESS
+		'Content-Type: application/json',
+		'Accept: application/json'
 	);
-	$realUrl =  $baseUrl . "/api/users/" . $user . "/data-for-edit";
-	$request = new restRequest($realUrl, $headers, array(), "json", false, "");
-	$dataForEdit = $request->exec();
-	// we only need the version from the old data
-	$userData = array('customValues' => array($fieldName => $fieldValue));
-	$userData['version'] = $dataForEdit['user']['version'];
-	// send it back via rest put /users/user
-	$json = json_encode($userData);
-	try {
-		$putUrl = $baseUrl . "/api/users/" . $user;
-		$ch = curl_init($putUrl);
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-				'Content-Type: application/json',
-				'Accept: application/json',
-				CYCLOS_ACCESS
-		));
-		
-		$result = curl_exec($ch);
-		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-	} catch (Exception $e) {
-		return $httpCode;
-	} finally {
-		curl_close($ch);
+	// If we need to do a multipart request, we need different headers.
+	if ('multipart' == $format) {
+		$headers = array(
+			'Content-Type: multipart/form-data'
+		);
 	}
-	if ($httpCode != 204) {
-		return $httpCode;
+	if ($useToken) $headers[] = CYCLOS_ACCESS;
+
+	// Create a cURL handle to prepare the request.
+	$url = BASE_URL . $url;
+	if (!empty($params)) {
+		$url .= '?' . http_build_query($params);
 	}
-	return null;
-}
-
-
-################################## MOLLIE ###############################
-#################################################################################
-
-
-/**
- * creates the payment object for molly.
- */
-function createPayment($access, $amount, $lidbijdrage, $startSaldo, $user, $redirectFinish, $webhookUrl) {
-	if (empty($startSaldo)) {
-		$startSaldo = 0.0;
+	$ch = curl_init($url);
+	curl_setopt($ch, CURLOPT_HEADER, 0);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	if ($isPost) {
+		curl_setopt($ch, CURLOPT_POST, true);
+		if (!empty($data)) curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 	}
-	$strLidbijdrage = sprintf('%0.2f', $lidbijdrage);
-	$strStartSaldo = sprintf('%0.2f', $startSaldo);
-	$mollie = new Mollie_API_Client;
-	$mollie->setApiKey($access);
-	$payment = $mollie->payments->create(
-			array(
-					'amount'=> $amount,
-					'description' => sprintf(lang('payment.description'), $strLidbijdrage, $strStartSaldo, $user),
-					'redirectUrl' => $redirectFinish,
-					'webhookUrl'  => $webhookUrl,
-					'method'      => 'ideal',
-					'metadata' => array(
-							'user' => $user
-					    )
-			));
-	return $payment;
+
+	// Excecute the cURL request and process the response.
+	$response = curl_exec($ch);
+	$httpCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+	curl_close($ch);
+	$result = array(
+		'httpCode' => $httpCode
+	);
+	if ('json' == $format) {
+		// If we are supposed to get JSON back, parse it.
+		$result['response'] = json_decode($response, true);
+	} else {
+		// If we get plain text back, just add it as-is.
+		$result['response'] = $response;
+	}
+	return $result;
 }
 
 /**
- * gets a Mollie payment by its id. 
- */
-function getPayment($access, $paymentId) {
-	$mollie = new Mollie_API_Client;
-	$mollie->setApiKey($access);
-	return $mollie->payments->get($paymentId);
+ * Handles errors: in case the response code in the result does not indicate success, an error is
+ * raised (by calling raiseError which throws an Exception). Before that, the response information is
+ * parsed to retrieve the correct information to show to the user.
+ * Also, the type of error is determined, being either fatal (the user can not retry) or validation (the 
+ * user can re-submit the form).
+ * 
+ * @param result		Array containing the httpCode and Cyclos api response.
+ * @param successCode	The HTTP Response Code indicating normal success (200 or 201).
+*/
+function handleErrors($result, $successCode){
+	$httpCode = $result['httpCode'];
+
+	// If the httpCode in the result is equal to the successCode, there is nothing to do.
+	if ($successCode == $httpCode) return;
+
+// error_log("result: " . print_r($result, true));
+	$response = $result['response'];
+	$msgType = '';
+	$msg = '';
+	$errorType = 'fatal';
+
+	switch ($httpCode) {
+		case '401':
+		case '403':
+		case '500':
+			// For httpCodes like 401, 403, 500 there is a default error message in the registration_strings.php.
+			$msgType = "error." . $httpCode;
+			break;
+		case '400':
+		case '404':
+			// A 400 httpCode probably means a required parameter is missing. Which one is indicated by the entityType.
+			// A 404 httpCode can either mean the url is wrong or the requested enity was not found in Cyclos.
+			if (isset($response['entityType'])) {
+				$entityType = $response['entityType'];
+				switch ($entityType) {
+					case 'Group':
+					case 'User':
+						$msgType = "error.unknown$entityType";
+						break;
+					default:
+						$msgType = "error.unknownType";
+						break;
+				}
+			} else {
+				$msgType = "error." . $httpCode;
+			}
+			break;
+		case '422':
+			// For validation messages, build a custom message instead of using a known msgType.
+			$msg = handleValidationError($response);
+			// Validation errors should not prevent the normale page content from showing, so use errorType 'validation' instead of 'fatal'.
+			$errorType = 'validation';
+			break;
+		case '0':
+			// This means the server is down (or we requested a non-existing api URL).
+			$msgType = 'error.noServerContact';
+			break;
+		default:
+			$msgType = 'error.unknown';
+	}
+	raiseError($msgType, $msg, $errorType);
+}
+/**
+ * Puts the given error information in the session as an 'errors' array and throws an Exception.
+ * 
+ * @param msgType		If the error is one of the known error situations, use its string as a msgType.
+ * @param msg			If the error is not a known error, or requires more custom explanation, use msg.
+ * @param errorType		Either fatal or validation. This determines whether the user can retry or not.
+ * @throws Exception
+*/
+function raiseError($msgType = null, $msg = null, $errorType = 'fatal'){
+	$_SESSION['errors'] = array(
+		'msgType' => $msgType,
+		'msg' => $msg,
+		'errorType' => $errorType,
+	);
+	throw new Exception();	
+}
+/**
+ * Builds a custom validationmessage from the information in the response parameter. Used in case of validation
+ * (422) errors. These require more custom messages, hence the separate function here.
+ * 
+ * @param response	The response json from Cyclos.
+ * @return string	The custom validationmessage.
+*/
+function handleValidationError($response){
+	$msg = '';
+	switch ($response["code"]) {
+		case "validation":
+			$msg .= "<ul class='error'>";
+			if (!empty($response["generalErrors"])) {
+				foreach ($response["generalErrors"] as $generalError) {
+					$msg .= "<li>" . $generalError;
+				}
+			}
+			if (!empty($response["propertyErrors"])) {
+				foreach ($response["propertyErrors"] as $propertyKey => $propertyValue) {
+					$msg .= "<li>" . $propertyValue[0];
+				}
+			}
+			if (!empty($response["customFieldErrors"])) {
+				foreach ($response["customFieldErrors"] as $customKey => $customValue) {
+					$msg .= "<li>" . $customValue[0];
+				}
+			}
+			$msg .= "</ul>";
+			break;
+		case "maxItems":
+			$msg .= lang('error.maxItems');
+			if (!empty($response["maxItems"])) {
+				$msg .= "<br>" . lang('error.maxItems.max') . " " . $response["maxItems"] . ".";
+			}
+			break;
+		case "queryParse":
+			$msg .= lang('error.queryParse');
+			if (!empty($response["value"])) {
+				$msg .= "<br>" . lang('error.queryParse.text') . " " . $response["value"] . ".";
+			}
+			break;
+		case "dataConversion":
+			$msg .= lang('error.dataConverse');
+			if (!empty($response["value"])) {
+				$msg .= "<br>" . lang('error.dataConverse.item') . " " . $response["value"] . ".";
+			}
+			break;
+		default:
+			$msg .= lang('error.unknown');
+	}
+	return $msg;
 }
 
+// /**
+//  * Handles custom validation errors in user activation.
+//  */
+// function handleCustomValidationErrors($result) {
+// 	$httpCode = $result['httpCode'];
 
+// 	// Only handle 422 validation errors here. If the response code is something else, do nothing.
+// 	if ('422' != $httpCode) return;
 
+// 	// Investigate the response.
+// 	$response = $result['response'];
+// 	$code = $response['code'] ?? null;
+// 	$messageType = $response['generalErrors'][0] ?? '';
+// 	// Only handle custom validation errors here. They always have code 'validation' and a message starting with 'error.'.
+// 	if ('validation' != $code || empty($message) || $message.indexOf('error.') != 0) return;
+
+// 	// This is a custom validation error. Raise an error, storing the relevant information in the session.
+// 	raiseError($messageType);
+// }
 
 ################################## DATA MANIPULATION ###############################
 #################################################################################
-
-
-/**
- * gets the amount from the form. The amount is the startsaldo + bijdrage.
- */
-function getAmount() {
-	$bijdrage = getLidmaatschapsBijdrage();
-	return $bijdrage + getAankoop();
-}
 
 function getAankoop() {
 	if (isParticulier()) {
@@ -388,13 +425,6 @@ function getAankoop() {
 
 function getNullSafeAankoop() {
 	return !empty(getAankoop()) ? getAankoop() : "";
-}
-
-function getLidmaatschapsBijdrage() {
-	if (isParticulier()) {
-		return $_SESSION['lidmaatschapsBedragenParticulier'][$_SESSION['lidmaatschapparticulieren']];
-	} 
-	return $_SESSION['lidmaatschapsBedragenBedrijf'][$_SESSION['lidmaatschapbedrijven']];
 }
 
 /**
@@ -493,7 +523,7 @@ function fillCustomFieldList($dataForNew1, $dataForNew2) {
 /**
  * gets the data from the session and prepares it to the format as expected bij the Cyclos createUser endpoint.
  */
-function getDataFromSession($pictureId, $paymentId){
+function getDataFromSession($pictureId){
 	$fieldsUsed = isParticulier() ? $_SESSION['fieldsParticulieren'] : $_SESSION['fieldsBedrijven'];
 	$mobilePhones = array();
 	if (in_array('mobile', $fieldsUsed) && !empty(getNullSafeValue('mobile'))) {	
@@ -529,7 +559,6 @@ function getDataFromSession($pictureId, $paymentId){
 				$customValues[$customField] = getNullSafeValue($customField);
 		}
 	}
-	$customValues['payment_id'] = $paymentId;
 
 	$passwordsUsed = isParticulier() ? $_SESSION['passwordsParticulieren'] : $_SESSION['passwordsBedrijven'];
 	$passwords = array(); 
@@ -930,7 +959,6 @@ function showCustomField($internalName, $fieldsBedrijven, $fieldsParticulieren, 
 			 * value set to the broodfonds session var (being the "on" of the checked checkbox, thus ignoring the
 			 * hidden field). If the checkbox is NOT checked, php ignores the checkbox line, thus using the hidden
 			 * field's value "off", overriding any existing previous values.
-			 * TESTED: it works.
 			 */
 			echo "			<input type='hidden' value='off' name='" . $internalName . "'>";
 		}
@@ -1045,11 +1073,10 @@ Commented by Roder and Andre because this caused a double validation. In case fo
  * shows the lidmaatschap edits, either for particulieren or bedrijven. 
  * @param unknown $key a string with the internal name of the field, either lidmaatschapparticulieren or lidmaatschapbedrijven
  * @param unknown $fields either $fieldsParticulieren or $fieldsBedrijven.
- * @param $noServerContact a boolean which is true if there was no server contact.
  * @param $bedragen an associative array with the custom field values for the field.
  * @param $defaultValue the default value for the fiekd  
  */
-function showLidmaatschap($key, $fields, $noServerContact, $bedragen, $defaultValue) {
+function showLidmaatschap($key, $fields, $bedragen, $defaultValue) {
 	$style = ($key == 'lidmaatschapparticulieren') ? "retail-only" : "organisation-only";
 	showInformationText($key, $fields, $style);
 	echo "<div class='formRow " . $style . "'>";
@@ -1061,25 +1088,23 @@ function showLidmaatschap($key, $fields, $noServerContact, $bedragen, $defaultVa
 	/**
 	 * run over all possible values for lidmaatschap en place a radio button for each of them. 
 	 */
-	if (!$noServerContact) {
-		$counter = 1;
-		foreach ($bedragen as $bedragName => $bedragValue) {
-			echo "<input id='" . $bedragName . "' type='radio' name='" . $key . "' value='" . $bedragName . "'";
-			if (isset($_SESSION[$key])) {
-				if ($_SESSION[$key] == $bedragName) {
-					echo " checked"; // if selected previously, select it again
-				}
-			} else if (!empty($defaultValue)) {
-				if ($defaultValue == $bedragName) {
-					echo " checked"; //check default if nothing selected
-				}
-			} else if ($counter == 2) {
-				echo " checked"; //if none is selected and no default known, select second item.
-			};
-			echo ">";
-			echo "<label for='" . $bedragName . "'>&euro; " . $bedragValue . "</label>";
-			$counter++;
-		}
+	$counter = 1;
+	foreach ($bedragen as $bedragName => $bedragValue) {
+		echo "<input id='" . $bedragName . "' type='radio' name='" . $key . "' value='" . $bedragName . "'";
+		if (isset($_SESSION[$key])) {
+			if ($_SESSION[$key] == $bedragName) {
+				echo " checked"; // if selected previously, select it again
+			}
+		} else if (!empty($defaultValue)) {
+			if ($defaultValue == $bedragName) {
+				echo " checked"; //check default if nothing selected
+			}
+		} else if ($counter == 2) {
+			echo " checked"; //if none is selected and no default known, select second item.
+		};
+		echo ">";
+		echo "<label for='" . $bedragName . "'>&euro; " . $bedragValue . "</label>";
+		$counter++;
 	}
 	echo "	</div>";
 	echo "</div>";
@@ -1263,52 +1288,3 @@ function handle422($rawErrorResult) {
 	}
 	echo "</ul>";
 }
-
-
-################################## UTILITY FUNCTIONS ###############################
-#################################################################################
-
-/**
- * Reads the fullGroupName, removes "particulieren" or "bedrijven" from the end, and then removes trailing whitespace, -, _, or :
- */
-//Tested
-function extractCommunityName($fullGroupName, $isParticulier) {
-	$remove = ($isParticulier) ? strlen("particulieren") : strlen("bedrijven");
-	$halfStripped = substr($fullGroupName, 0, 0 - $remove);
-	return rtrim($halfStripped, ' -_:');
-}
-
-/**
- * tests if a string ends with a substring
- */
-//tested
-function endsWith($haystack, $needle, $case=true) {
-	$len = strlen($needle);
-	if ($len == 0) {
-		return true;
-	} else {
-		if ($case)
-			return (substr($haystack, -$len) === $needle);
-			else
-				return (strcasecmp(substr($haystack, -$len), $needle) === 0);
-	}
-}
-
-/**
- * tests if a string starts with a substring
- */
-function startsWith($haystack, $needle, $case=true) {
-	$len = strlen($needle);
-	if ($len == 0) {
-		return true;
-	} else {
-		if ($case)
-			return (strpos($haystack, $needle) === 0);
-			else
-				return (strncasecmp($haystack, $needle, $len) === 0);
-	}
-}
-
-
-
-?>

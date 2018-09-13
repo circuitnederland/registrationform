@@ -1,7 +1,10 @@
+import groovyx.net.http.ContentType
+import groovyx.net.http.HTTPBuilder
+import groovyx.net.http.Method
+import java.util.Date
 import java.util.concurrent.CountDownLatch
-
+import java.util.concurrent.TimeUnit
 import javax.mail.internet.InternetAddress
-
 import org.cyclos.entities.users.RecordCustomField
 import org.cyclos.entities.users.SystemRecord
 import org.cyclos.entities.users.SystemRecordType
@@ -17,373 +20,108 @@ import org.cyclos.model.users.records.UserRecordDTO
 import org.cyclos.model.users.recordtypes.RecordTypeVO
 import org.cyclos.model.users.users.UserLocatorVO
 import org.cyclos.server.utils.MessageProcessingHelper
+import org.cyclos.utils.DateTime
 import org.springframework.mail.javamail.MimeMessageHelper
-
-import groovyx.net.http.ContentType
-import groovyx.net.http.HTTPBuilder
-import groovyx.net.http.Method
-import java.util.regex.Matcher
-import java.util.regex.Pattern
-
 
 /**
  * This script expects the following parameters
  * 
- # Settings for the access token record type
- mollie.recordType = mollyConnect
- auth.token = accessKey
- auth.testMode = testMode
- mollie.notPaidYetMail = notPaidYetMail
- mollie.unreachable = mollieUnreachable
- mollie.pendingMail = pendingMail
- admin.mail.address = adminMailAddress
- # Mail not paid settings
- notPaid.subject = Betaal NU je openstaande bedrag voor Cirquit Nederland (en snel een beetje)
- notPaid.link = http://bla.bla.nl
- # Pending mail settings
- pendingMail.subject = "Circuit Nederland activatie kan (nog) niet verwerkt worden"
  # user record type settings
  bank.recordType = idealDetail
  bank.consumerName = consumerName
  bank.iban = iban
  bank.bic = bic
- */
 
+ # Mollie payment settings
+ # Nr of days a payment may be in the past before considered too old when validating user.
+ mollie_payment.max_age = 61
+ mollie_payment.description = Jaarlijkse contributie (€#lidmaatschapsbijdrage#) + startsaldo (€#aankoop_saldo#) voor gebruiker #username#.
+ confirmationUrlPart = /registration_finished.php
+ validationUrlPart = /confirm_email.php
+ mollieWebhookUrlPart = /run/paid
+
+ # Mailaddress of the circuitnederland tech team - for severe technical problems.
+ techTeamMail = tech@circuitnederland.nl
+
+ # Messages to TechTeam:
+ paymentAlreadyUsed = Bij activeren van gebruiker #user# is gebleken dat de paymentID (#payment_id#) van deze gebruiker al eerder gebruikt is. De activatie van de gebruiker is hierdoor mislukt.
+ paymentTooOld = Bij activeren van gebruiker #user# is gebleken dat de betaling van payment met paymentID: #payment_id# langer geleden is dan gebruikelijk. De activatie van de gebruiker is hierdoor mislukt.
+ incorrectAmount = Bij activeren van gebruiker #user# is gebleken dat het betaalde bedrag (#paidAmount#) in de payment (paymentID: #payment_id#) lager is dan het bedrag dat hij/zij zou moeten betalen (#expectedAmount#). De activatie van de gebruiker is hierdoor mislukt.
+ wrongSource = Bij activeren van gebruiker #user# heeft de payment een verkeerde source in de metadata: '#source#' in plaats van 'registration' (paymentID: #payment_id#). De activatie van de gebruiker is hierdoor mislukt.
+ userWasAlreadySetOnPaid = Het Betaald veld stond al op 'betaald'. Dit kan duiden op een handmatige wijziging door een admin.
+ wrongPaymentIsPaid = De id van de payment die de gebruiker zojuist in Mollie heeft betaald is anders dan de payment id die voor deze gebruiker in Cyclos staat.
+ webhookError = Er is een exception opgetreden in het mollieWebhook script:\r\n\r\n#error#\r\n\r\nGegevens op dit moment:\r\nIP-adres: #ipAddress#\r\npayment id van Mollie: #paymentIdFromMollie#\r\nGebruikersnaam: #user#\r\npayment id in Cyclos: #paymentIdInCyclos#
+ techError = Er is een exception opgetreden in een Cyclos script:\r\n\r\n#error#
+ */
 
 /**
  * Class used to store / retrieve the authentication information for Mollie.
- * A system record type is used, with the following fields: access token 
- * (string) and testMode (Boolean).
+ * A system record type is used with the access key (string).
  */
-class MollieConnect {
-	String recordTypeName
-	String accessKeyFieldName
-	Boolean testModeFieldName
-	String payAgainMailFieldName
-	String noConnectionMailFieldName
-	String pendingMailFieldName
-	String adminMailAddressFieldName
+class MollieAuth {
+    String recordTypeName = 'mollyConnect'
+    String accessKeyFieldName = 'accessKey'
+    String adminMailAddressFieldName = 'adminMailAddress'
+    String notPaidFieldName = 'notPaid'
+    String pendingFieldName = 'pending'
+    String differentBankAccountFieldName = 'differentBankAccount'
+    String fatalErrorFieldName = 'fatalError'
+    String mollieUnreachableFieldName = 'mollieUnreachable'
+    String registrationRootUrlFieldName = 'registrationRootUrl'
 
-	SystemRecordType recordType
-	SystemRecord record
-	Map<String, Object> wrapped
+    SystemRecordType recordType
+    SystemRecord record
+    Map<String, Object> wrapped
 
-	public MollieConnect(Object binding) {
-		def params = binding.scriptParameters
-		recordTypeName = params.'mollie.recordType' ?: 'mollyConnect'
-		accessKeyFieldName = params.'auth.token' ?: 'accessKey'
-		testModeFieldName = params.'auth.testMode' ?: 'testMode'
-		payAgainMailFieldName = params.'mollie.notPaidYetMail' ?: 'notPaidYetMail'
-		noConnectionMailFieldName = params.'mollie.unreachable' ?: 'mollieUnreachable'
-		pendingMailFieldName = params.'mollie.pendingMail' ?: 'pendingMail'
-		adminMailAddressFieldName = params.'admin.mail.address' ?: 'adminMailAddress'
+    public MollieAuth(Object binding) {
+        // Read the record type and the parameters for field internal names.
+        recordType = binding.entityManagerHandler
+                .find(SystemRecordType, recordTypeName)
 
-		// Read the record type and the parameters for field internal names
-		recordType = binding.entityManagerHandler
-				.find(SystemRecordType, recordTypeName)
-
-		// Should return the existing instance, of a single form type.
-		// Otherwise it would be an error
-		record = binding.recordService.newEntity(
-				new RecordDataParams(recordType: new RecordTypeVO(id: recordType.id)))
-		if (!record.persistent) throw new IllegalStateException(
-			"No instance of system record ${recordType.name} was found")
-		wrapped = binding.scriptHelper.wrap(record, recordType.fields)
-	}
+        // Should return the existing instance, of a single form type.
+        // Otherwise it would be an error
+        record = binding.recordService.newEntity(
+                new RecordDataParams(recordType: new RecordTypeVO(id: recordType.id)))
+        if (!record.persistent) throw new IllegalStateException(
+            "No instance of system record ${recordType.name} was found")
+        wrapped = binding.scriptHelper.wrap(record, recordType.fields)
+    }
 
 	public String getAccessKey() {
 		wrapped[accessKeyFieldName]
 	}
-	public Boolean getTestMode() {
-		wrapped[testModeFieldName]
-	}
-	public String getPayAgainMail() {
-		wrapped[payAgainMailFieldName]
-	}
-	public String getNoConnectionMail() {
-		wrapped[noConnectionMailFieldName]
-	}
-	public String getPendingMail() {
-		wrapped[pendingMailFieldName]
-	}
-	public String getAdminMailAddress() {
-		wrapped[adminMailAddressFieldName]
-	}
-}
 
-// Instantiate the objects
-MollieConnect connect = new MollieConnect(binding)
-MollieService mollie = new MollieService(connect)
+    public String getAdminMailAddress() {
+        wrapped[adminMailAddressFieldName]
+    }
 
-/**
- * Class used to interact with Mollie services
- */
-class MollieService {
-	String baseUrl
+    public String getNotPaid() {
+        wrapped[notPaidFieldName]
+    }
 
-	private ScriptHelper scriptHelper
-	private MollieConnect auth
+    public String getPending() {
+        wrapped[pendingFieldName]
+    }
 
-	public MollieService(MollieConnect auth) {
-		this.auth = auth
-		baseUrl = 'https://api.mollie.nl'
-	}
+    public String getDifferentBankAccount() {
+        wrapped[differentBankAccountFieldName]
+    }
 
-	/**
-	 * gets a payment from Mollie by its id
-	 */
-	public Object getPayment(String id) {
-		Object json = getRequest("${baseUrl}/v1/payments/${id}")
-		return json
-	}
+    public String getFatalError() {
+        wrapped[fatalErrorFieldName]
+    }
 
-	private getRequest(url) {
-		def http = new HTTPBuilder(url)
-		CountDownLatch latch = new CountDownLatch(1)
-		def responseJson = null
-		def responseError = []
+    public String getMollieUnreachable() {
+        wrapped[mollieUnreachableFieldName]
+    }
 
-		// Perform the request
-		http.request(Method.GET, ContentType.JSON) {
-			headers.'Authorization' = "Bearer ${auth.accessKey}"
-
-			response.success = { resp, json ->
-				responseJson = json
-				latch.countDown()
-			}
-
-			response.failure = { resp ->
-				responseError << resp.statusLine.statusCode
-				responseError << resp.statusLine.reasonPhrase
-				latch.countDown()
-			}
-		}
-
-		latch.await()
-		if (!responseError.empty) {
-			throw new RuntimeException("Error making Mollie request to ${url}"
-			+ ", got error code ${responseError[0]}: ${responseError[1]}")
-		}
-		return responseJson
-	}
-
+    public String getRegistrationRootUrl() {
+        wrapped[registrationRootUrlFieldName]
+    }
 }
 
 /**
- * Defines cyclos actions which are to be taken as a response to some mollie status. 
- */
-class CyclosActions {
-
-	String notPaidMailSubject
-	String notPaidMailLink
-	String pendingMailSubject
-	Object binding
-	Object connect
-	String mailAlertSubject = "Circuit Nederland verdachte betaling"
-	String mailAlertBody = """
-Beste admin, 
-
-Circuit-NederlandLid #user# heeft zich juist aangemeld, maar bij de controle op activatie is gebleken dat het bedrag dat 
-hij/zij zou moeten betalen te weinig is. 
-Te betalen bedrag: #paid#
-Zou moeten zijn: #should#
-
-Dit zou niet moeten kunnen, mogelijk is hier mee gerommeld??
-
-(Dit is een automatisch door een script gegenereerd bericht)
-"""
-	String mailBankAccountSubject = "Circuit Nederland: different bank account"
-	String mailBankAccountBody = """
-Beste admin, 
-
-Circuit-NederlandLid #user# heeft zich juist aangemeld, maar bij de controle op activatie is gebleken dat er een 
-andere bankrekening gebruikt is dan opgegeven via het profiel. Er is een user record van de bankgegevens gemaakt. 
-
-(Dit is een automatisch door een script gegenereerd bericht)
-
-"""
-
-	/**
-	 * constructor:	
-	 */
-	public CyclosActions(Object bBinding, Object cConnect) {
-		binding = bBinding
-		connect = cConnect
-		def params = binding.scriptParameters
-		notPaidMailSubject = params.'notPaid.subject' ?: 'notPaid.subject'
-		notPaidMailLink = params.'notPaid.link' ?: 'notPaid.link'
-		pendingMailSubject = params.'pendingMail.subject' ?: 'pendingMail.subject'
-	}
-
-	/**
-	 * Verifies the amount paid to mollie. It should be equal to 
-	 * the yearly pament + the aankoopsaldo, which both are saved
-	 * as profile fields. 
-	 * 
-	 * @param mollieAmount
-	 * @return true if sufficient, false if not sufficient.
-	 */
-	public boolean verifyAmount(mollieAmount, usr) {
-		// retrieve the aankoopsaldo and lidmaatschap fields.
-		def lidmaat = getLidmaatschapsbijdrage(usr)
-		def BigDecimal mollieAmnt = new BigDecimal(mollieAmount)
-		return (mollieAmnt >= lidmaat + (usr.aankoop_saldo?:0))
-	}
-
-/**
-	 * a user group is a bedrijven group if its group name ends with "bedrijven"
-	 * (case insensitve). In any other case, it's considered a particulier. 	
-	 */
-	private Boolean isBedrijf(usr) {
-		return usr.group.name.toLowerCase().endsWith("bedrijven")
-	}
-	
-	public BigDecimal getLidmaatschapsbijdrage(usr) {
-		if (isBedrijf(usr)) {
-			if (usr.lidmaatschapbedrijven) {
-                String regex = "(([1-9]\\d{0,2}(\\.\\d{3})*)|(([1-9]\\d*)?\\d))(,\\d\\d)?"
-                String rawlidm = usr.lidmaatschapbedrijven.value
-				Matcher matcher = Pattern.compile(regex).matcher(rawlidm)
-        		if (matcher.find()) {
-            		return new BigDecimal(matcher.group())
-                } else {
-                    throw new NumberFormatException("cannot read lidmaatschapBedrijven")
-                }
-			}
-			return BigDecimal.ZERO;
-		}
-		if (usr.lidmaatschapparticulieren) {
-			return new BigDecimal(usr.lidmaatschapparticulieren.value)
-		}
-		return BigDecimal.ZERO;
-	}
-
-	public void mailNotPaid(usr, id) {
-		def lidmaatschap = getLidmaatschapsbijdrage(usr)
-		def linkParams = ['user': id, 'payment': usr.payment_id]
-        def rawLink = notPaidMailLink + '?' + linkParams.collect { it }.join('&')
-        def htmlLink = '<a href="' + rawLink + '">' + rawLink + '</a>'
-		def vars = [
-			user: usr.name,
-			lidmaat: binding.formatter.format(lidmaatschap),
-			aankoop: binding.formatter.format(usr.aankoop_saldo?:0),
-			totaal: binding.formatter.format(lidmaatschap + (usr.aankoop_saldo?:0)),
-			link : htmlLink
-		]
-		def rawBody = connect.getPayAgainMail()
-		def body = MessageProcessingHelper.processVariables(connect.getPayAgainMail(), vars)
-        body = body.replace("\n", "<br>").replace("\r", "<br>")
-		def toEmail = usr.email
-		def fromEmail = binding.sessionData.configuration.smtpConfiguration.fromAddress
-		def sender = binding.mailHandler.mailSender
-
-		// Send the message after Rollback, so we guarantee the activation is failed
-		// when the e-mail is sent. No need for a transaction, as there is no db change
-		binding.scriptHelper.addOnRollback {
-			def message = sender.createMimeMessage()
-			def helper = new MimeMessageHelper(message)
-			helper.to = new InternetAddress(toEmail)
-			helper.from = new InternetAddress(fromEmail)
-			helper.subject = notPaidMailSubject
-			helper.setText body, true
-			sender.send message
-		}
-	}
-
-	/**
-	 * mail send when payment is in pending state. 
-	 * It simply advices the user to try again later
-	 */
-	public void mailPending(usr) {
-		def vars = [
-			user: usr.name,
-		]
-		def rawBody = connect.getPendingMail()
-		def body = MessageProcessingHelper.processVariables(rawBody, vars)
-		def toEmail = usr.email
-		def fromEmail = binding.sessionData.configuration.smtpConfiguration.fromAddress
-		def sender = binding.mailHandler.mailSender
-
-		// Send the message after Rollback, so we guarantee the activation is failed
-		// when the e-mail is sent. No need for a transaction, as there is no db change
-		binding.scriptHelper.addOnRollback {
-			def message = sender.createMimeMessage()
-			def helper = new MimeMessageHelper(message)
-			helper.to = new InternetAddress(toEmail)
-			helper.from = new InternetAddress(fromEmail)
-			helper.subject = pendingMailSubject
-			helper.text = body
-			sender.send message
-		}
-	}
-
-	/**
-	 * mail send when a user paid not enough. 
-	 */
-	//TESTED
-	public void mailAlert(usr, paidAmount) {
-		def lidmaat = getLidmaatschapsbijdrage(usr)
-		def BigDecimal mollieAmnt = new BigDecimal(paidAmount)
-		def shouldAmount = lidmaat + (usr.aankoop_saldo?:0)
-
-		def vars = [
-			user: usr.name,
-			paid: mollieAmnt,
-			should: shouldAmount,
-		]
-		def rawBody = mailAlertBody
-		def body = MessageProcessingHelper.processVariables(rawBody, vars)
-		def toEmail = connect.getAdminMailAddress()
-		def fromEmail = binding.sessionData.configuration.smtpConfiguration.fromAddress
-		def sender = binding.mailHandler.mailSender
-
-		// Send the message after Rollback, so we guarantee the activation is failed
-		// when the e-mail is sent. No need for a transaction, as there is no db change
-		binding.scriptHelper.addOnRollback {
-			def message = sender.createMimeMessage()
-			def helper = new MimeMessageHelper(message)
-			helper.to = new InternetAddress(toEmail)
-			helper.from = new InternetAddress(fromEmail)
-			helper.subject = mailAlertSubject
-			helper.text = body
-			sender.send message
-		}
-	}
-
-
-	/**
-	 * mail send when bankaccount of user is different from profile bank account.
-	 */
-	public void mailDifferentBankAccount(usr) {
-		def vars = [
-			user: usr.name,
-		]
-		def rawBody = mailBankAccountBody
-		def body = MessageProcessingHelper.processVariables(rawBody, vars)
-		def toEmail = connect.getAdminMailAddress()
-		def fromEmail = binding.sessionData.configuration.smtpConfiguration.fromAddress
-		def sender = binding.mailHandler.mailSender
-
-		// Send the message after commit
-		binding.scriptHelper.addOnCommit {
-			def message = sender.createMimeMessage()
-			def helper = new MimeMessageHelper(message)
-			helper.to = new InternetAddress(toEmail)
-			helper.from = new InternetAddress(fromEmail)
-			helper.subject = mailBankAccountSubject
-			helper.text = body
-			sender.send message
-		}
-	}
-
-
-
-}
-
-CyclosActions actions = new CyclosActions(binding, connect);
-
-/**
- * Class used to store / retrieve PayPal payments as user records in Cyclos
+ * Class used to store / retrieve iDEAL payments as user records in Cyclos.
  */
 class IdealDetailRecord {
 	String recordTypeName
@@ -413,9 +151,9 @@ class IdealDetailRecord {
 		recordType.fields.each {f -> fields[f.internalName] = f}
 	}
 
-	/**
-	 * Creates a payment record for the given user
-	 */
+    /**
+     * Creates an iDEAL record for the given user.
+     */
 	public UserRecord create(User user, String consumerName, String iban, String bic) {
 		RecordDataParams newParams = new RecordDataParams(
 				[user: new UserLocatorVO(id: user.id),
@@ -426,26 +164,251 @@ class IdealDetailRecord {
 		wrapped[ibanName] = iban
 		wrapped[bicName] = bic
 
-		// Save the record DTO and return the entity
+		// Save the record DTO and return the entity.
 		Long id = recordService.save(dto)
 		return entityManagerHandler.find(UserRecord, id)
 	}
 
-	/**
-	 * Finds the record by id (not used at present, but might come in handy
-	 */
-	public UserRecord find(Long id) {
-		try {
-			UserRecord userRecord = entityManagerHandler.find(UserRecord, id)
-			if (userRecord.type != recordType) {
-				return null
-			}
-			return userRecord
-		} catch (EntityNotFoundException e) {
-			return null
-		}
-	}
-
+    /**
+     * Finds the record by id.
+     */
+    public UserRecord find(Long id) {
+        try {
+            UserRecord userRecord = entityManagerHandler.find(UserRecord, id)
+            if (userRecord.type != recordType) {
+                return null
+            }
+            return userRecord
+        } catch (EntityNotFoundException e) {
+            return null
+        }
+    }
 }
 
+/**
+ * Class used to interact with Mollie services.
+ */
+class MollieService {
+	final String BASEURL = 'https://api.mollie.nl'
+	final String API_VERSION = 'v2'
+	private MollieAuth auth
+
+	public MollieService(MollieAuth auth) {
+		this.auth = auth
+	}
+
+	/**
+	 * Gets a payment from Mollie by its id.
+	 */
+	public Object getPayment(String id) {
+		Object json = getRequest("${BASEURL}/${API_VERSION}/payments/${id}")
+		return json
+	}
+
+    /**
+     * Creates a payment in Mollie.
+     */
+    public Object createPayment(String amount, String description, String redirectUrl, String webhookUrl, String userName, String source) {
+        def jsonBody = [
+            amount: [
+                currency: "EUR",
+                value: amount
+            ],
+            description: description, 
+            redirectUrl: redirectUrl,
+            webhookUrl: webhookUrl,
+            metadata: [
+                user: userName,
+                source: source
+            ]
+        ]
+        return postRequest("${BASEURL}/${API_VERSION}/payments", jsonBody)
+    }
+
+    /**
+     * Cancels the payment with the given id in Mollie, making it impossible for the user to still pay this payment.
+     */
+    public void cancelPayment(String paymentId) {
+        doRequest(Method.DELETE, "${BASEURL}/${API_VERSION}/payments/${paymentId}")
+    }
+
+    /**
+     * Performs a synchronous get request, accepting JSON.
+     */
+	private Object getRequest(url) {
+        return doRequest(Method.GET, url)
+	}
+
+    /**
+     * Performs a synchronous post request accepting JSON.
+     */
+    private Object postRequest(url, jsonBody) {
+        return doRequest(Method.POST, url, jsonBody)
+    }
+
+    /**
+     * Performs a synchronous request, either get or post, and accepting JSON.
+     */
+    private Object doRequest(method, url, jsonBody = null) {
+        def http = new HTTPBuilder(url)
+        CountDownLatch latch = new CountDownLatch(1)
+        def responseJson = null
+        def responseError = []
+
+        // Perform the request
+        http.request(method, ContentType.JSON) {
+            headers.'Authorization' = "Bearer ${auth.accessKey}"
+            if (Method.POST == method) {
+                body = jsonBody
+            }
+            response.success = { resp, json ->
+                responseJson = json
+                latch.countDown()
+            }
+
+            response.failure = { resp, json ->
+                responseError << resp.statusLine.statusCode
+                responseError << resp.statusLine.reasonPhrase
+				responseError << json
+                latch.countDown()
+            }
+        }
+
+        // @todo: add a timeout and check the response of the await() call. If false, throw an Exception("mollieUnreachable").
+        latch.await()
+        if (!responseError.empty) {
+            throw new RuntimeException("Error making Mollie request to ${url}"
+            + ", got error code ${responseError[0]}: ${responseError[1]}. JSON: ${responseError[2]}")
+        }
+        return responseJson
+    }
+}
+
+class Utils{
+    private Object binding
+    private MollieAuth auth
+    private MollieService mollie
+	
+    public Utils(Object binding, MollieAuth auth, MollieService mollie) {
+        this.binding = binding
+        this.auth = auth
+        this.mollie = mollie
+    }
+	
+    /**
+     * Checks whether the given paymentId is used in an idealDetail userrecord that does not belong to the given user.
+     */
+    public Boolean isPaymentIdUsedBefore(String paymentId, User user) {
+        // @todo: implement this function. For now, just return false.
+        return false
+    }
+    
+    /**
+     * Checks whether the given payment date is older than desired.
+     */
+    public Boolean isPaymentTooOld(String paymentDate) {
+        DateTime now = new DateTime(new Date().format("yyyy-MM-dd"))
+        // Add the max age (in days) to the paymentDate. If the result is still in the past, it is too old.
+        // @todo: instead of using a script parameter for the max age, would it be better to use binding.cyclosProperties.purgeUnconfirmedUsersDays and add 1 day?
+        Long max_days = Long.valueOf(binding.scriptParameters.'mollie_payment.max_age' ?: "61")
+        DateTime groovyPlus = new DateTime(paymentDate).add(TimeUnit.DAYS.toMillis(max_days))
+        return groovyPlus.before(now)
+    }
+    
+    /**
+     * Prepares a registration payment and calls Mollie to create it.
+     */
+    public Object setupMollieRegistrationPayment(BigDecimal contribution, BigDecimal aankoop_saldo, String userName, String validationKey = null) {
+        def params = binding.scriptParameters
+        def formatter = binding.formatter
+        def vars = [
+         lidmaatschapsbijdrage: formatter.format(contribution),
+         aankoop_saldo: formatter.format(aankoop_saldo),
+         username: userName
+        ]
+        // Convert the total amount to a string with two decimals and a dot as separator - Mollie needs the amount like this.
+        String amount = (contribution + aankoop_saldo).setScale(2)
+        String description = MessageProcessingHelper.processVariables(params.'mollie_payment.description', vars)
+        String redirectUrl = auth.registrationRootUrl
+        redirectUrl += validationKey? params.validationUrlPart + "?validationKey=${validationKey}" : params.confirmationUrlPart
+        String webhookUrl = binding.sessionData.configuration.rootUrl + params.mollieWebhookUrlPart
+        return mollie.createPayment(amount, description, redirectUrl, webhookUrl, userName, "registration")
+    }
+
+	/**
+	 * Determines and returns the contribution amount for the given user.
+	 */
+	public BigDecimal getLidmaatschapsbijdrage(usr) {
+ 		if (usr.lidmaatschapparticulieren) {
+			return new BigDecimal(usr.lidmaatschapparticulieren.value)
+		}
+		// For bedrijven the lidmaatschap value contains a string like "150 - bedrijven met minder dan 50 werknemers",
+		// so we take the first part to determine the contribution amount.
+		String contrib = usr.lidmaatschapbedrijven.value
+		String amount = contrib.substring(0, contrib.indexOf(" - "))
+		return new BigDecimal(amount)
+	}
+
+	/**
+	 * Sends an e-mail to the admin with the given message and subject.
+	 */
+    public void sendMailToAdmin(String subject, String msg, Boolean isOnCommit = false) {
+        sendMail("Admin Circuit Nederland", auth.adminMailAddress, subject, msg, isOnCommit)
+    }
+
+    /**
+     * Sends an e-mail to the tech team with the given message and subject.
+     */
+    public void sendMailToTechTeam(String subject, String msg, Boolean isOnCommit = false) {
+        sendMail("Tech Team Circuit Nederland", binding.scriptParameters.techTeamMail, subject, msg, isOnCommit)
+    }
+
+    /**
+     * Sends an e-mail to the requested addressee with the given message and subject.
+     */
+    public void sendMail(String toName, String toMail, String subject, String msg, Boolean isOnCommit = false) {
+        def fromEmail = binding.sessionData.configuration.smtpConfiguration.fromAddress
+        String fromName = binding.sessionData.configuration.emailName
+        def sender = binding.mailHandler.mailSender
+        def message = sender.createMimeMessage()
+        def helper = new MimeMessageHelper(message)
+        helper.to = new InternetAddress(toMail, toName)
+        helper.from = new InternetAddress(fromEmail, fromName)
+        helper.subject = subject
+        helper.setText msg
+        if (isOnCommit) {
+            binding.scriptHelper.addOnCommit {
+                sender.send message
+            }
+        } else {
+            binding.scriptHelper.addOnRollback {
+                sender.send message
+            }
+        }
+    }
+
+    /**
+     * Finds the text with the given errorCode, either from a script parameter or from a field in the auth systemrecord.
+     * If no text is found, the errorCode itself is returned as a fallback.
+     * If the vars parameter is passed, the variables are replaced in the text found.
+     */
+    public String prepareMessage(String errorCode, Map<String, ?> vars = null, Boolean isHtml = false){
+        // Note: we must check if the auth object has the property before trying to access it, to prevent a MissingPropertyException.
+        String authField = auth.hasProperty(errorCode) ? auth."${errorCode}" : null
+
+        // Get the message either from a script parameter or from the auth systemrecord. Falling back to the errorCode itself if neither exists.
+        String message = binding.scriptParameters."${errorCode}" ?: authField ?: errorCode
+
+        message = MessageProcessingHelper.processVariables(message, vars)
+        if (isHtml) {
+            message = message.replace("\r\n", "<br>").replace("\n", "<br>").replace("\r", "<br>")
+        }
+        return message
+    }
+}
+
+// Instantiate the objects
+MollieAuth auth = new MollieAuth(binding)
+MollieService mollie = new MollieService(auth)
 IdealDetailRecord idealRecord = new IdealDetailRecord(binding)
+Utils utils = new Utils(binding, auth, mollie)

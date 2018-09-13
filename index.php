@@ -16,10 +16,13 @@ define('REDIRECT_DATA', "register.php");
 
 ################################## RETRIEVING SERVER DATA  ###############################
 #################################################################################
-$noServerContact = false;
-$communitiesFromServer = getCommunities(BASE_URL);
-if (empty($communitiesFromServer)) {
-	$noServerContact = true;
+try {
+	$communitiesFromServer = getCommunityNames();
+} catch (Exception $e) {
+	// Set the error array if it was not set already.
+	if (empty($_SESSION['errors'])) {
+		$_SESSION['errors'] = array('errorType' => 'fatal', 'msg' => 'Onbekende fout');
+	}
 }
 
 ################################## FORM HEADER  ###############################
@@ -42,24 +45,7 @@ if (empty($communitiesFromServer)) {
 ################################## ERROR HANDLING  ###############################
 #################################################################################
 
-if ($noServerContact) {
-	echo '<div class="schadow">';
-	echo '	<div class="errorTop">';
-	echo '  	<h3>' . lang('error.title') . '</h3>';
-	echo '	</div>';
-	echo '	<div class="errorBottom">';
-	
-	echo '		<p class="textError">' . lang('error.heading') . ' 		</p>';
-	echo ' 		<ul>';
-	
-	if ($noServerContact) {
-		showErrorLi('error.noServerContact');
-	}
-	echo '      </ul>';
-	echo '   	<p class="textError">' . lang('error.contact') . '</p>';
-	echo '	</div>';
-	echo '</div>';
-}
+include 'show_errors.php';
 
 
 ################################## FORM ELEMENTS   ###############################
