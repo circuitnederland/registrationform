@@ -25,23 +25,28 @@ if (!empty($errors['msg'])) {
 	}
 }
 ?>
-<div class="schadow">
-	<div class="errorTop"><h3><?php echo lang('error.title'); ?></h3></div>
-	<div class="errorBottom">
-		<p class="textError"><?php echo lang('error.heading'); ?></p>
-		<?=$errorMessage?>
-		<?php
-		// Only show the reminder to re-enter the captcha if that was not the error in itself and we do show it again (no fatal).
-		if (!$isFatal && !$captchaForgotten): ?>
-			<p class="textError"><?php echo lang('error.recaptcha'); ?></p>
-		<?php endif; ?>
-	   	<p class="textError"><?php echo lang('error.contact'); ?></p>
+	<div class="schadow">
+		<div class="errorTop"><h3><?php echo lang('error.title'); ?></h3></div>
+		<div class="errorBottom">
+			<p class="textError"><?php echo lang('error.heading'); ?></p>
+			<?=$errorMessage?>
+			<?php
+			// Only show the reminder to re-enter the captcha if that was not the error in itself and we do show it again (no fatal).
+			if (!$isFatal && !$captchaForgotten): ?>
+				<p class="textError"><?php echo lang('error.recaptcha'); ?></p>
+			<?php endif; ?>
+		   	<p class="textError"><?php echo lang('error.contact'); ?></p>
+		</div>
 	</div>
-</div>
 
 <?php
 // If this is a fatal error, stop showing anything else.
 if($isFatal) {
-	// @todo: should I end some tags here before exiting, like </div></body></html>?
+	// End html tags that were opened before this php file was included.
+	?>
+</div>
+</body>
+</html>
+	<?php
 	exit();
 }
