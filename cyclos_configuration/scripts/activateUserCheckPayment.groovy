@@ -20,7 +20,8 @@ import org.cyclos.model.utils.TransactionLevel
  * 
  */
 
-def usr = scriptHelper.wrap(user)
+def usrDTO = userService.load(user.id)
+def usr = scriptHelper.wrap(usrDTO)
 if (usr.brokers) {
 	// stop the script
 	return
@@ -60,6 +61,7 @@ try{
 			// So should we remove this code here? And if so, should we replace it with a check whether the betaald field is indeed 'Heeft betaald'? Or just ignore if it is not?
 			// And if we DO want to set the betaald veld here (again), should we use a parallel transaction for this, so it will always work even if something later on fails? I don't think so?
 			usr.betaald = 'betaald'
+			userService.save(usrDTO)
 			break;
 		case "pending":
 			throw new ValidationException(utils.prepareMessage("pending", null, true))
@@ -80,7 +82,8 @@ try{
 			// In all these cases the user has not paid yet. So we create a new payment in Mollie and store its info in the user profile.
 
 			// Create a new payment in Mollie.
-			def json = utils.setupMollieRegistrationPayment(contribution, aankoop_saldo, usr.username, usr.validationKey)
+			// Note: the validationKey is in the user object, not in usr.
+			def json = utils.setupMollieRegistrationPayment(contribution, aankoop_saldo, usr.username, user.validationKey)
 			String payment_id = json.id
 			String payment_url = json._links.checkout.href
 
@@ -88,10 +91,13 @@ try{
 	        // Use a parallel transaction for this, because the main transaction will get a rollback on failing the validation of this user.
 			def future = invokerHandler.runAsInParallelTransaction(sessionData, TransactionLevel.READ_WRITE) {
 			    // Fetch the user again
-			    user = entityManagerHandler.find(user.class, user.id)
-			    usr = scriptHelper.wrap(user)
+				usrDTO = userService.load(user.id)
+				usr = scriptHelper.wrap(usrDTO)
 		        usr.payment_id = payment_id
 		        usr.payment_url = payment_url
+
+				// Save the userprofile field changes.
+				userService.save(usrDTO)
 
 				// @todo: in the (new) documentation we wrote 'Also make sure to set the betaald field to not paid.'. But the field can not be anything else yet. Should we check this?
 				// // Fill the Betaald field of the Cyclos user with the initial value of 'Niet betaald'.
