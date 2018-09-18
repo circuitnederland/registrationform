@@ -73,7 +73,7 @@ function lang($phrase){
 			'error.unknownType'		=> "Onbekende input-fout",
 			'error.unknownGroup' 	=> "Onbekende groep",
 			'error.unknownUser' 	=> "Onbekende gebruiker",
-			'error.unknownCommunity'=> "Community '%s' is niet bekend of niet correct geconfigureerd. Neem a.u.b. contact op met de administratie.",
+			'error.unknownCommunity'=> "Community '%s' is niet bekend of niet correct geconfigureerd.<br />Ga naar het <a href=\"%s\">registratie startscherm</a> om uw community te selecteren, of neem a.u.b. contact op met de administratie.",
 			'error.unknown'   		=> "Onbekende fout. Neem a.u.b. contact op met de administratie.",
 			'error.uploadPicture.bold'   => "Afbeelding",
 			'error.uploadPicture'   => "Er is iets misgegaan bij het uploaden van de afbeelding. Probeert u het alstublieft opnieuw.",

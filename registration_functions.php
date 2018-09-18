@@ -64,7 +64,7 @@ function getGroupIds($community) {
 	$communityLowerCase = strtolower($community);
 
 	if (!isset($communities[$communityLowerCase])) {
-		raiseError(null, sprintf(lang('error.unknownCommunity'), htmlspecialchars($community)));
+		raiseError(null, sprintf(lang('error.unknownCommunity'), htmlspecialchars($community), REDIRECT_COMMUNITY));
 	}
 
 	return $communities[$communityLowerCase];
