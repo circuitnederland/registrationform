@@ -152,11 +152,6 @@ function validateUser($validationKey){
 	// Note: a bit strange, but Cyclos requires a POST request, but no post data in this case.
 	// Note: another strange thing: this api request requires being called anonymously, so without the secret token.
 	$result = restRequest($url, array(), "json", true, null, false);
-
-	// First check for custom validation errors, because they should be handled differently.
-//	handleCustomValidationErrors($result);
-
-	// Next, handle 'normal' errors.
 	handleErrors($result, 200);
 
 	// Return the Cyclos user.
@@ -217,7 +212,6 @@ function failCaptcha() {
  * @return array	The returned array contains a 'httpCode' with the original HTTP Status code and a 'response' with the response body.
  **/
 function restRequest($url, $params, $format, $isPost, $data = null, $useToken = true) {
-// error_log(__FUNCTION__ . " is going to do a requst on $url.");
 	$headers = array(
 		'Content-Type: application/json',
 		'Accept: application/json'
@@ -393,26 +387,6 @@ function handleValidationError($response){
 	return $msg;
 }
 
-// /**
-//  * Handles custom validation errors in user activation.
-//  */
-// function handleCustomValidationErrors($result) {
-// 	$httpCode = $result['httpCode'];
-
-// 	// Only handle 422 validation errors here. If the response code is something else, do nothing.
-// 	if ('422' != $httpCode) return;
-
-// 	// Investigate the response.
-// 	$response = $result['response'];
-// 	$code = $response['code'] ?? null;
-// 	$messageType = $response['generalErrors'][0] ?? '';
-// 	// Only handle custom validation errors here. They always have code 'validation' and a message starting with 'error.'.
-// 	if ('validation' != $code || empty($message) || $message.indexOf('error.') != 0) return;
-
-// 	// This is a custom validation error. Raise an error, storing the relevant information in the session.
-// 	raiseError($messageType);
-// }
-
 ################################## DATA MANIPULATION ###############################
 #################################################################################
 
@@ -438,28 +412,28 @@ function fillFieldsArray($forNewResponse) {
 	foreach ($forNewResponse['customFields'] as $customField) {
 		if ($customField['internalName'] != 'betaald') {
 			$fields[$customField['internalName']] = array(
-					name => $customField['name'],
-					description => isset($customField['informationText']) ? $customField['informationText'] : "",
-					required => isset($customField['required']) && $customField['required']
+					'name' => $customField['name'],
+					'description' => isset($customField['informationText']) ? $customField['informationText'] : "",
+					'required' => isset($customField['required']) && $customField['required']
 			);
 		}
 	}
 	foreach ($forNewResponse['passwordTypes'] as $passwordType) {
 		$fields[$passwordType['internalName']] = array(
-				name => $passwordType['name'],
-				description => isset($passwordType['description']) ? $passwordType['description'] : "",
-				required => true
+				'name' => $passwordType['name'],
+				'description' => isset($passwordType['description']) ? $passwordType['description'] : "",
+				'required' => true
 		);
 	}
 	$fields[$forNewResponse['phoneConfiguration']['mobilePhone']['kind']] = array(
-			name => $forNewResponse['phoneConfiguration']['mobilePhone']['name'],
-			description => "",
-			required => $forNewResponse['phoneConfiguration']['mobileAvailability'] == "required"
+			'name' => $forNewResponse['phoneConfiguration']['mobilePhone']['name'],
+			'description' => "",
+			'required' => $forNewResponse['phoneConfiguration']['mobileAvailability'] == "required"
 	);
 	$fields[$forNewResponse['phoneConfiguration']['landLinePhone']['kind']] = array(
-			name => $forNewResponse['phoneConfiguration']['landLinePhone']['name'],
-			description => "",
-			required => $forNewResponse['phoneConfiguration']['landLineAvailability'] == "required"
+			'name' => $forNewResponse['phoneConfiguration']['landLinePhone']['name'],
+			'description' => "",
+			'required' => $forNewResponse['phoneConfiguration']['landLineAvailability'] == "required"
 	);
 	//remove the payment_id field, as that is an exception, which should never be shown
 	unset($fields['payment_id']);
@@ -934,6 +908,7 @@ function showCustomField($internalName, $fieldsBedrijven, $fieldsParticulieren, 
 	$none = !$definedBedrijven && !$definedParticulieren;
 	$style = ($none) ? "hidden" : getStyle($definedBedrijven, $definedParticulieren, "formRow");
 	$fields = ($definedBedrijven) ? $fieldsBedrijven : $fieldsParticulieren;
+	if (!isset($fields[$internalName])) return;
 	
 	echo "<div class='" . $style . "'>"; // surrounding div tag determining if and when it is shown
 	// 4 lines of label block
@@ -1147,9 +1122,10 @@ function showBrancheField($fieldsBedrijven, $fieldsParticulieren, $branchesInfo)
 			echo "<optgroup class='Optiongroup' label='" . $categoryName . "'>";
 			$lastGroup = $categoryName;
 		}
-		$internalBrancheName = $brancheValue['internalName'];
+		$internalBrancheName = $brancheValue['internalName'] ?? '';
 		echo "<option class='selectOption' value='" . $internalBrancheName . "'";
-		if ($_SESSION['branche'] == $internalBrancheName) {
+		$selectedBranche = $_SESSION['branche'] ?? '';
+		if ($selectedBranche == $internalBrancheName) {
 			echo " selected ";
 		}
 		echo ">" . $brancheValue['value'] . "</option>";
@@ -1185,106 +1161,4 @@ function showRequired($internalName, $fields) {
 	if (isRequired($internalName, $fields)) {
 		echo ' <span class="red">*</span>';
 	}
-}
-
-function showHttpCode($httpCode, $body) {
-	switch ($httpCode) {
-		case 401:
-		case 403:
-		case 500:
-			echo lang("error." . $httpCode);
-			if (!empty($body)) {
-				$errorResult = json_decode($body, true);
-				if (!empty($errorResult["exceptionMessage"])) {
-					echo ": " . $errorResult["exceptionMessage"];
-				}
-			}
-			break;
-		case 404:
-			echo lang("error.404" . " - ");
-			if (!empty($body)) {
-				$errorResult = json_decode($body, true);
-				if (!empty($errorResult["entityType"])) {
-					echo ": " . $errorResult["entityType"];
-				}
-			}
-			break;
-		case 422:
-			if (!empty($body)) {
-				handle422($body);
-			} else {
-				lang("error.422");
-			}
-			break;
-		case NULL:
-			echo lang('error.httpNull') . "<br>";
-			break;
-		default:
-	}
-}
-
-/**
- * shows an error in a list row.
- * It shows the error as follows:
- * <li><span class="redError">error keyword:</span> error explanation...</li>.
- * The $langKey parameter is the language key for the explanation. Besides that,
- * the same language key but with a ".bold" needs to be present for the keyword.
- * Of course, this must be nested in an <ul> or <ol> tag, probably together with subsequent other calls
- * to this same function.
- * @param unknown $langKey
- */
-function showErrorLi($langKey) {
-	echo '<li><span class="redError">';
-	echo lang($langKey . ".bold");
-	echo ':</span> ';
-	echo lang($langKey);
-	echo '</li>';
-}
-
-function handle422($rawErrorResult) {
-	//echo lang('error.explanation');
-	$errorResult = json_decode($rawErrorResult, true);
-	switch ($errorResult["code"]) {
-		case "validation":
-			//echo lang('error.list.heading');
-			echo "<ul class='error'>";
-			if (!empty($errorResult["generalErrors"])) {
-				foreach ($errorResult["generalErrors"] as $generalError) {
-					echo "<li>" . $generalError;
-				}
-			}
-			if (!empty($errorResult["propertyErrors"])) {
-				foreach ($errorResult["propertyErrors"] as $propertyKey => $propertyValue) {
-					echo "<li>" . $propertyValue[0];
-				}
-			}
-			if (!empty($errorResult["customFieldErrors"])) {
-				foreach ($errorResult["customFieldErrors"] as $customKey => $customValue) {
-					echo "<li>" . $customValue[0];
-				}
-			}
-			echo "</ul>";
-			break;
-		case "maxItems":
-			echo lang('error.maxItems');
-			if (!empty($errorResult["maxItems"])) {
-				echo "<br>" . lang('error.maxItems.max') . " " . $errorResult["maxItems"] . ".";
-			}
-			break;
-		case "queryParse":
-			echo lang('error.queryParse');
-			if (!empty($errorResult["value"])) {
-				echo "<br>" . lang('error.queryParse.text') . " " . $errorResult["value"] . ".";
-			}
-			break;
-		case "dataConversion":
-			echo lang('error.dataConverse');
-			if (!empty($errorResult["value"])) {
-				echo "<br>" . lang('error.dataConverse.item') . " " . $errorResult["value"] . ".";
-			}
-			break;
-		default:
-			echo lang('error.unknown');
-	}
-	echo "</ul>";
 }

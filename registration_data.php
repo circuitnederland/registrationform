@@ -1,12 +1,10 @@
 <?php
-
-/* First get the url parameter */
-$com = $_GET['community'];
-
-/* First get the url parameter */
 include_once 'registration_strings.php';
 
-/* Form redirec */
+/* First get the url parameter */
+$com = $_GET['community']?? '';
+
+/* Form redirect */
 define('REDIRECT_DATA', "register.php");
 ?>
 <!DOCTYPE html>

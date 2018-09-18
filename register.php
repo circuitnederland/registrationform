@@ -32,14 +32,10 @@ $_SESSION['backURL'] = $_SERVER['REQUEST_URI'];
  * 
  * Beware that the url parameter for Rijn & Vallei needs to be Rijn%20%26%20Vallei.  
  */
-$community = '';
-if (isset($_GET['community'])) {
-	$community = $_GET['community'];
-} else if (isset($_POST['community'])) {
-	$community = $_POST['community'];
-} else {
-	$community = $_SESSION['community'];
-}
+
+// Use the null coalescing operator to get the first non-null case without undefined index notices.
+$community = $_GET['community'] ?? $_POST['community'] ?? $_SESSION['community'] ?? '';
+
 if (empty($community)) {
 	header("Location: " . REDIRECT_COMMUNITY);
 	exit;
