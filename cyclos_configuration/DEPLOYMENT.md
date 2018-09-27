@@ -25,7 +25,7 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 	Change the contents of the 'BasisURL van het registratieformulier' into the URL of the registrationform on the environment you are deploying to.
 	Change the contents of the other fields so they are the same as on testcyclos (see separate list).
 
-	Belongs to #7.
+	Belongs to #7 and #5.
 
 4. Create a new extension script 'createUser' on creating new users:
 
@@ -94,3 +94,17 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 	Go to Systeem > [Account configuratie] Rekeningtypen > Debiet rekening > tabje 'Betalingstypen' > 'Aankoop Units (Circuit Nederland)'. In 'Kanalen' add 'Web services'.
 	Go to Systeem > [Account configuratie] Rekeningtypen > Handelsrekening > tabje 'Betalingstypen' > 'Lidmaatschapsbijdrage'. In 'Kanalen' add 'Web services'.
 
+10. Add fields to the user recordtype idealDetail:
+	Go to Systeem > [Systeemconfiguratie] Recordtypen > 'iDEAL transacties' (Interne naam: 'idealDetail'). Add the following fields (under 'Aangepaste velden' click 'Nieuw'):
+	- paymentId, method, transactionnumber (Enkele tekst regel)
+	- amount (Decimale)
+	- paid (Boolean)
+	- source (Enkelvoudige selectie). After saving add 'Waarden (opties)': 'registration' and 'topup'. After saving the waarde, also add the internal name with the same value.
+	Only fill in the 'Weergegeven naam' and 'Interne naam' with these values and set the Datatype. Leave all other settings on their defaults.
+
+	// @todo: Roder, is this a) oke and b) enough or should we also do similar things on other groups?
+	Make the new fields visible and not changeable for admin groups:
+	Go to System > [Gebruikers configuratie] Groepen > 'Administrateurs financieel - Circuit Nederland' and 'Administrateurs C3-Nederland (Netwerk)', Tab 'Permissies'. Change the ['Gebruikergegevens'] 'Gebruikers records' so the new fields under 'iDEAL transacties' have 'Bekijken' selected and 'Nieuw' and 'Aanpasbaar' not selected.
+	Go to System > [Gebruikers configuratie] Groepen > 'Administrateurs financieel - Circuit Nederland', tab 'Permissies'. Change the ['Gebruikergegevens'] 'Gebruikers records' so the new fields under 'iDEAL transacties' have 'Bekijken' selected.
+
+	Belongs to #12

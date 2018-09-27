@@ -22,15 +22,24 @@ import org.cyclos.model.users.users.UserLocatorVO
 import org.cyclos.server.utils.MessageProcessingHelper
 import org.cyclos.utils.DateTime
 import org.springframework.mail.javamail.MimeMessageHelper
+import org.cyclos.entities.banking.PaymentTransferType
+import org.cyclos.entities.banking.SystemAccountType
+import org.cyclos.model.banking.accounts.SystemAccountOwner
+import org.cyclos.model.banking.transactions.PaymentVO
+import org.cyclos.model.banking.transactions.PerformPaymentDTO
+import org.cyclos.model.banking.transfertypes.TransferTypeVO
 
 /**
  * This script expects the following parameters
  * 
- # user record type settings
- bank.recordType = idealDetail
- bank.consumerName = consumerName
- bank.iban = iban
- bank.bic = bic
+
+# Transaction settings
+systemDebit = debietrekening
+fromDebitPaymentType = Aankoop_units
+userAccountType = handelsrekening
+firstMembershipPaymentType = lidmaatschapsbijdrage
+fromDebitPaymentDescription = Aankoop eenheden circuit Nederland. Dit is het bedrag dat u betaald heeft via Ideal, hier betaalt u automatisch uw lidmaatschapsbijdrage mee in circulair geld. 
+firstMembertshipPaymentDescription = Betaling eerste lidmaatschapsbijdrage
 
  # Mollie payment settings
  # Nr of days a payment may be in the past before considered too old when validating user.
@@ -124,10 +133,16 @@ class MollieAuth {
  * Class used to store / retrieve iDEAL payments as user records in Cyclos.
  */
 class IdealDetailRecord {
-	String recordTypeName
-	String consumerNameName
-	String ibanName
-	String bicName
+	String recordTypeName = 'idealDetail'
+	String consumerNameFieldName = 'consumerName'
+	String ibanFieldName = 'iban'
+    String bicFieldName = 'bic'
+    String paymentIdFieldName = 'paymentId'
+    String methodFieldName = 'method'
+    String transactionnumberFieldName = 'transactionnumber'
+    String amountFieldName = 'amount'
+    String paidFieldName = 'paid'
+    String sourceFieldName = 'source'
 
 	UserRecordType recordType
 	Map<String, RecordCustomField> fields
@@ -137,12 +152,6 @@ class IdealDetailRecord {
 	private ScriptHelper scriptHelper
 
 	public IdealDetailRecord(Object binding) {
-		def params = binding.scriptParameters
-		recordTypeName = params.'bank.recordType' ?: 'idealDetail'
-		consumerNameName = params.'bank.consumerName' ?: 'consumerName'
-		ibanName = params.'bank.iban' ?: 'iban'
-		bicName = params.'bank.bic' ?: 'bic'
-
 		entityManagerHandler = binding.entityManagerHandler
 		recordService = binding.recordService
 		scriptHelper = binding.scriptHelper
@@ -154,15 +163,21 @@ class IdealDetailRecord {
     /**
      * Creates an iDEAL record for the given user.
      */
-	public UserRecord create(User user, String consumerName, String iban, String bic) {
+	public UserRecord create(User user, String consumerName, String iban, String bic, String paymentId, String method, String transactionnumber, BigDecimal amount, Boolean paid, String source) {
 		RecordDataParams newParams = new RecordDataParams(
 				[user: new UserLocatorVO(id: user.id),
 					recordType: new RecordTypeVO(id: recordType.id)])
 		UserRecordDTO dto = recordService.getDataForNew(newParams).getDto()
 		Map<String, Object> wrapped = scriptHelper.wrap(dto, recordType.fields)
-		wrapped[consumerNameName] = consumerName
-		wrapped[ibanName] = iban
-		wrapped[bicName] = bic
+		wrapped[consumerNameFieldName] = consumerName
+		wrapped[ibanFieldName] = iban
+        wrapped[bicFieldName] = bic
+        wrapped[paymentIdFieldName] = paymentId
+        wrapped[methodFieldName] = method
+        wrapped[transactionnumberFieldName] = transactionnumber
+        wrapped[amountFieldName] = amount
+        wrapped[paidFieldName] = paid
+		wrapped[sourceFieldName] = source
 
 		// Save the record DTO and return the entity.
 		Long id = recordService.save(dto)
@@ -288,11 +303,13 @@ class Utils{
     private Object binding
     private MollieAuth auth
     private MollieService mollie
+    private IdealDetailRecord idealRecord
 	
-    public Utils(Object binding, MollieAuth auth, MollieService mollie) {
+    public Utils(Object binding, MollieAuth auth, MollieService mollie, IdealDetailRecord idealRecord) {
         this.binding = binding
         this.auth = auth
         this.mollie = mollie
+        this.idealRecord = idealRecord
     }
 	
     /**
@@ -348,6 +365,52 @@ class Utils{
 		String amount = contrib.substring(0, contrib.indexOf(" - "))
 		return new BigDecimal(amount)
 	}
+
+    /**
+     * Creates the two transactions needed when a new user is being validated (aankoop saldo from debiet to user and contribution from user to sys).
+     * Also creates an idealDetail userrecord storing the relevant info of the aankoop transaction.
+     */
+    public void processRegistrationPayments(User user, BigDecimal totalAmount, BigDecimal contribution, String method, Map<String, String> paymentInfo, String paymentId = ''){
+        // Make a Cyclos payment from debit to user with the total amount the user paid.
+        EntityManagerHandler entityManagerHandler = binding.entityManagerHandler
+        def scriptParameters = binding.scriptParameters
+        def paymentService = binding.paymentService
+        PerformPaymentDTO credit = new PerformPaymentDTO()
+        credit.from = SystemAccountOwner.instance()
+        credit.to = new UserLocatorVO(id: user.id)
+        SystemAccountType debiet = entityManagerHandler.find(
+                SystemAccountType, scriptParameters.systemDebit)
+        PaymentTransferType fromDebietPaymentType =  entityManagerHandler.find(
+                PaymentTransferType, scriptParameters.fromDebitPaymentType, debiet)
+        credit.type = new TransferTypeVO(fromDebietPaymentType.id)
+        credit.amount = totalAmount
+        credit.description = scriptParameters.fromDebitPaymentDescription
+        PaymentVO paymentVO = paymentService.perform(credit)
+
+        // Make a Cyclos payemnt from user to sys organization with the contribution fee.
+        PerformPaymentDTO membership = new PerformPaymentDTO()
+        membership.from = new UserLocatorVO(id: user.id)
+        membership.to = SystemAccountOwner.instance()
+        PaymentTransferType toBeheerPaymentType =  entityManagerHandler.find(
+                PaymentTransferType,        "${scriptParameters.userAccountType}.${scriptParameters.firstMembershipPaymentType}")
+        membership.type = new TransferTypeVO(toBeheerPaymentType.id)
+        membership.amount = contribution
+        membership.description = scriptParameters.firstMembershipPaymentDescription
+        paymentService.perform(membership)
+
+        // Store bank account info on member record.
+        def consName = paymentInfo['consumerName']?: ''
+        def iban = paymentInfo['iban']?: ''
+        def bic = paymentInfo['bic']?: ''
+        String transactionnumber = paymentVO.transactionNumber
+        Boolean paid = true
+        String source = 'registration'
+        idealRecord.create(user, consName, iban, bic, paymentId, method, transactionnumber, totalAmount, paid, source)
+        def usr = binding.scriptHelper.wrap(user)
+        if (!usr.iban.equalsIgnoreCase(iban)) {
+            sendMailToAdmin("Circuit Nederland: different bank account", prepareMessage("differentBankAccount", ["user": usr.name]), true)
+        }
+    }
 
 	/**
 	 * Sends an e-mail to the admin with the given message and subject.
@@ -411,4 +474,4 @@ class Utils{
 MollieAuth auth = new MollieAuth(binding)
 MollieService mollie = new MollieService(auth)
 IdealDetailRecord idealRecord = new IdealDetailRecord(binding)
-Utils utils = new Utils(binding, auth, mollie)
+Utils utils = new Utils(binding, auth, mollie, idealRecord)

@@ -1,24 +1,6 @@
-import org.cyclos.entities.banking.PaymentTransferType
-import org.cyclos.entities.banking.SystemAccountType
 import org.cyclos.impl.access.DirectUserSessionData
 import org.cyclos.model.ValidationException
-import org.cyclos.model.banking.accounts.SystemAccountOwner
-import org.cyclos.model.banking.transactions.PerformPaymentDTO
-import org.cyclos.model.banking.transfertypes.TransferTypeVO
-import org.cyclos.model.users.users.UserLocatorVO
 import org.cyclos.model.utils.TransactionLevel
-
-/*
- * This script expects the following parameters: 
- * 
- * systemDebit = debiet
- * fromDebitPaymentType = Aankoop_Units
- * userAccountType = handelsrekening
- * firstMembershipPaymentType = eerste_lidmaatschapsbijdrage
- * fromDebitPaymentDescription = Aankoop eenheden circuit Nederland. Dit is het bedrag dat u betaald heeft via Ideal, hier betaalt u automatisch uw lidmaatschapsbijdrage mee in circulair geld.
- * firstMembertshipPaymentDescription = Betaling eerste lidmaatschapsbijdrage
- * 
- */
 
 def usrDTO = userService.load(user.id)
 def usr = scriptHelper.wrap(usrDTO)
@@ -120,40 +102,14 @@ try{
 		}
 	}
 
-	// Make a Cyclos payment from debit to user with the total amount the user paid.
-	PerformPaymentDTO credit = new PerformPaymentDTO()
-	credit.from = SystemAccountOwner.instance()
-	credit.to = new UserLocatorVO(id: user.id)
-	SystemAccountType debiet = entityManagerHandler.find(
-			SystemAccountType, scriptParameters.systemDebit)
-	PaymentTransferType fromDebietPaymentType =  entityManagerHandler.find(
-			PaymentTransferType, scriptParameters.fromDebitPaymentType, debiet)
-	credit.type = new TransferTypeVO(fromDebietPaymentType.id)
-	credit.amount = totalAmount
-	credit.description = scriptParameters.fromDebitPaymentDescription
-	paymentService.perform(credit)
-
-	// Make a Cyclos payemnt from user to sys organization with the contribution fee.
-	PerformPaymentDTO membership = new PerformPaymentDTO()
-	membership.from = new UserLocatorVO(id: user.id)
-	membership.to = SystemAccountOwner.instance()
-	PaymentTransferType toBeheerPaymentType =  entityManagerHandler.find(
-			PaymentTransferType,        "${scriptParameters.userAccountType}.${scriptParameters.firstMembershipPaymentType}")
-	membership.type = new TransferTypeVO(toBeheerPaymentType.id)
-	membership.amount = contribution
-	membership.description = scriptParameters.firstMembertshipPaymentDescription
-	paymentService.perform(membership)
-
-	// Store bank account info on member record.
-	if (paymentResponse?.details) {
-		def consName = paymentResponse.details.consumerName
-		def iban = paymentResponse.details.consumerAccount
-		def bic = paymentResponse.details.consumerBic
-		idealRecord.create(user, consName, iban, bic)
-		if (!usr.iban.equalsIgnoreCase(iban)) {
-			utils.sendMailToAdmin("Circuit Nederland: different bank account", utils.prepareMessage("differentBankAccount", ["user": usr.name]), true)
-		}
-	}
+	// Create the transactions.
+	String method = 'ideal'
+	def paymentInfo = [
+		'consName': paymentResponse.details.consumerName,
+		'iban': paymentResponse.details.consumerAccount,
+		'bic': paymentResponse.details.consumerBic
+	]
+	utils.processRegistrationPayments(user, totalAmount, contribution, method, paymentInfo, paymentId)
 } catch (ValidationException vE) {
 	throw vE
 } catch (Exception e) {
