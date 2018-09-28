@@ -335,21 +335,21 @@ class Utils{
     /**
      * Prepares a registration payment and calls Mollie to create it.
      */
-    public Object setupMollieRegistrationPayment(BigDecimal contribution, BigDecimal aankoop_saldo, String userName, String validationKey = null) {
+    public Object setupMollieRegistrationPayment(BigDecimal contribution, BigDecimal aankoop_saldo, User user, String validationKey = null) {
         def params = binding.scriptParameters
         def formatter = binding.formatter
         def vars = [
          lidmaatschapsbijdrage: formatter.format(contribution),
          aankoop_saldo: formatter.format(aankoop_saldo),
-         username: userName
+         username: user.username
         ]
         // Convert the total amount to a string with two decimals and a dot as separator - Mollie needs the amount like this.
         String amount = (contribution + aankoop_saldo).setScale(2)
         String description = MessageProcessingHelper.processVariables(params.'mollie_payment.description', vars)
         String redirectUrl = auth.registrationRootUrl
-        redirectUrl += validationKey? params.validationUrlPart + "?validationKey=${validationKey}" : params.confirmationUrlPart
+        redirectUrl += validationKey? params.validationUrlPart + "?validationKey=${validationKey}" : params.confirmationUrlPart + "?mail=${user.email}"
         String webhookUrl = binding.sessionData.configuration.rootUrl + params.mollieWebhookUrlPart
-        return mollie.createPayment(amount, description, redirectUrl, webhookUrl, userName, "registration")
+        return mollie.createPayment(amount, description, redirectUrl, webhookUrl, user.username, "registration")
     }
 
 	/**

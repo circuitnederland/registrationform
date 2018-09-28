@@ -11,7 +11,7 @@ include_once 'registration_strings.php';
 
 	<div id="formContainer" class="registrationFinished">
 		<h1><?php echo lang('payment.done')?></h1>
-		<p class="betaling"><?php echo lang('payment.done.explain'); ?></p>
+		<p class="betaling"><?php printf(lang('payment.done.explain'), htmlspecialchars(strip_tags($_GET['mail']))); ?></p>
 	</div>
 	
 </body>

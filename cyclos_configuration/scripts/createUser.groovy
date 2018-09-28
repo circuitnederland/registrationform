@@ -15,7 +15,7 @@ try {
 	// Create a new payment in Mollie.
 	BigDecimal contribution = utils.getLidmaatschapsbijdrage(usr)
 	BigDecimal aankoop_saldo = (usr.aankoop_saldo?:0)
-	def json = utils.setupMollieRegistrationPayment(contribution, aankoop_saldo, usr.username)
+	def json = utils.setupMollieRegistrationPayment(contribution, aankoop_saldo, user)
 
     // Store the payment id and the payment URL from Mollie in the Cyclos user profile.
     usr.payment_id = json.id

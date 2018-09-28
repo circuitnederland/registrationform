@@ -65,7 +65,7 @@ try{
 
 			// Create a new payment in Mollie.
 			// Note: the validationKey is in the user object, not in usr.
-			def json = utils.setupMollieRegistrationPayment(contribution, aankoop_saldo, usr.username, user.validationKey)
+			def json = utils.setupMollieRegistrationPayment(contribution, aankoop_saldo, user, user.validationKey)
 			String payment_id = json.id
 			String payment_url = json._links.checkout.href
 
