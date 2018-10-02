@@ -97,15 +97,19 @@ try {
 	$passwordList = array();
 	$_SESSION['passwordsBedrijven'] = array();
 	$_SESSION['passwordsParticulieren'] = array();
+	$_SESSION['privateFieldsBedrijven'] = array();
+	$_SESSION['privateFieldsParticulieren'] = array();
 	if (!$noBedrijven) {
 		$fieldsBedrijven = fillFieldsArray($forNewResponseBedrijf);
 		$_SESSION['fieldsBedrijven'] = getFieldList($forNewResponseBedrijf);
 		$_SESSION['passwordsBedrijven'] = array_column($forNewResponseBedrijf['passwordTypes'], 'internalName');
+		$_SESSION['privateFieldsBedrijven'] = getPrivacyInfo($forNewResponseBedrijf);
 	}
 	if (!$noParticulieren) {
 		$fieldsParticulieren = fillFieldsArray($forNewResponseParti);
 		$_SESSION['fieldsParticulieren'] = getFieldList($forNewResponseParti);
 		$_SESSION['passwordsParticulieren'] = array_column($forNewResponseParti['passwordTypes'], 'internalName');
+		$_SESSION['privateFieldsParticulieren'] = getPrivacyInfo($forNewResponseParti);
 	}
 	$customFieldList = fillCustomFieldList($forNewResponseBedrijf, $forNewResponseParti);
 	$passwordList = array_unique(array_merge($_SESSION['passwordsBedrijven'], $_SESSION['passwordsParticulieren'] ));

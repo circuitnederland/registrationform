@@ -495,21 +495,38 @@ function fillCustomFieldList($dataForNew1, $dataForNew2) {
 }
 
 /**
+ * Gets the privacy information from the data-for-new json.
+ */
+function getPrivacyInfo($forNewResponse){
+	return [
+		"email" => in_array('email', $forNewResponse['user']['hiddenFields']),
+		"addresses" => $forNewResponse['addressConfiguration']['address']['hidden'],
+		"mobile" => $forNewResponse['phoneConfiguration']['mobilePhone']['hidden'],
+		"landLine" => $forNewResponse['phoneConfiguration']['landLinePhone']['hidden'],
+		];
+}
+
+/**
  * gets the data from the session and prepares it to the format as expected bij the Cyclos createUser endpoint.
  */
 function getDataFromSession($pictureId){
 	$fieldsUsed = isParticulier() ? $_SESSION['fieldsParticulieren'] : $_SESSION['fieldsBedrijven'];
+	$privateFields = isParticulier() ? $_SESSION['privateFieldsParticulieren'] : $_SESSION['privateFieldsBedrijven'];
 	$mobilePhones = array();
 	if (in_array('mobile', $fieldsUsed) && !empty(getNullSafeValue('mobile'))) {	
 		array_push($mobilePhones, array(
 				"name" => "Standaard mobiel telefoonnummer",
-				"number" => getNullSafeValue('mobile')));
+				"number" => getNullSafeValue('mobile'),
+				"hidden" => $privateFields['mobile']
+			));
 	}
 	$landLinePhones = array();
 	if (in_array('landLine', $fieldsUsed) && !empty(getNullSafeValue('landLine'))) {
 		array_push($landLinePhones, array(
 				"name" => "Standaard vast telefoonnummer",
-				"number" => getNullSafeValue('landLine')));
+				"number" => getNullSafeValue('landLine'),
+				"hidden" => $privateFields['landLine']
+			));
 	}
 	$groupId = $_SESSION['groupIds'][getCustomerType()];
 
@@ -556,7 +573,7 @@ function getDataFromSession($pictureId){
 							"zip" => getNullSafeValue('zip'),
 							"city" => getNullSafeValue('city'),
 							"defaultAddress" => "true",
-							"hidden" => "false")),
+							"hidden" => $privateFields['addresses'])),
 			"mobilePhones" => $mobilePhones,
 			"landLinePhones" => $landLinePhones,
 			"passwords" => $passwords,
@@ -564,6 +581,9 @@ function getDataFromSession($pictureId){
 			"acceptAgreement" => "true",
 			"skipActivationEmail" => "false"
 		);
+		if ($privateFields['email']) {
+			$data['hiddenFields'] = ["email"];
+		}
 		if (array_key_exists("username", $_SESSION)) {
 			$data['username'] = getNullSafeValue('username');
 		}
