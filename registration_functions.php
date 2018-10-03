@@ -1130,17 +1130,18 @@ function showBrancheField($fieldsBedrijven, $fieldsParticulieren, $branchesInfo)
 	echo "    <div class='value'>";
 	echo "        <select name='branche'" . (isRequired("branche", $fields) ? " required" : "") . ">";
 	
-	$lastGroup = "";
-	$firstLoop = true;
+	$currentCategory = "";
+	$isOptgroupOpen = false;
 	foreach ($branchesInfo['possibleValues'] as $brancheValue) {
-		$categoryName = $brancheValue['category']['name'];
-		if ($categoryName != $lastGroup) {
-			if (!$firstLoop) {
-				$firstLoop = false;
+		$categoryName = $brancheValue['category']['name'] ?? '';
+		if ($categoryName != $currentCategory) {
+			if ($isOptgroupOpen) {
 				echo "</optgroup>";
+				$isOptgroupOpen = false;
 			}
 			echo "<optgroup class='Optiongroup' label='" . $categoryName . "'>";
-			$lastGroup = $categoryName;
+			$currentCategory = $categoryName;
+            $isOptgroupOpen = true;
 		}
 		$internalBrancheName = $brancheValue['internalName'] ?? '';
 		echo "<option class='selectOption' value='" . $internalBrancheName . "'";
@@ -1150,8 +1151,7 @@ function showBrancheField($fieldsBedrijven, $fieldsParticulieren, $branchesInfo)
 		}
 		echo ">" . $brancheValue['value'] . "</option>";
 	}
-	if (!$firstLoop) {
-		$firstLoop = false;
+	if ($isOptgroupOpen) {
 		echo "</optgroup>";
 	}
 	
