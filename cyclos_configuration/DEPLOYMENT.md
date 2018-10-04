@@ -81,6 +81,8 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 
 7. Adjust the contents of the mollie library script (paste it from cyclos_configuration\scripts\mollie.groovy) and its parameters (paste from cyclos_configuration\scripts\mollie.properties.
 
+	Adjust the contents of the activateUserCheckPayment script (paste it from cyclos_configuration\scripts\activateUserCheckPayment.groovy). Empty the script parameters of the activateUserCheckPayment script (they have been moved to the mollie library script).
+
 	Belongs to #5
 
 8. Change translation:
@@ -112,3 +114,20 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 		- Go to System > [Gebruikers configuratie] Groepen > 'Administrateurs financieel - Circuit Nederland', tab 'Permissies'. Change the ['Gebruikergegevens'] 'Gebruikers records' so the new fields under 'iDEAL transacties' have 'Bekijken' selected.
 
 		Belongs to #12
+
+11. Add a new custom web service for the mollie webhook:
+
+	- Go to Systeem > [Operaties] Scripts and click 'Toevoegen' > 'Custom web service'. Fill in:  
+	Naam: mollieWebhook  
+	Uitgevoerd met alle permissies: (leave this checked)  
+	Maak gebruik van bibliotheek (scripts): check 'mollie'  
+	Scriptcode: paste the contents of cyclos_configuration\scripts\mollieWebhook.groovy in this textarea.
+
+	- Go to Systeem > [Operaties] 'Custom web services' and click 'Toevoegen'. Fill in:  
+	Naam: mollie webhook  
+	Interne naam: mollieWebhook  
+	Beschrijving: mollie contacteert dit met een post request na elke wijziging in payment status. De webhook service wordt gebruikt om het veld "betaald" te updaten.  
+	Http-methode: POST  
+	Uitvoeren als: Gast  
+	Script: Select 'mollieWebhook'  
+	Url-toewijzing: paid
