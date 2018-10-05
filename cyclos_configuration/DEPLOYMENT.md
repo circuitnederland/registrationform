@@ -41,10 +41,12 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 	
 	- Go to Systeem > [Operaties] Extensies: Toevoegen. Choose 'Gebruiker'. Fill in the form for creating a new extension:  
 	Naam: createUser  
-// @todo: which groups should be selected? The same 14 groups that are selected in the activateUserCheckPayment extension script at this moment?  
-	Groepen: Select the Bedrijven and Particulieren groups of Bredageld, Circuit Nederland, De Groninger Gulden, Eurijn, Utrechtse Euro, Vix and Zwolse Pepermunt (14 in total).  
+	Groepen: Select the Bedrijven and Particulieren groups of Arnhems Hert, Brabantse Parel, Circuit Nederland, De Groninger Gulden, Eurijn, Locoo, Utrechtse Euro, Vix and Zwolse Pepermunt (18 in total).  
 	Acties: Select 'Aanmaken'  
 	Script: Select 'createUser'
+
+	- Go to Systeem > [Operaties] Extensies > activateUserCheckPayment.  
+	Groepen: Add the missing groups (Arnhems Hert and Locoo) so they are the same 18 as above.
 
 	Belongs to #5
 
@@ -110,7 +112,6 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 		Only fill in the 'Weergegeven naam' and 'Interne naam' with these values and set the Datatype. Leave all other settings on their defaults.
 
 	- Make the new fields visible and not changeable for admin groups:  
-	// @todo: Roder, is this a) oke and b) enough or should we also do similar things on other groups?  
 		- Go to System > [Gebruikers configuratie] Groepen > 'Administrateurs C3-Nederland (Netwerk)', Tab 'Permissies'. Change the ['Gebruikergegevens'] 'Gebruikers records' so the new fields under 'iDEAL transacties' have 'Bekijken' selected and 'Nieuw' and 'Aanpasbaar' not selected.
 		- Go to System > [Gebruikers configuratie] Groepen > 'Administrateurs financieel - Circuit Nederland', tab 'Permissies'. Change the ['Gebruikergegevens'] 'Gebruikers records' so the new fields under 'iDEAL transacties' have 'Bekijken' selected.
 
@@ -132,3 +133,10 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 	Uitvoeren als: Gast  
 	Script: Select 'mollieWebhook'  
 	Url-toewijzing: paid
+
+12. Change settings:
+
+	- Go to Systeem > [Gebruikers configuratie] Groepen > 'Administrateurs financieel - Circuit Nederland' > tab 'Permissies' > [Gebruikerbeheer] 'Profiel velden van andere gebruikers'. Deselect 'Aanpasbaar' for the 'Betaald' field.
+	- Do the same for the groups 'Administrateurs Circuit Nederland (gebruikers en content beheer)' and 'Administrateurs C3-Nederland (Netwerk)'.
+	- Go to Systeem > [Gebruikers configuratie] Groepen > 'System_admin_registration' > tab 'Permissies' > [Gebruikerbeheer] 'Profiel velden van andere gebruikers'. Deselect 'Zichtbaar' and 'Aanpasbaar' for the 'Payment id' field. Deselect 'Zichtbaar' for the 'Betaald' field.
+	- Go to Systeem > [Gebruikers configuratie] Producten > 'Algemeen (voor iedereen)' > [Algemeen] 'Mijn profiel velden'. Deselect 'Bij inschrijving' for the 'Payment id' field.
