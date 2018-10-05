@@ -4,6 +4,8 @@
  */
 import org.cyclos.entities.users.SystemRecord
 import org.cyclos.entities.users.SystemRecordType
+import org.cyclos.model.users.records.RecordDataParams
+import org.cyclos.model.users.recordtypes.RecordTypeVO
 
 // Only generate a custom link if this is the validation link.
 if(urlFilePart == null) {

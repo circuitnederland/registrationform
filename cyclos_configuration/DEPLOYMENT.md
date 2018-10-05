@@ -138,5 +138,5 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 
 	- Go to Systeem > [Gebruikers configuratie] Groepen > 'Administrateurs financieel - Circuit Nederland' > tab 'Permissies' > [Gebruikerbeheer] 'Profiel velden van andere gebruikers'. Deselect 'Aanpasbaar' for the 'Betaald' field.
 	- Do the same for the groups 'Administrateurs Circuit Nederland (gebruikers en content beheer)' and 'Administrateurs C3-Nederland (Netwerk)'.
-	- Go to Systeem > [Gebruikers configuratie] Groepen > 'System_admin_registration' > tab 'Permissies' > [Gebruikerbeheer] 'Profiel velden van andere gebruikers'. Deselect 'Zichtbaar' and 'Aanpasbaar' for the 'Payment id' field. Deselect 'Zichtbaar' for the 'Betaald' field.
+	- Go to Systeem > [Gebruikers configuratie] Groepen > 'System_admin_registration' > tab 'Permissies' > [Gebruikerbeheer] 'Profiel velden van andere gebruikers'. Select 'Zichtbaar' for the 'Gebruikersnaam' field. Deselect 'Zichtbaar' and 'Aanpasbaar' for the 'Payment id' field. Deselect 'Zichtbaar' for the 'Betaald' field.
 	- Go to Systeem > [Gebruikers configuratie] Producten > 'Algemeen (voor iedereen)' > [Algemeen] 'Mijn profiel velden'. Deselect 'Bij inschrijving' for the 'Payment id' field.
