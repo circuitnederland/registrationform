@@ -101,7 +101,8 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 10. Add fields to the user recordtype idealDetail:
 
 	- Go to Systeem > [Systeemconfiguratie] Recordtypen > 'iDEAL transacties' (Interne naam: 'idealDetail'). Add the following fields (under 'Aangepaste velden' click 'Nieuw'):  
-		- paymentId, method, transactionnumber (Enkele tekst regel)
+		- paymentId, method (Enkele tekst regel)
+		- transaction ('Verbonden velden' with 'Gelinkt eniteitstype': 'Transactie')
 		- amount (Decimale)
 		- paid (Boolean)
 		- source (Enkelvoudige selectie). After saving add 'Waarden (opties)': 'registration' and 'topup'. After saving the waarde, also add the internal name with the same value.

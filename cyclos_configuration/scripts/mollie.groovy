@@ -139,7 +139,7 @@ class IdealDetailRecord {
     String bicFieldName = 'bic'
     String paymentIdFieldName = 'paymentId'
     String methodFieldName = 'method'
-    String transactionnumberFieldName = 'transactionnumber'
+    String transactionFieldName = 'transaction'
     String amountFieldName = 'amount'
     String paidFieldName = 'paid'
     String sourceFieldName = 'source'
@@ -163,7 +163,7 @@ class IdealDetailRecord {
     /**
      * Creates an iDEAL record for the given user.
      */
-	public UserRecord create(User user, String consumerName, String iban, String bic, String paymentId, String method, String transactionnumber, BigDecimal amount, Boolean paid, String source) {
+	public UserRecord create(User user, String consumerName, String iban, String bic, String paymentId, String method, PaymentVO transaction, BigDecimal amount, Boolean paid, String source) {
 		RecordDataParams newParams = new RecordDataParams(
 				[user: new UserLocatorVO(id: user.id),
 					recordType: new RecordTypeVO(id: recordType.id)])
@@ -174,7 +174,7 @@ class IdealDetailRecord {
         wrapped[bicFieldName] = bic
         wrapped[paymentIdFieldName] = paymentId
         wrapped[methodFieldName] = method
-        wrapped[transactionnumberFieldName] = transactionnumber
+        wrapped[transactionFieldName] = transaction
         wrapped[amountFieldName] = amount
         wrapped[paidFieldName] = paid
 		wrapped[sourceFieldName] = source
@@ -402,10 +402,9 @@ class Utils{
         def consName = paymentInfo['consumerName']?: ''
         def iban = paymentInfo['iban']?: ''
         def bic = paymentInfo['bic']?: ''
-        String transactionnumber = paymentVO.transactionNumber
         Boolean paid = true
         String source = 'registration'
-        idealRecord.create(user, consName, iban, bic, paymentId, method, transactionnumber, totalAmount, paid, source)
+        idealRecord.create(user, consName, iban, bic, paymentId, method, paymentVO, totalAmount, paid, source)
         def usr = binding.scriptHelper.wrap(user)
         if (!usr.iban.equalsIgnoreCase(iban)) {
             sendMailToAdmin("Circuit Nederland: different bank account", prepareMessage("differentBankAccount", ["user": usr.name]), true)
