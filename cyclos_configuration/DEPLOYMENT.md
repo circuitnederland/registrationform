@@ -143,3 +143,5 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 	- Remove group registration settings:
 		- Go to Systeem > [Gebruikers configuratie] Groepen > 'Circuit Nederland - Bedrijven'. On the 'Details' tab, empty the fields 'Naam op registratie' and 'Beschrijving op registratie'.
 		- Do the same for: 'Circuit Nederland - Particulieren', 'Zwolse Pepermunt - Bedrijven' and 'Zwolse Pepermunt - Particulieren'.
+	- Go to Syseem > [Gebruikers configuratie] Profielvelden. For the following profilefields change their 'Informatie tekst' so 'u/uw' is converted to 'je' and '@nder geld' is changed to 'circulair geld' (can be copied from test): IBAN, Website, K.v.K. nummer, Diensten/producten, Lid van een broodfonds, Klant bij Triodos, Lidmaatschapsbijdrage particulieren, Lidmaatschapsbijdrage bedrijven, Aankoop saldo.
+	- Change to the global environment (click 'Overschakelen naar Globale administratie' ) and there go to System > ['User configuration'] 'Password types' > 'Login password'. Change the contents of the 'Public description' field replacing 'u/uw' by 'je' (can be copied from test).
