@@ -3,6 +3,9 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 
 ## Deployment Tasks for next release
 
+To be determined..
+
+## Deployment Tasks for release 1.1.0
 1. Adjust registration_strings.php to reflect the changes in registration_strings-sample.php:
 
 	- Add 'RECAPTCHA_SECRET' constant.
