@@ -82,7 +82,7 @@ $(function() {
         return /([0-9]{8})|^$/.test(value)
     }, "K.v.K. nummer moet een 8-cijferig nummer zijn.");
     
-    // aankoop moet positief of leeg zijn, alleen hele getallen particulieren maximaal 150 
+    // aankoop moet positief of leeg zijn, alleen hele getallen particulieren maximaal 50000 
     $.validator.addMethod("aankoopparticulier", function (value) {
     	if (!value || !value.length) {
     		// always validate on empty, because it may not be required.
@@ -94,11 +94,11 @@ $(function() {
     	  return false;
     	}
     	// test if not too big, but first replace , by . because parseFloat only takes decimal point.
-    	if (parseFloat(value.replace(',', '.')) > 150) {
+    	if (parseFloat(value.replace(',', '.')) > 50000) {
     		return false;
     	}
     	return true;
-    }, "Vul a.u.b. een heel bedrag in (zonder komma of punt). Dit bedrag mag niet hoger zijn dan 150 euro.");
+    }, "Vul a.u.b. een heel bedrag in (zonder komma of punt). Dit bedrag mag niet hoger zijn dan 50000 euro.");
     
 	
     // aankoop moet positief of leeg zijn, alleen hele getallen bedrijven maximaal 50000 

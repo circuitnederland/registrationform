@@ -32,14 +32,10 @@ $_SESSION['backURL'] = $_SERVER['REQUEST_URI'];
  * 
  * Beware that the url parameter for Rijn & Vallei needs to be Rijn%20%26%20Vallei.  
  */
-$community = '';
-if (isset($_GET['community'])) {
-	$community = $_GET['community'];
-} else if (isset($_POST['community'])) {
-	$community = $_POST['community'];
-} else {
-	$community = $_SESSION['community'];
-}
+
+// Use the null coalescing operator to get the first non-null case without undefined index notices.
+$community = $_GET['community'] ?? $_POST['community'] ?? $_SESSION['community'] ?? '';
+
 if (empty($community)) {
 	header("Location: " . REDIRECT_COMMUNITY);
 	exit;
@@ -50,85 +46,85 @@ if (empty($community)) {
 
 ################################## RETRIEVING SERVER DATA  ###############################
 #################################################################################
-$noServerContact = false;
-$_SESSION['groupIds'] = getGroupIds($community, BASE_URL);
+try {
+	$_SESSION['groupIds'] = getGroupIds($community);
 
-$branchesInfo;
-$lidmaatschapsBedragenBedrijf;
-$lidmaatschapsBedragenBedrijfDefaultValue;
-$noBedrijven = false;
-$forNewResponseBedrijf = getForNewResponse($_SESSION['groupIds']['bedrijven'], BASE_URL);
-//var_dump($forNewResponseBedrijf['securityQuestions']);
-if (empty($forNewResponseBedrijf['customFields'])) {
-	$noBedrijven = true;
-} else foreach ($forNewResponseBedrijf['customFields'] as $customField) {
-	switch ($customField['internalName']) {
-		// this means that branchesInfo is read only for bedrijven.
-		case "branche" :
-			$branchesInfo = $customField;
-			break;
-		case "lidmaatschapbedrijven":
-			foreach ($customField['possibleValues'] as $possibleValue) {
-				$lidmaatschapsBedragenBedrijf[$possibleValue['internalName']] = $possibleValue['value'];
+	$branchesInfo = array();
+	$forNewResponseBedrijf = array();
+	$lidmaatschapsBedragenBedrijf = array();
+	$lidmaatschapsBedragenBedrijfDefaultValue = '';
+	$noBedrijven = (!isset($_SESSION['groupIds']['bedrijven']));
+	if (!$noBedrijven) {
+		$forNewResponseBedrijf = getForNewResponse($_SESSION['groupIds']['bedrijven']);
+		foreach ($forNewResponseBedrijf['customFields'] as $customField) {
+			switch ($customField['internalName']) {
+				// this means that branchesInfo is read only for bedrijven.
+				case "branche" :
+					$branchesInfo = $customField;
+					break;
+				case "lidmaatschapbedrijven":
+					foreach ($customField['possibleValues'] as $possibleValue) {
+						$lidmaatschapsBedragenBedrijf[$possibleValue['internalName']] = $possibleValue['value'];
+					}
+					$lidmaatschapsBedragenBedrijfDefaultValue = $customField['defaultValue'];
+					break;
 			}
-			$lidmaatschapsBedragenBedrijfDefaultValue = str_replace("lidmaatschapbedrijven.", "", $customField['defaultValue']);
-			break;
-	}
-}
-
-// we need also the information for the particulieren-group
-$forNewResponseParti = getForNewResponse($_SESSION['groupIds']['particulieren'], BASE_URL);
-// specifically the lidmaatschapsbedragen for Particulieren
-$lidmaatschapsBedragenParticulier;
-$lidmaatschapsBedragenParticulierDefaultValue;
-$noParticulieren = false;
-if (empty($forNewResponseParti['customFields'])) {
-	if ($noBedrijven) {
-		$noServerContact = true;
-	}
-	$noParticulieren = true;
-} else foreach ($forNewResponseParti['customFields'] as $customField) {
-	if ($customField['internalName'] == "lidmaatschapparticulieren") {
-		foreach ($customField['possibleValues'] as $possibleValue) {
-			$lidmaatschapsBedragenParticulier[$possibleValue['internalName']] = $possibleValue['value'];
 		}
-		$lidmaatschapsBedragenParticulierDefaultValue = str_replace("lidmaatschapparticulieren.", "", $customField['defaultValue']);
 	}
-}
-// store the lidmaatschapsbedragen in the session so we can send molly the amount
-$_SESSION['lidmaatschapsBedragenParticulier'] = $lidmaatschapsBedragenParticulier;
-$_SESSION['lidmaatschapsBedragenBedrijf'] = $lidmaatschapsBedragenBedrijf;
 
-// create associative arrays which map the internal name to the displayed name and information text.
-$fieldsBedrijven = array();
-$fieldsParticulieren = array();
-// a general list determining the order of custom fields by their internal name
-$customFieldList = array();
-// a general list with all possible passwords - as password order is not defined by cyclos, the order is not important.
-$passwordList = array();
-if (!$noServerContact) {
+	$forNewResponseParti = array();
+	$lidmaatschapsBedragenParticulier = array();
+	$lidmaatschapsBedragenParticulierDefaultValue = '';
+	$noParticulieren = (!isset($_SESSION['groupIds']['particulieren']));
+	if (!$noParticulieren) {
+		$forNewResponseParti = getForNewResponse($_SESSION['groupIds']['particulieren']);
+		foreach ($forNewResponseParti['customFields'] as $customField) {
+			if ($customField['internalName'] == "lidmaatschapparticulieren") {
+				foreach ($customField['possibleValues'] as $possibleValue) {
+					$lidmaatschapsBedragenParticulier[$possibleValue['internalName']] = $possibleValue['value'];
+				}
+				$lidmaatschapsBedragenParticulierDefaultValue = $customField['defaultValue'];
+			}
+		}
+	}
+
+	// create associative arrays which map the internal name to the displayed name and information text.
+	$fieldsBedrijven = array();
+	$fieldsParticulieren = array();
+	// a general list determining the order of custom fields by their internal name
+	$customFieldList = array();
+	// a general list with all possible passwords - as password order is not defined by cyclos, the order is not important.
+	$passwordList = array();
 	$_SESSION['passwordsBedrijven'] = array();
 	$_SESSION['passwordsParticulieren'] = array();
+	$_SESSION['privateFieldsBedrijven'] = array();
+	$_SESSION['privateFieldsParticulieren'] = array();
 	if (!$noBedrijven) {
 		$fieldsBedrijven = fillFieldsArray($forNewResponseBedrijf);
 		$_SESSION['fieldsBedrijven'] = getFieldList($forNewResponseBedrijf);
 		$_SESSION['passwordsBedrijven'] = array_column($forNewResponseBedrijf['passwordTypes'], 'internalName');
+		$_SESSION['privateFieldsBedrijven'] = getPrivacyInfo($forNewResponseBedrijf);
 	}
 	if (!$noParticulieren) {
 		$fieldsParticulieren = fillFieldsArray($forNewResponseParti);
 		$_SESSION['fieldsParticulieren'] = getFieldList($forNewResponseParti);
 		$_SESSION['passwordsParticulieren'] = array_column($forNewResponseParti['passwordTypes'], 'internalName');
+		$_SESSION['privateFieldsParticulieren'] = getPrivacyInfo($forNewResponseParti);
 	}
 	$customFieldList = fillCustomFieldList($forNewResponseBedrijf, $forNewResponseParti);
 	$passwordList = array_unique(array_merge($_SESSION['passwordsBedrijven'], $_SESSION['passwordsParticulieren'] ));
+} catch (Exception $e) {
+	// Set the error array if it was not set already.
+	if (empty($_SESSION['errors'])) {
+		$_SESSION['errors'] = array('errorType' => 'fatal', 'msg' => 'Onbekende fout');
+	}
 }
 
-$mollieRecord = getMollyRecord(BASE_URL);
-$maxAankoop = $mollieRecord['maxAankoopPart'];
-if (empty($maxAankoop)) {
-	$maxAankoop = 150;
-}
-$_SESSION['MOLLY_ACCESS']=$mollieRecord['accessKey'];
+// No longer use the maxAankoopPart, because there is no maximum for particulieren anymore.
+// $maxAankoop = $mollieRecord['maxAankoopPart'];
+// if (empty($maxAankoop)) {
+	// $maxAankoop = 150;
+// }
 
 /*
  * Field validation is done using jQuery validation.
@@ -149,8 +145,8 @@ $_SESSION['MOLLY_ACCESS']=$mollieRecord['accessKey'];
         <script src="https://code.jquery.com/jquery-3.1.0.min.js" 
 				integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" 
 				crossorigin="anonymous"></script>
-		<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.15.0/jquery.validate.min.js"></script>
-		<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.15.0/additional-methods.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/jquery.validate.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/additional-methods.min.js"></script>
 		<script src="stro_form_validation.js?"></script>
 		<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 		<script src="register.js"></script>
@@ -179,60 +175,13 @@ $_SESSION['MOLLY_ACCESS']=$mollieRecord['accessKey'];
 	<?php echo lang('title.explain')?>
 	</p>
 
-<?php 
+<?php
 
 ################################## ERROR HANDLING  ###############################
 #################################################################################
-if ($noServerContact || !empty($_SESSION['errors'])) {
-	echo '<div class="schadow">';
-	echo '	<div class="errorTop">';
-	echo '  	<h3>' . lang('error.title') . '</h3>';
-	echo '	</div>';
-	echo '	<div class="errorBottom">';
 
-	echo '		<p class="textError">' . lang('error.heading') . ' 		</p>';
-	echo ' 		<ul>';
-	
-	$captchaForgotten = false;
-	if ($_SESSION['errors'] === "captchaForgotten") {
-		showErrorLi('error.captchaForgotten');
-		$captchaForgotten = true;
-	} else 	if ($_SESSION['errors'] === "captchaFail") {
-		showErrorLi('error.captcha');
-	}
-	
-	if ($noServerContact) {
-		showErrorLi('error.noServerContact');
-	}
-	
-	if (!empty($_SESSION['errors'])) {
-		$errors = $_SESSION['errors'];
-		unset($_SESSION['errors']);
-		
-		if (is_array($errors) && array_key_exists('type', $errors)) {
-			switch ($errors["type"]) {
-				case 'uploadPicture' : showErrorLi('error.uploadPicture');
-				                       break;
-				case 'mollie'	 : echo $errors['msg'];
-										break;
-				case 'createUser'    :
-					if ($errors["httpCode"]!==422) {
-						showErrorLi('error.createUser');
-					}
-					showHttpCode($errors['httpCode'], $errors["result"]);
-					break;
-			}
-		}
-	}
-		
-	echo '      </ul>';
-	if (!$captchaForgotten) {
-		echo '      <p class="textError">' . lang('error.recaptcha') . '</p>';
-	}
-	echo '   	<p class="textError">' . lang('error.contact') . '</p>';
-	echo '	</div>';
-	echo '</div>';
-}
+include 'show_errors.php';
+
 
 ################################## FORM ELEMENTS   ###############################
 #################################################################################
@@ -242,7 +191,6 @@ if ($noServerContact || !empty($_SESSION['errors'])) {
 <form method="POST" enctype="multipart/form-data" action="<?php echo REDIRECT_PAY;?>">
 
 	<div class="<?php $class = ($noBedrijven || $noParticulieren) ? " hidden" : "formRow" ; echo $class;?>">
-	<!-- TESTED: WORKS -->
 		<div class="label"><?php echo lang('bedrijfpart')?> <span class="red">*</span></div>
 		<div class="value radio above">
 			<?php
@@ -319,7 +267,6 @@ if ($noServerContact || !empty($_SESSION['errors'])) {
 	
 <!--  Field email.confirm is always displayed -->
 	<div class="formRow">
-	<!--  TESTED: WORKS -->
 		<div class="label"><?php echo lang('field.email.confirm')?> <span class="red">*</span></div>
 		<div class="value">
 			<input class="FormFields" type="email" name="email" maxlength="40" required equalTo='#emailFirst'
@@ -387,7 +334,7 @@ if ($noServerContact || !empty($_SESSION['errors'])) {
 	<div class="formRow">
 		<div class="label"><?php echo lang('field.zip')?> <span class="red">*</span></div>
 		<div class="value">
-			<input class="FormFields postcode" type="text" name="zip" maxlength="6" required
+			<input class="FormFields postcode" type="text" name="zip" maxlength="6" placeholder="Bijvoorbeeld 1234AA" required
 				<?php 
 					if (isset($_SESSION["zip"])) {
 						echo " value='" . $_SESSION["zip"] . "'"; 
@@ -479,8 +426,7 @@ if ($noServerContact || !empty($_SESSION['errors'])) {
 						echo "<hr>";
 						echo "<h2>Lidmaatschapsbijdrage</h2>";
 					}
-					showLidmaatschap($customField, $fieldsParticulieren, $noServerContact,
-					    $lidmaatschapsBedragenParticulier, $lidmaatschapsBedragenParticulierDefaultValue);
+					showLidmaatschap($customField, $fieldsParticulieren, $lidmaatschapsBedragenParticulier, $lidmaatschapsBedragenParticulierDefaultValue);
 					break;
 					
 				case "lidmaatschapbedrijven":
@@ -489,12 +435,11 @@ if ($noServerContact || !empty($_SESSION['errors'])) {
 						echo "<hr>";
 						echo "<h2>Lidmaatschapsbijdrage</h2>";
 					}
-					showLidmaatschap($customField, $fieldsBedrijven, $noServerContact,
-					    $lidmaatschapsBedragenBedrijf, $lidmaatschapsBedragenBedrijfDefaultValue);
+					showLidmaatschap($customField, $fieldsBedrijven, $lidmaatschapsBedragenBedrijf, $lidmaatschapsBedragenBedrijfDefaultValue);
 					break;
 					
 				case "aankoop_saldo":
-					showAankoop(array(), $fieldsParticulieren, $maxAankoop);
+					showAankoop(array(), $fieldsParticulieren, 'no_maximum');
 					showAankoop($fieldsBedrijven, array(), null);
 					break;
 					

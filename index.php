@@ -16,10 +16,13 @@ define('REDIRECT_DATA', "register.php");
 
 ################################## RETRIEVING SERVER DATA  ###############################
 #################################################################################
-$noServerContact = false;
-$communitiesFromServer = getCommunities(BASE_URL);
-if (empty($communitiesFromServer)) {
-	$noServerContact = true;
+try {
+	$communitiesFromServer = getCommunityNames();
+} catch (Exception $e) {
+	// Set the error array if it was not set already.
+	if (empty($_SESSION['errors'])) {
+		$_SESSION['errors'] = array('errorType' => 'fatal', 'msg' => 'Onbekende fout');
+	}
 }
 
 ################################## FORM HEADER  ###############################
@@ -33,14 +36,6 @@ if (empty($communitiesFromServer)) {
 	<head>
 		<title><?php echo lang('title')?></title>
 		<link rel="stylesheet" type="text/css" href="style.css">
-        <script src="https://code.jquery.com/jquery-3.1.0.min.js" 
-				integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" 
-				crossorigin="anonymous"></script>
-		<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.15.0/jquery.validate.min.js"></script>
-		<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.15.0/additional-methods.min.js"></script>
-		<script src="stro_form_validation.js"></script>
-		<script src="register.js"></script>
-		<script src="moment.min.js"></script>
 	</head>
 <body>
 <div id="formContainer">
@@ -50,24 +45,7 @@ if (empty($communitiesFromServer)) {
 ################################## ERROR HANDLING  ###############################
 #################################################################################
 
-if ($noServerContact) {
-	echo '<div class="schadow">';
-	echo '	<div class="errorTop">';
-	echo '  	<h3>' . lang('error.title') . '</h3>';
-	echo '	</div>';
-	echo '	<div class="errorBottom">';
-	
-	echo '		<p class="textError">' . lang('error.heading') . ' 		</p>';
-	echo ' 		<ul>';
-	
-	if ($noServerContact) {
-		showErrorLi('error.noServerContact');
-	}
-	echo '      </ul>';
-	echo '   	<p class="textError">' . lang('error.contact') . '</p>';
-	echo '	</div>';
-	echo '</div>';
-}
+include 'show_errors.php';
 
 
 ################################## FORM ELEMENTS   ###############################
