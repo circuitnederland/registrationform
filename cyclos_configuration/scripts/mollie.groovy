@@ -44,7 +44,7 @@ firstMembershipPaymentDescription = Betaling eerste lidmaatschapsbijdrage
  # Mollie payment settings
  # Nr of days a payment may be in the past before considered too old when validating user.
  mollie_payment.max_age = 61
- mollie_payment.description = Jaarlijkse contributie (€#lidmaatschapsbijdrage#) + startsaldo (€#aankoop_saldo#) voor gebruiker #username#.
+ mollie_payment.description = Inschrijfkosten circuitnederland.nl (€#lidmaatschapsbijdrage#) + startsaldo (€#aankoop_saldo#) voor gebruiker #username#.
  confirmationUrlPart = /registration_finished.php
  validationUrlPart = /confirm_email.php
  mollieWebhookUrlPart = /run/paid
