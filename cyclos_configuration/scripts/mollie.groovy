@@ -399,7 +399,7 @@ class Utils{
         paymentService.perform(membership)
 
         // Store bank account info on member record.
-        def consName = paymentInfo['consumerName']?: ''
+        def consName = paymentInfo['consName']?: ''
         def iban = paymentInfo['iban']?: ''
         def bic = paymentInfo['bic']?: ''
         Boolean paid = true
