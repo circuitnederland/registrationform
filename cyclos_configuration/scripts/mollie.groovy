@@ -11,6 +11,7 @@ import org.cyclos.entities.users.SystemRecordType
 import org.cyclos.entities.users.User
 import org.cyclos.entities.users.UserRecord
 import org.cyclos.entities.users.UserRecordType
+import org.cyclos.impl.access.DirectUserSessionData
 import org.cyclos.impl.system.ScriptHelper
 import org.cyclos.impl.users.RecordServiceLocal
 import org.cyclos.impl.utils.persistence.EntityManagerHandler
@@ -408,6 +409,18 @@ class Utils{
         def usr = binding.scriptHelper.wrap(user)
         if (!usr.iban.equalsIgnoreCase(iban)) {
             sendMailToAdmin("Circuit Nederland: different bank account", prepareMessage("differentBankAccount", ["user": usr.name]), true)
+        }
+    }
+
+    /**
+     * Accept all personal agreements.
+     */
+    public void acceptAgreements(User user){
+        binding.invokerHandler.runAs(new DirectUserSessionData(user, binding.sessionData)) {
+            def pendingAgreements = binding.agreementLogService.getPendingAgreements()
+            if (pendingAgreements) {
+                binding.agreementLogService.accept(pendingAgreements.toSet())
+            }
         }
     }
 

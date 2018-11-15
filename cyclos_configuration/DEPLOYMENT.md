@@ -3,7 +3,47 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 
 ## Deployment Tasks for next release
 
-To be determined..
+1. Create a new operation script on pending users:
+	- Go to Systeem > [Operaties] Scripts: Toevoegen. Choose 'Operatie'. Fill in the form for creating a new script:  
+	Naam									: Validatie afwijkende betaalmethode  
+	Uitgevoerd met alle permissies			: Keep checked  
+	Maak gebruik van bibliotheek (scripts)	: mollie  
+	Script code uitgevoerd wanneer de operatie wordt uitgevoerd: Paste the contents of cyclos_configuration\scripts\alternativePaymentValidation.groovy in the textarea field.
+
+	- Go to Systeem > [Operaties] Operaties: Toevoegen. Fill in the form for creating a new operation:  
+	[Detail tab]:  
+	Naam		: Validatie met afwijkende betaalmethode 
+	Interne naam	: alternativePaymentValidation  
+	Beschrijving	: Met deze operatie kan een financieel beheerder een gebruiker valideren die niet via iDEAL heeft betaald maar op een andere manier.  
+	Label		: Valideren met afwijkende betaalmethode  
+	Ingeschakeld voor kanalen: select 'Main' only  
+	Aangepaste toestemmingslabel: Gebruiker valideren  
+	Omvang		: Gebruiker  
+	Script		: Validatie afwijkende betaalmethode  
+	Resultaattype: URL  
+	Hoofdmenu	: Gebruikers  
+	Gebruikers management sectie: Gebruikersbeheer  
+	Enabled for active users: Uncheck this  
+	Enabled for pending users: Check this  
+	Informatie tekst: Fill in the text from the test environment, using HTML-mode to get the correct font-color.
+	
+		[Formuliervelden tab]:  
+		Create the following 'formuliervelden':
+		- E-mail (email), Gemiddeld, Verplicht
+		- IBAN (iban), Gemiddeld, Verplicht
+		- Naam rekeninghouder (accountName), Gemiddeld, Verplicht
+		- Bedrag (amount), Decimale, Verplicht
+		- Betaalmethode (method), Enkelvoudige selectie, Veldtype Knop, Verplicht  
+			-> After saving, create the following 'Waarden' for this field:  
+			Reeds handmatig overgeboekt (handmatig), Standaard  
+			Reeds betaald via pin (pin)  
+			Reeds geïncasseerd (via incasso) (incasso)  
+			Reeds cash betaald (kopie bankpas is gemaakt!) (cash)  
+
+	- Go to Systeem > [Gebruikers configuratie] Producten > 'Algemeen (voor iedereen)'. Under [Algemeen] change 'Operaties' so 'Valideren met afwijkende betaalmethode' is set to 'Geactiveerd'.
+
+	- Go to Systeem > [Gebruikers configuratie] Groepen > 'Administrateurs C3-Nederland (Netwerk)'. At the Permissies tab change [Gebruikerbeheer] 'Uitvoeren operaties (op gebruikers)' so 'Valideren met afwijkende betaalmethode' is checked.  
+	Do the same for the 'Administrateurs financieel - Circuit Nederland' group.
 
 ## Deployment Tasks for release 1.1.0
 1. Adjust registration_strings.php to reflect the changes in registration_strings-sample.php:
