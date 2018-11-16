@@ -11,6 +11,14 @@ if (usr.brokers) {
 
 String paymentId = usr.payment_id
 
+if (paymentId == 'not_ideal') {
+	// Stop the script; this user is being activated manually because of an alternative payment method.
+	// First, empty the payment_id, so it is less obvious we use this 'not_ideal' string for special cases.
+	usr.payment_id = ""
+	userService.save(usrDTO)
+	return
+}
+
 try{
 	def paymentResponse = mollie.getPayment(paymentId)
 	BigDecimal contribution = utils.getLidmaatschapsbijdrage(usr)
@@ -93,14 +101,10 @@ try{
 			throw new ValidationException(utils.prepareMessage("notPaid", vars, true))
 	}
 
-	// Activate actions.
+	// Activate actions:
+
 	// Accept all personal agreements.
-	invokerHandler.runAs(new DirectUserSessionData(user, sessionData)) {
-		def pendingAgreements = agreementLogService.getPendingAgreements()
-		if (pendingAgreements) {
-			agreementLogService.accept(pendingAgreements.toSet())
-		}
-	}
+	utils.acceptAgreements(user)
 
 	// Create the transactions.
 	String method = 'ideal'

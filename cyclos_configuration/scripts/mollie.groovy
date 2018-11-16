@@ -11,6 +11,7 @@ import org.cyclos.entities.users.SystemRecordType
 import org.cyclos.entities.users.User
 import org.cyclos.entities.users.UserRecord
 import org.cyclos.entities.users.UserRecordType
+import org.cyclos.impl.access.DirectUserSessionData
 import org.cyclos.impl.system.ScriptHelper
 import org.cyclos.impl.users.RecordServiceLocal
 import org.cyclos.impl.utils.persistence.EntityManagerHandler
@@ -30,37 +31,7 @@ import org.cyclos.model.banking.transactions.PerformPaymentDTO
 import org.cyclos.model.banking.transfertypes.TransferTypeVO
 
 /**
- * This script expects the following parameters
- * 
-
-# Transaction settings
-systemDebit = debietrekening
-fromDebitPaymentType = Aankoop_units
-userAccountType = handelsrekening
-firstMembershipPaymentType = lidmaatschapsbijdrage
-fromDebitPaymentDescription = Aankoop eenheden Circuit Nederland. Dit is het bedrag dat je betaald hebt via Ideal, hier betaal je automatisch je lidmaatschapsbijdrage mee in circulair geld.
-firstMembershipPaymentDescription = Betaling eerste lidmaatschapsbijdrage
-
- # Mollie payment settings
- # Nr of days a payment may be in the past before considered too old when validating user.
- mollie_payment.max_age = 61
- mollie_payment.description = Jaarlijkse contributie (€#lidmaatschapsbijdrage#) + startsaldo (€#aankoop_saldo#) voor gebruiker #username#.
- confirmationUrlPart = /registration_finished.php
- validationUrlPart = /confirm_email.php
- mollieWebhookUrlPart = /run/paid
-
- # Mailaddress of the circuitnederland tech team - for severe technical problems.
- techTeamMail = tech@circuitnederland.nl
-
- # Messages to TechTeam:
- paymentAlreadyUsed = Bij activeren van gebruiker #user# is gebleken dat de paymentID (#payment_id#) van deze gebruiker al eerder gebruikt is. De activatie van de gebruiker is hierdoor mislukt.
- paymentTooOld = Bij activeren van gebruiker #user# is gebleken dat de betaling van payment met paymentID: #payment_id# langer geleden is dan gebruikelijk. De activatie van de gebruiker is hierdoor mislukt.
- incorrectAmount = Bij activeren van gebruiker #user# is gebleken dat het betaalde bedrag (#paidAmount#) in de payment (paymentID: #payment_id#) lager is dan het bedrag dat hij/zij zou moeten betalen (#expectedAmount#). De activatie van de gebruiker is hierdoor mislukt.
- wrongSource = Bij activeren van gebruiker #user# heeft de payment een verkeerde source in de metadata: '#source#' in plaats van 'registration' (paymentID: #payment_id#). De activatie van de gebruiker is hierdoor mislukt.
- userWasAlreadySetOnPaid = Het Betaald veld stond al op 'betaald'. Dit kan duiden op een handmatige wijziging door een admin.
- wrongPaymentIsPaid = De id van de payment die de gebruiker zojuist in Mollie heeft betaald is anders dan de payment id die voor deze gebruiker in Cyclos staat.
- webhookError = Er is een exception opgetreden in het mollieWebhook script:\r\n\r\n#error#\r\n\r\nGegevens op dit moment:\r\nIP-adres: #ipAddress#\r\npayment id van Mollie: #paymentIdFromMollie#\r\nGebruikersnaam: #user#\r\npayment id in Cyclos: #paymentIdInCyclos#
- techError = Er is een exception opgetreden in een Cyclos script:\r\n\r\n#error#
+ * This script expects the parameters as mentioned in mollie.properties.
  */
 
 /**
@@ -399,7 +370,7 @@ class Utils{
         paymentService.perform(membership)
 
         // Store bank account info on member record.
-        def consName = paymentInfo['consumerName']?: ''
+        def consName = paymentInfo['consName']?: ''
         def iban = paymentInfo['iban']?: ''
         def bic = paymentInfo['bic']?: ''
         Boolean paid = true
@@ -408,6 +379,18 @@ class Utils{
         def usr = binding.scriptHelper.wrap(user)
         if (!usr.iban.equalsIgnoreCase(iban)) {
             sendMailToAdmin("Circuit Nederland: different bank account", prepareMessage("differentBankAccount", ["user": usr.name]), true)
+        }
+    }
+
+    /**
+     * Accept all personal agreements.
+     */
+    public void acceptAgreements(User user){
+        binding.invokerHandler.runAs(new DirectUserSessionData(user, binding.sessionData)) {
+            def pendingAgreements = binding.agreementLogService.getPendingAgreements()
+            if (pendingAgreements) {
+                binding.agreementLogService.accept(pendingAgreements.toSet())
+            }
         }
     }
 
