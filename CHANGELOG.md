@@ -1,4 +1,21 @@
 # Changelog
+## 1.1.1 (2018-11-15)
+### Added
+<ul>
+	<li>Added custom operation for financial admins to validate users with alternative payment methods.</li>
+</ul>
+
+### Changed
+<ul>
+	<li>Changed description of debit to user payment.</li>
+	<li>Changed Mollie description to look better when truncated.</li>
+</ul>
+
+### Bugfixes
+<ul>
+	<li>Fix missing consumerName in iDEAL records.</li>
+</ul>
+
 ## 1.1.0 (2018-10-30)
 ### Added
 <ul>

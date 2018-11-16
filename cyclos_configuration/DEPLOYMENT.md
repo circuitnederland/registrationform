@@ -1,8 +1,7 @@
 # Deployment Tasks per release
 Things to do manually in the Cyclos production-environment when deploying a new release of the PHP registrationform to production.
 
-## Deployment Tasks for next release
-
+## Deployment Tasks for release 1.1.1
 1. Create a new operation script on pending users:
 	- Go to Systeem > [Operaties] Scripts: Toevoegen. Choose 'Operatie'. Fill in the form for creating a new script:  
 	Naam									: Validatie afwijkende betaalmethode  
