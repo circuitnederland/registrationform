@@ -69,7 +69,6 @@ function lang($phrase){
 			'error.queryParse'		=> "Een zoekopdracht bevatte een niet-toegestane text:",
 			'error.queryParse.text'	=> "de niet toegestane text is:",
 			'error.saveError'		=> "Er is een fout opgetreden bij het wegschrijven van gegevens. Neem alsjeblieft contact op met de administratie. Foutcode: ",
-			'error.title'			=> "Oeps! Er is iets niet goed gegaan!!",
 			'error.unknownType'		=> "Onbekende input-fout",
 			'error.unknownGroup' 	=> "Onbekende groep",
 			'error.unknownUser' 	=> "Onbekende gebruiker",
