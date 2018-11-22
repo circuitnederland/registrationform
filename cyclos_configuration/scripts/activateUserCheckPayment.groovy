@@ -4,10 +4,6 @@ import org.cyclos.model.utils.TransactionLevel
 
 def usrDTO = userService.load(user.id)
 def usr = scriptHelper.wrap(usrDTO)
-if (usr.brokers) {
-	// stop the script
-	return
-}
 
 String paymentId = usr.payment_id
 
@@ -103,8 +99,12 @@ try{
 
 	// Activate actions:
 
-	// Accept all personal agreements.
-	utils.acceptAgreements(user)
+	// Accept all personal agreements, except when the user was created by a broker.
+	// When a broker registers a user we can not be sure the user already accepted the agreements, so we don't accept them here.
+	// The user will then be prompted to accept the agreements on first login.
+	if (!user.brokers) {
+		utils.acceptAgreements(user)
+	}
 
 	// Create the transactions.
 	String method = 'ideal'
