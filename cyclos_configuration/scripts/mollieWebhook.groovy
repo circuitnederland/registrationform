@@ -35,21 +35,25 @@ try {
         
         // Get the Cyclos user with this username.
 		def user = conversionHandler.convert(User, userName)
-        def bean = scriptHelper.wrap(user)
-        paymentIdInCyclos = bean.payment_id
+		def usrDTO = userServiceSecurity.load(user.id)
+		def usr = scriptHelper.wrap(usrDTO)
+        paymentIdInCyclos = usr.payment_id
 
         // Check if the Cyclos Betaald field is already 'betaald'. This should normally not be the case, but could have been set by an admin.
-		if (bean.betaald) {
-            if ('betaald' == bean.betaald.getInternalName()) {
+		if (usr.betaald) {
+            if ('betaald' == usr.betaald.getInternalName()) {
 				throw new Exception(utils.prepareMessage("userWasAlreadySetOnPaid"))
             }
         }
         
         // Set the betaald field of the user to 'betaald'.
-		bean.betaald = "betaald"
+		usr.betaald = "betaald"
 
 		// Empty the payment_url field of the user, because it is not needed anymore.
-		bean.payment_url = ""
+		usr.payment_url = ""
+
+		// Save the userprofile field changes.
+		userServiceSecurity.save(usrDTO)
 		
 		// Check whether the payment id field of this user in Cyclos is the same as the payment id Mollie posted.
 		if (paymentIdInCyclos != paymentIdFromMollie) {
