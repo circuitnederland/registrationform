@@ -52,20 +52,16 @@ try{
 		case "pending":
 			throw new ValidationException(utils.prepareMessage("pending", null, true))
 		case "open":
-			// @todo: The current code to cancel the payment does not work (Mollie returns a 422 - The payment cannot be cancelled.). Also the payment isCancelable is false.
-			// The reason to try to cancel the payment is explained in GH issue #15. So this issue is still open.
-
-			// // Invalidate the old payment in Mollie, so the user can not pay that anymore, even if he has the Mollie screen with that payment still open somewhere.
-			// mollie.cancelPayment(usr.payment_id)
-			// // @todo: should we check the result? It should return the payment and we could check if its status is indeed canceled.
-			// // @todo: should we empty the payment_id and payment_url in the user profile? If all goes well, they will be filled with new data by the next lines of code anyway.
-			// // But if something goes wrong with that, perhaps it is useful to be able to see the old payment data in the user profile?
-
-			// Don't break here, but continue with the default case, setting up a new Mollie payment.
+			// The payment is still open, so we notify the user he still has to pay, re-using the original payment_url.
+			// The reason we do not create a new payment in this situation is that it turns out to be impossible to cancel the old payment.
+			String payment_url = paymentResponse._links.checkout.href
+			def vars = ['lidmaat': formatter.format(contribution), 'aankoop': formatter.format(aankoop_saldo), 'totaal': formatter.format(totalAmount), 'link': "<a href=\"${payment_url}\">Naar betaalscherm</a>"]
+			throw new ValidationException(utils.prepareMessage("notPaid", vars, true))
 		default:
 			// According to https://docs.mollie.com/payments/status-changes payment status can be one of: open, canceled, pending, expired, failed or paid.
-			// So, if the status is not paid or pending, it is one of open, canceled, expired or failed.
-			// In all these cases the user has not paid yet. So we create a new payment in Mollie and store its info in the user profile.
+			// So, if the status is not paid, open, or pending, it is one of: canceled, expired or failed.
+			// In all these cases the user has not paid yet and the original payment can not be used anymore.
+			// So we create a new payment in Mollie and store its info in the user profile.
 
 			// Create a new payment in Mollie.
 			// Note: the validationKey is in the user object, not in usr.
