@@ -26,7 +26,6 @@ if (!empty($errors['msg'])) {
 }
 ?>
 	<div class="schadow">
-		<div class="errorTop"><h3><?php echo lang('error.title'); ?></h3></div>
 		<div class="errorBottom">
 			<p class="textError"><?php echo lang('error.heading'); ?></p>
 			<?=$errorMessage?>
