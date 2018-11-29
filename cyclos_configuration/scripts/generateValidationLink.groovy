@@ -8,11 +8,15 @@ import org.cyclos.model.users.records.RecordDataParams
 import org.cyclos.model.users.recordtypes.RecordTypeVO
 
 // Only generate a custom link if this is the validation link.
-if(type != LinkType.REGISTRATION_VALIDATION) {
+if (type != LinkType.REGISTRATION_VALIDATION) {
 	return null
 }
+// Don't generate a custom validation URL for operators.
+if (user.operator) {
+    return null
+}
 // We are supposed to have a validationKey in this case.
-if(validationKey?.empty) {
+if (validationKey?.empty) {
     return null
 }
 
