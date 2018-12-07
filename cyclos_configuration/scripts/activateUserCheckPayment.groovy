@@ -2,8 +2,12 @@ import org.cyclos.impl.access.DirectUserSessionData
 import org.cyclos.model.ValidationException
 import org.cyclos.model.utils.TransactionLevel
 
-def usrDTO = userService.load(user.id)
-def usr = scriptHelper.wrap(usrDTO)
+// @todo: change the code below back to use the userService, so changes are shown in the profile history.
+// For now, we don't use this, because a side-effect is that Cyclos does not set the validationKey to null.
+// See GH issue #51.
+// def usrDTO = userService.load(user.id)
+// def usr = scriptHelper.wrap(usrDTO)
+def usr = scriptHelper.wrap(user)
 
 String paymentId = usr.payment_id
 
@@ -11,7 +15,8 @@ if (paymentId == 'not_ideal') {
 	// Stop the script; this user is being activated manually because of an alternative payment method.
 	// First, empty the payment_id, so it is less obvious we use this 'not_ideal' string for special cases.
 	usr.payment_id = ""
-	userService.save(usrDTO)
+	// @todo: change this back to use the userService - GH issue #51.
+	// userService.save(usrDTO)
 	return
 }
 
@@ -47,7 +52,8 @@ try{
 			// So should we remove this code here? And if so, should we replace it with a check whether the betaald field is indeed 'Heeft betaald'? Or just ignore if it is not?
 			// And if we DO want to set the betaald veld here (again), should we use a parallel transaction for this, so it will always work even if something later on fails? I don't think so?
 			usr.betaald = 'betaald'
-			userService.save(usrDTO)
+			// @todo: change this back to use the userService - GH issue #51.
+			// userService.save(usrDTO)
 			break;
 		case "pending":
 			throw new ValidationException(utils.prepareMessage("pending", null, true))
