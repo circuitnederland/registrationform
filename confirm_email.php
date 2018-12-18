@@ -41,7 +41,7 @@ if (!empty($_SESSION['errors'])) $_SESSION['errors']['errorType'] = 'fatal';
 
 	?>
 
-	<p class="uitleg"><?php printf(lang('confirmation.explain'), BASE_URL, $loginInfo['username'], $loginInfo['email']); ?></p>
+	<?php printf(lang('confirmation.explain'), BASE_URL . '/#login', $loginInfo['username'], $loginInfo['email']); ?>
 
 </div>
 	
