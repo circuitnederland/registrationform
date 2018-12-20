@@ -22,6 +22,7 @@ import org.cyclos.model.users.recordtypes.RecordTypeVO
 import org.cyclos.model.users.users.UserLocatorVO
 import org.cyclos.server.utils.MessageProcessingHelper
 import org.cyclos.utils.DateTime
+import org.cyclos.utils.StringHelper
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.cyclos.entities.banking.PaymentTransferType
 import org.cyclos.entities.banking.SystemAccountType
@@ -321,7 +322,12 @@ class Utils{
         String amount = (contribution + aankoop_saldo).setScale(2)
         String description = MessageProcessingHelper.processVariables(params.'mollie_payment.description', vars)
         String redirectUrl = auth.registrationRootUrl
-        redirectUrl += validationKey? params.validationUrlPart + "?validationKey=${validationKey}" : params.confirmationUrlPart + "?mail=${user.email}"
+        // Add the correct redirectUrl, depending on whether the user came from the validate page or not (i.e. the registration form).
+        if (validationKey) {
+            redirectUrl += params.validationUrlPart + "?validationKey=${validationKey}"
+        } else {
+            redirectUrl += params.confirmationUrlPart + "?mail=" + StringHelper.encodeURIComponent(user.email) 
+        }
         String webhookUrl = binding.sessionData.configuration.rootUrl + params.mollieWebhookUrlPart
         return mollie.createPayment(amount, description, redirectUrl, webhookUrl, user.username, "registration")
     }
