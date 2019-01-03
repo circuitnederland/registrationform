@@ -219,7 +219,8 @@ function restRequest($url, $params, $format, $isPost, $data = null, $useToken = 
 	// If we need to do a multipart request, we need different headers.
 	if ('multipart' == $format) {
 		$headers = array(
-			'Content-Type: multipart/form-data'
+			'Content-Type: multipart/form-data',
+			'Accept: application/json'
 		);
 	}
 	if ($useToken) $headers[] = CYCLOS_ACCESS;
@@ -245,13 +246,7 @@ function restRequest($url, $params, $format, $isPost, $data = null, $useToken = 
 	$result = array(
 		'httpCode' => $httpCode
 	);
-	if ('json' == $format) {
-		// If we are supposed to get JSON back, parse it.
-		$result['response'] = json_decode($response, true);
-	} else {
-		// If we get plain text back, just add it as-is.
-		$result['response'] = $response;
-	}
+	$result['response'] = json_decode($response, true, 512, JSON_BIGINT_AS_STRING);
 	return $result;
 }
 

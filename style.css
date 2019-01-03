@@ -283,6 +283,9 @@ input#uploadFile {
 	border-bottom-left-radius: 3px;
 	outline: none;
 }
+input#uploadFile.error{
+	color:red;
+}
 
 .fileUpload {
 	width: 120px;
@@ -788,3 +791,4 @@ input[type=checkbox] {
 
 /****************************************************** END: Mobile only CSS ********************************************************/
 
+}
