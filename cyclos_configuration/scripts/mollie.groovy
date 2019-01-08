@@ -349,8 +349,7 @@ class Utils{
     /**
     * Finds the relevant Mollie payment for the given user, starting with the paymentId in the user profile.
     * If this leads to a non-paid payment, searches for the profilehistory for all paymentId's the user might have used.
-    * Returns payment information for either a paid (or pending) payment or for the paymentId in the user profile if 
-    * none of the payments were paid.
+    * Returns payment information for either a paid (or pending) payment or a random payment of this user that was not paid.
     */
     public Object findRelevantPaymentForUser(def usr) {
         // First check the paymentId of the user.
