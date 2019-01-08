@@ -2,8 +2,12 @@ import org.cyclos.impl.access.DirectUserSessionData
 import org.cyclos.model.ValidationException
 import org.cyclos.model.utils.TransactionLevel
 
-def usrDTO = userService.load(user.id)
-def usr = scriptHelper.wrap(usrDTO)
+// @todo: change the code below back to use the userService, so changes are shown in the profile history.
+// For now, we don't use this, because a side-effect is that Cyclos does not set the validationKey to null.
+// See GH issue #51.
+// def usrDTO = userService.load(user.id)
+// def usr = scriptHelper.wrap(usrDTO)
+def usr = scriptHelper.wrap(user)
 
 String paymentId = usr.payment_id
 
@@ -11,18 +15,26 @@ if (paymentId == 'not_ideal') {
 	// Stop the script; this user is being activated manually because of an alternative payment method.
 	// First, empty the payment_id, so it is less obvious we use this 'not_ideal' string for special cases.
 	usr.payment_id = ""
-	userService.save(usrDTO)
+	// @todo: change this back to use the userService - GH issue #51.
+	// userService.save(usrDTO)
 	return
 }
 
 try{
-	def paymentResponse = mollie.getPayment(paymentId)
+	def paymentResponse = utils.findRelevantPaymentForUser(usr)
 	BigDecimal contribution = utils.getLidmaatschapsbijdrage(usr)
 	BigDecimal aankoop_saldo = (usr.aankoop_saldo?:0)
 	BigDecimal totalAmount = contribution + aankoop_saldo
 
 	switch(paymentResponse.status) {
 		case "paid":
+			// Check whether the paid payment is the one we have in the user profile.
+			if (paymentResponse.id != paymentId) {
+				// The active payment is not the paid one. This can happen in theory when the webhook was not fast enough.
+				// Change the payment_id in the user profile to the paid payment and continue with this paymentId.
+				paymentId = paymentResponse.id
+				usr.payment_id = paymentId
+			}
 			// Verify if the payment_id was used before by someone else. We check the idealDetail userrecords for this. This can happen if an admin reuses a payment_id from someone else.
 			if (utils.isPaymentIdUsedBefore(paymentId, user)) {
 				throw new Exception(utils.prepareMessage('paymentAlreadyUsed', ['user': usr.username, 'payment_id': paymentId]))
@@ -47,21 +59,15 @@ try{
 			// So should we remove this code here? And if so, should we replace it with a check whether the betaald field is indeed 'Heeft betaald'? Or just ignore if it is not?
 			// And if we DO want to set the betaald veld here (again), should we use a parallel transaction for this, so it will always work even if something later on fails? I don't think so?
 			usr.betaald = 'betaald'
-			userService.save(usrDTO)
+			// @todo: change this back to use the userService - GH issue #51.
+			// userService.save(usrDTO)
 			break;
 		case "pending":
 			throw new ValidationException(utils.prepareMessage("pending", null, true))
-		case "open":
-			// The payment is still open, so we notify the user he still has to pay, re-using the original payment_url.
-			// The reason we do not create a new payment in this situation is that it turns out to be impossible to cancel the old payment.
-			String payment_url = paymentResponse._links.checkout.href
-			def vars = ['lidmaat': formatter.format(contribution), 'aankoop': formatter.format(aankoop_saldo), 'totaal': formatter.format(totalAmount), 'link': "<a href=\"${payment_url}\">Naar betaalscherm</a>"]
-			throw new ValidationException(utils.prepareMessage("notPaid", vars, true))
 		default:
 			// According to https://docs.mollie.com/payments/status-changes payment status can be one of: open, canceled, pending, expired, failed or paid.
-			// So, if the status is not paid, open, or pending, it is one of: canceled, expired or failed.
-			// In all these cases the user has not paid yet and the original payment can not be used anymore.
-			// So we create a new payment in Mollie and store its info in the user profile.
+			// So, if the status is not paid or pending, it is one of: open, canceled, expired or failed.
+			// In all these cases the user has not paid yet. So we create a new payment in Mollie and store its info in the user profile.
 
 			// Create a new payment in Mollie.
 			// Note: the validationKey is in the user object, not in usr.

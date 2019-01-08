@@ -370,7 +370,7 @@ include 'show_errors.php';
 				<div class="uploadText"><?php echo lang('field.upload')?></div>
 				<!--  This is the actual file edit, but it has the uploadtext displayed over it.
 				This edit takes care that the file is actually uploaded. Therefore, it MUST have a name attribute. -->
-				<input id="uploadBtn" name="uploadedPic" type="file" class="upload"/>
+				<input id="uploadBtn" name="uploadedPic" type="file" class="upload" accept="image/png,image/jpeg,image/gif" />
 			</div>
 		</div>
 	</div>
@@ -513,7 +513,16 @@ include 'show_errors.php';
 <script>
 	document.getElementById("uploadBtn").onchange = function () {
 		var uploadPathName = this.value.replace("C:\\fakepath\\", "");
-		document.getElementById("uploadFile").value = uploadPathName;
+		var uploadedFileExtension = uploadPathName.split('.').pop();
+		var allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+		var uploadedFileNameDiv = document.getElementById("uploadFile");
+		if (allowedExtensions.indexOf(uploadedFileExtension) != -1){ 
+			uploadedFileNameDiv.value = uploadPathName;
+			uploadedFileNameDiv.classList.remove("error");
+		} else {
+			uploadedFileNameDiv.value = "Ongeldig type bestand.";
+			uploadedFileNameDiv.classList.add("error");
+		}
 	}
 </script>
 

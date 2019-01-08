@@ -4,6 +4,10 @@
  * If the payment status in Mollie is 'paid', the 'Betaald' profile field of the
  * Cyclos user that belongs to this payment is updated to 'betaald'. Also the 
  * payment_url profile field of the Cyclos user is emptied, because it is no longer needed.
+ * If the posted paymentId from Mollie is not the same as the payment_id of the Cyclos user,
+ * but does appear in the profile history of the user, we also change the payment_id of the Cyclos user.
+ * This happens when a user first tries to activate before having paid (so Cyclos generates a new payment_id)
+ * and than pays in an old Mollie screen he has still open (with the previous payment_id).
  *
  * In all other cases, nothing happens. This could be if:
  * - No payment id is posted at all.
@@ -38,10 +42,25 @@ try {
 		def usrDTO = userServiceSecurity.load(user.id)
 		def usr = scriptHelper.wrap(usrDTO)
         paymentIdInCyclos = usr.payment_id
+		
+		// Check whether the paymentId field of this user in Cyclos is the same as the paymentId Mollie posted.
+		if (paymentIdInCyclos != paymentIdFromMollie) {
+			// The user probably paid a previous payment with an old Mollie screen still open.
+			// Search for it in the profilehistory.
+			List<String> paymentIds = utils.getPaymentIdsFromProfileHistory(usr)
+			if (paymentIds.contains(paymentIdFromMollie)) {
+				// We found an old payment in the user history the user paid now. So set this as the current payment_id.
+				usr.payment_id = paymentIdFromMollie
+			} else {
+				// The user paid a payment we can not find in Cyclos. That should not happen, so inform the tech team and stop.
+				throw new Exception(utils.prepareMessage("wrongPaymentIsPaid"))
+			}
+		}
 
-        // Check if the Cyclos Betaald field is already 'betaald'. This should normally not be the case, but could have been set by an admin.
+        // Check if the Cyclos Betaald field is already 'betaald'.
 		if (usr.betaald) {
             if ('betaald' == usr.betaald.getInternalName()) {
+				// Maybe an admin did this, or maybe the user did two payments. Either way, inform the tech team and stop.
 				throw new Exception(utils.prepareMessage("userWasAlreadySetOnPaid"))
             }
         }
@@ -54,12 +73,6 @@ try {
 
 		// Save the userprofile field changes.
 		userServiceSecurity.save(usrDTO)
-		
-		// Check whether the payment id field of this user in Cyclos is the same as the payment id Mollie posted.
-		if (paymentIdInCyclos != paymentIdFromMollie) {
-			// The user probably paid a previous payment with an old Mollie screen still open after validating. An admin should look into this.
-			throw new Exception(utils.prepareMessage("wrongPaymentIsPaid"))
-		}
 	} 
 } catch (Exception e) {
     // Exceptions can happen in several cases as described at the top. We only use them to send an email to the tech team. No output is needed to the caller of the webhook (Mollie).

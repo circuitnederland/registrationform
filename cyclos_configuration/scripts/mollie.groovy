@@ -22,6 +22,7 @@ import org.cyclos.model.users.recordtypes.RecordTypeVO
 import org.cyclos.model.users.users.UserLocatorVO
 import org.cyclos.server.utils.MessageProcessingHelper
 import org.cyclos.utils.DateTime
+import org.cyclos.utils.StringHelper
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.cyclos.entities.banking.PaymentTransferType
 import org.cyclos.entities.banking.SystemAccountType
@@ -29,6 +30,9 @@ import org.cyclos.model.banking.accounts.SystemAccountOwner
 import org.cyclos.model.banking.transactions.PaymentVO
 import org.cyclos.model.banking.transactions.PerformPaymentDTO
 import org.cyclos.model.banking.transfertypes.TransferTypeVO
+import org.cyclos.model.system.entitylogs.EntityPropertyLogQuery
+import org.cyclos.model.system.entitylogs.EntityLogType
+import org.cyclos.model.system.entitylogs.EntityPropertyLogVO
 
 /**
  * This script expects the parameters as mentioned in mollie.properties.
@@ -318,7 +322,12 @@ class Utils{
         String amount = (contribution + aankoop_saldo).setScale(2)
         String description = MessageProcessingHelper.processVariables(params.'mollie_payment.description', vars)
         String redirectUrl = auth.registrationRootUrl
-        redirectUrl += validationKey? params.validationUrlPart + "?validationKey=${validationKey}" : params.confirmationUrlPart + "?mail=${user.email}"
+        // Add the correct redirectUrl, depending on whether the user came from the validate page or not (i.e. the registration form).
+        if (validationKey) {
+            redirectUrl += params.validationUrlPart + "?validationKey=${validationKey}"
+        } else {
+            redirectUrl += params.confirmationUrlPart + "?mail=" + StringHelper.encodeURIComponent(user.email) 
+        }
         String webhookUrl = binding.sessionData.configuration.rootUrl + params.mollieWebhookUrlPart
         return mollie.createPayment(amount, description, redirectUrl, webhookUrl, user.username, "registration")
     }
@@ -336,6 +345,69 @@ class Utils{
 		String amount = contrib.substring(0, contrib.indexOf(" - "))
 		return new BigDecimal(amount)
 	}
+
+    /**
+    * Finds the relevant Mollie payment for the given user, starting with the paymentId in the user profile.
+    * If this leads to a non-paid payment, searches for the profilehistory for all paymentId's the user might have used.
+    * Returns payment information for either a paid (or pending) payment or a random payment of this user that was not paid.
+    */
+    public Object findRelevantPaymentForUser(def usr) {
+        // First check the paymentId of the user.
+        def paymentResponse = getMolliePaymentForUser(usr, usr.payment_id)
+        if (paymentResponse?.status == 'paid' || paymentResponse?.status == 'pending') {
+            // The user paid this payment, so return the info on this payment.
+            return paymentResponse
+        }
+        // The current paymentId was not paid. Check if there are other payments for this user that are paid (or pending).
+        List alternativePayments = []
+        List<String> paymentIds = getPaymentIdsFromProfileHistory(usr)
+        paymentIds.each {
+            paymentResponse = getMolliePaymentForUser(usr, it)
+            if (paymentResponse?.status == 'paid' || paymentResponse?.status == 'pending') {
+                alternativePayments.add(paymentResponse)
+            }
+        }
+        if (alternativePayments) {
+            // There is at least one payment this user paid. Take the first one.
+            paymentResponse = alternativePayments[0]
+        }
+        return paymentResponse
+    }
+
+    /**
+    * Retrieves the payment information for the given paymentId from Mollie.
+    * Checks whether the payment retrieved belongs to the given user indeed.
+    * If the username is not correct, an Exception is thrown.
+    */
+    private Object getMolliePaymentForUser(def usr, String paymentId) {
+        def paymentResponse = mollie.getPayment(paymentId)
+        if (paymentResponse.metadata?.user != usr.username) {
+            throw new Exception("Wrong username ${paymentResponse.metadata?.user} in Mollie payment (${paymentId}) when validating ${usr.username}.")
+        }
+        return paymentResponse
+    }
+
+    /**
+    * Returns a list of paymentId's that exist in the profile history of the given user.
+    * The current payment_id for the user is removed from the returned list.
+    * So the returned list only contains historical paymentId's for the user, not the current one.
+    */
+    public List<String> getPaymentIdsFromProfileHistory(def usr) {
+        String fieldName = "Payment id"
+        EntityPropertyLogQuery q = new EntityPropertyLogQuery()
+        q.type = EntityLogType.USER
+        q.entityId = usr.id
+        q.keywords = fieldName
+        q.setUnlimited()
+        def logEntriesFound = binding.entityLogService.search(q)
+        List<String> result = []
+        for( EntityPropertyLogVO logEntry : logEntriesFound ){
+            if (logEntry?.name == fieldName && logEntry?.newValue != usr.payment_id) {
+                result.add(logEntry.newValue)
+            }
+        }
+        return result
+    }
 
     /**
      * Creates the two transactions needed when a new user is being validated (aankoop saldo from debiet to user and contribution from user to sys).

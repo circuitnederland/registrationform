@@ -9,6 +9,16 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 	Datatype		: Boolean  
 	Informatietekst	: Vink dit hokje alleen aan als de algemene voorwaarden en automatische incasso door de gebruiker zelf al zijn geaccepteerd op dit moment, bijvoorbeeld middels een handtekening op een papieren formulier dat in het archief op te zoeken is. Is dit niet zo, laat het hokje dan leeg; de gebruiker krijgt dan bij de eerste inlogpoging alsnog de mogelijkheid om de voorwaarden te accepteren.
 
+2. Change the system translation message when a user clicks the activation link again after having activated already:
+	- Go to Content > [Content Beheer] Systeemvertaling > Circuit Nederland.  
+	Search for Vertaalsleutel: wrongKey  
+	This should give 1 result: USERS.USERS.validationKey.wrongKey  
+	Change the translation of this key from: Verkeerde of verlopen validatie key. Neem alsjeblieft contact op met de administratie.  
+	into: Verkeerde of verlopen validatie key. Misschien heb je jouw account al geactiveerd? Als je account al geactiveerd is, heb je daar een e-mail over ontvangen. Neem anders alsjeblieft contact op met de administratie.
+
+3. Add validation to the aankoop saldo profilefield:
+	- Go to Systeem > [Gebruikers configuratie] Profielvelden > Aankoop saldo. Fill in the 'Bereik van toegestane waarden' from 0,00 to 10000,00.
+
 ## Deployment Tasks for release 1.1.1
 1. Create a new operation script on pending users:
 	- Go to Systeem > [Operaties] Scripts: Toevoegen. Choose 'Operatie'. Fill in the form for creating a new script:  
