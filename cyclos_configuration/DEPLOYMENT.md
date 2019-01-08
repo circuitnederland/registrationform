@@ -1,7 +1,7 @@
 # Deployment Tasks per release
 Things to do manually in the Cyclos production-environment when deploying a new release of the PHP registrationform to production.
 
-## Deployment Tasks for next release
+## Deployment Tasks for release 1.2.0
 1. Add a field to the alternativePaymentValidation Operation:
 	- Go to Systeem > [Operaties] Operaties > 'Validatie afwijkende betaalmethode'. Click the tab 'Formuliervelden' > 'Toevoegen'. Fill in the form for creating a new form field:  
 	Naam			: Algemene voorwaarden zijn door gebruiker al geaccepteerd  

@@ -1,4 +1,26 @@
 # Changelog
+## 1.2.0 (2019-01-08)
+### Added
+<ul>
+	<li>New checkbox in manual validation script for users with alternative payments: admin can now indicate whether the user already accepted the agreements or not.</li>
+	<li>Changes by webhook are now visible in profile history.</li>
+</ul>
+
+### Changed
+<ul>
+	<li>Improved message when user clicks confirmation link twice.</li>
+	<li>Small improvements: red oops bar removed, proper encodig of email address in screen after registration, link to login page and links to mobile apps in screen after activation.</li>
+</ul>
+
+### Bugfixes
+<ul>
+	<li>Better checks on payments during validation. User can now also pay an older payment they might have still open.</li>
+	<li>Improved activation for users created by brokers.</li>
+	<li>Operators now receive the original Cyclos URL to validate.</li>
+	<li>Uploading non-image files as logo is now prevented and generates a proper validation message.</li>
+	<li>Improved validation for aankoop_saldo field.</li>
+</ul>
+
 ## 1.1.1 (2018-11-15)
 ### Added
 <ul>
