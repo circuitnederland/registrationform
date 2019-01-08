@@ -82,7 +82,7 @@ $(function() {
         return /([0-9]{8})|^$/.test(value)
     }, "K.v.K. nummer moet een 8-cijferig nummer zijn.");
     
-    // aankoop moet positief of leeg zijn, alleen hele getallen particulieren maximaal 50000 
+    // aankoop moet positief of leeg zijn, alleen hele getallen particulieren maximaal 10000 
     $.validator.addMethod("aankoopparticulier", function (value) {
     	if (!value || !value.length) {
     		// always validate on empty, because it may not be required.
@@ -94,14 +94,14 @@ $(function() {
     	  return false;
     	}
     	// test if not too big, but first replace , by . because parseFloat only takes decimal point.
-    	if (parseFloat(value.replace(',', '.')) > 50000) {
+    	if (parseFloat(value.replace(',', '.')) > 10000) {
     		return false;
     	}
     	return true;
-    }, "Vul a.u.b. een heel bedrag in (zonder komma of punt). Dit bedrag mag niet hoger zijn dan 50000 euro.");
+    }, "Vul a.u.b. een heel bedrag in (zonder komma of punt). Dit bedrag mag niet hoger zijn dan 10000 euro.");
     
 	
-    // aankoop moet positief of leeg zijn, alleen hele getallen bedrijven maximaal 50000 
+    // aankoop moet positief of leeg zijn, alleen hele getallen bedrijven maximaal 10000 
     $.validator.addMethod("aankoopbedrijf", function (value) {
     	if (!value || !value.length) {
     		// always validate on empty, because it may not be required.
@@ -113,11 +113,11 @@ $(function() {
     	  return false;
     	}
     	// test if not too big, but first replace , by . because parseFloat only takes decimal point.
-    	if (parseFloat(value.replace(',', '.')) > 50000) {
+    	if (parseFloat(value.replace(',', '.')) > 10000) {
     		return false;
     	}
     	return true;
-    }, "Vul a.u.b. een heel bedrag in (zonder komma of punt). Dit bedrag mag niet hoger zijn dan 50000 euro.");
+    }, "Vul a.u.b. een heel bedrag in (zonder komma of punt). Dit bedrag mag niet hoger zijn dan 10000 euro.");
 	
 	
     // Het inlogwachtwoord moet minimaal 8 tekens lang zijn en minstens 1 kleine letter, 1 hoofdletter en 1 cijfer bevatten
