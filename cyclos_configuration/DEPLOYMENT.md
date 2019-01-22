@@ -1,6 +1,47 @@
 # Deployment Tasks per release
 Things to do manually in the Cyclos production-environment when deploying a new release of the PHP registrationform to production.
 
+## Deployment Tasks for next release
+1. Add a new operation for the topup functionality:
+	- Go to Systeem > [Operaties] Scripts: 'Toevoegen'. Choose 'Operatie'. Fill in the form for creating a new script:
+	Naam									: topup  
+	Uitgevoerd met alle permissies			: Keep checked  
+	Maak gebruik van bibliotheek (scripts)	: mollie  
+	Script code uitgevoerd wanneer de operatie wordt uitgevoerd: Paste the contents of cyclos_configuration\scripts\topup.groovy in the textarea field.
+	Script code uitgevoerd wanneer de externe website de gebruiker terug naar Cyclos stuurt: Paste the contents of cyclos_configuration\scripts\topup_redirect.groovy in the textarea field.
+
+	- Go to Systeem > [Operaties] Operaties: Toevoegen. Fill in the form for creating a new operation:  
+	[Detail tab]:  
+	Naam			: Opwaarderen  
+	Interne naam	: topup  
+	Beschrijving	: Met deze operatie kan een gebruiker zijn saldo opwaarderen.  
+	Label			: Saldo opwaarderen  
+	Ingeschakeld voor kanalen: select 'Main' and 'Mobiele App'  
+	Pictogram		: Select the creditcard icon on the second row  
+	Aangepaste toestemmingslabel: Opwaarderen  
+	Omvang			: Gebruiker  
+	Script			: topup  
+	Resultaattype	: Externe redirect  
+	Hoofdmenu		: Geldzaken  
+	Gebruikers management sectie: Geldzaken  
+	Enabled for active users: Check this  
+	Enabled for pending users: Uncheck this  
+	Informatie tekst: (Fill in the text from the test environment, using HTML-mode to get the correct font-color.)
+	
+		[Formuliervelden tab]:  
+		Create the following 'formulierveld':
+			Weergegeven naam: Bedrag  
+			Interne naam: amount  
+			Datatype: Decimale  
+			Decimalen: 2  
+			Verplicht: Check this  
+			Bereik: 25,00 tot 10000,00  
+
+	- Go to Systeem > [Gebruikers configuratie] Producten > 'Algemeen (voor iedereen)'. Under [Algemeen] change 'Operaties' so 'Opwaarderen' has both 'Geactiveerd' and 'Uitvoeren op mezelf' checked.
+
+2. Set the payment_id field to be unique within idealDetail userrecords:
+	- Go to Systeem > [Systeemconfiguratie] Recordtypen > 'iDEAL transacties' and click the 'Fields' tab. Open the paymentId field and check its 'Uniek' property.
+
 ## Deployment Tasks for release 1.2.0
 1. Add a field to the alternativePaymentValidation Operation:
 	- Go to Systeem > [Operaties] Operaties > 'Validatie afwijkende betaalmethode'. Click the tab 'Formuliervelden' > 'Toevoegen'. Fill in the form for creating a new form field:  
