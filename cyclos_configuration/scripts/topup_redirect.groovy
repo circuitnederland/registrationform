@@ -39,6 +39,6 @@ try {
     }
     return msg
 } catch (Exception e) {
-	utils.sendMailToTechTeam("Foutmelding bij redirect na saldo opwaarderen", utils.prepareMessage("techError", ["error": e.getMessage()]))
+	utils.sendMailToTechTeam("Foutmelding bij redirect na saldo opwaarderen", utils.prepareMessage("techError", ["error": e.getMessage()]), true)
 	return utils.prepareMessage("generalError", ["moment": " bij het verwerken van de opwaardering van je saldo"])
 }
