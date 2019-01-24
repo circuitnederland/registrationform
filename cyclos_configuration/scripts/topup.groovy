@@ -31,5 +31,5 @@ try {
     return json._links.checkout.href
 } catch (Exception e) {
 	utils.sendMailToTechTeam("Foutmelding bij saldo opwaarderen door gebruiker", utils.prepareMessage("techError", ["error": e.getMessage()]))
-	throw new ValidationException(utils.prepareMessage("generalError", ["moment": " in de voorbereiding van het opwaarderen"]))
+	throw new ValidationException(utils.prepareMessage("generalErrorWithRetry", ["moment": " in de voorbereiding van het opwaarderen"]))
 }
