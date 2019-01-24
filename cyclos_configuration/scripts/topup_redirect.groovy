@@ -4,8 +4,6 @@
  * The actual topping up is done by the mollieWebhook.
  */
 
-import org.cyclos.model.ValidationException
-
 try {
     // Use the information stored in the session.
     User user = parameterStorage.user
@@ -17,7 +15,7 @@ try {
 
     // Check whether the information in the payment is correct.
     BigDecimal paidAmount = new BigDecimal(paymentInfo.amount.value)
-    if (paidAmount != amount) {
+    if (! BigDecimalHelper.areEquals(amount, paidAmount)) {
         def vars = ['user': user.username, 'payment_id': paymentId, 'paidAmount': formatter.format(paidAmount), 'expectedAmount': formatter.format(amount)]
         throw new Exception(utils.prepareMessage("incorrectAmount", vars))
     }

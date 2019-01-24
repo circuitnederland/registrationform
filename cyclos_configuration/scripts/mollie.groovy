@@ -22,6 +22,7 @@ import org.cyclos.model.users.records.UserRecordDTO
 import org.cyclos.model.users.recordtypes.RecordTypeVO
 import org.cyclos.model.users.users.UserLocatorVO
 import org.cyclos.server.utils.MessageProcessingHelper
+import org.cyclos.utils.BigDecimalHelper
 import org.cyclos.utils.DateTime
 import org.cyclos.utils.StringHelper
 import org.springframework.mail.javamail.MimeMessageHelper
@@ -374,7 +375,7 @@ class Utils{
          username: user.username
         ]
         // Convert the total amount to a string with two decimals and a dot as separator - Mollie needs the amount like this.
-        String amount = (contribution + aankoop_saldo).setScale(2)
+        String amount = BigDecimalHelper.round((contribution + aankoop_saldo), 2).toString()
         String description = MessageProcessingHelper.processVariables(params.'mollie_payment.description', vars)
         String redirectUrl = auth.registrationRootUrl
         // Add the correct redirectUrl, depending on whether the user came from the validate page or not (i.e. the registration form).
@@ -397,7 +398,7 @@ class Utils{
          username: user.username
         ]
         // Convert the amount to a string with two decimals and a dot as separator - Mollie needs the amount like this.
-        String amount = amountToTopup.setScale(2)
+        String amount = BigDecimalHelper.round(amountToTopup, 2).toString()
         String description = MessageProcessingHelper.processVariables(params.'mollie_payment.descriptionTopup', vars)
         String webhookUrl = binding.sessionData.configuration.rootUrl + params.mollieWebhookUrlPart
         return mollie.createPayment(amount, description, returnUrl, webhookUrl, user.username, "topup")
