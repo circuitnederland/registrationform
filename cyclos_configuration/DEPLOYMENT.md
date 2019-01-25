@@ -42,6 +42,9 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 2. Set the payment_id field to be unique within idealDetail userrecords:
 	- Go to Systeem > [Systeemconfiguratie] Recordtypen > 'iDEAL transacties' and click the 'Fields' tab. Open the paymentId field and check its 'Uniek' property.
 
+3. Set the payment_id profilefield to be unique:
+	- Go to Systeem > [Gebruikers configuratie] Profielvelden > 'Payment id'. Check its 'Uniek' property.
+
 ## Deployment Tasks for release 1.2.0
 1. Add a field to the alternativePaymentValidation Operation:
 	- Go to Systeem > [Operaties] Operaties > 'Validatie afwijkende betaalmethode'. Click the tab 'Formuliervelden' > 'Toevoegen'. Fill in the form for creating a new form field:  

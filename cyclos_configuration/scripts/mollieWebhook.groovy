@@ -1,7 +1,9 @@
 /*
  * This script checks the payment status in Mollie for the posted payment id.
  * 
- * If the payment status in Mollie is 'paid', the 'Betaald' profile field of the
+ * If the payment status in Mollie is 'paid', we check the 'source' metadata in the payment.
+ *
+ * If the 'source' is 'registration', the 'Betaald' profile field of the
  * Cyclos user that belongs to this payment is updated to 'betaald'. Also the 
  * payment_url profile field of the Cyclos user is emptied, because it is no longer needed.
  * If the posted paymentId from Mollie is not the same as the payment_id of the Cyclos user,
@@ -9,12 +11,17 @@
  * This happens when a user first tries to activate before having paid (so Cyclos generates a new payment_id)
  * and than pays in an old Mollie screen he has still open (with the previous payment_id).
  *
+ * If the 'source' is 'topup', we lookup the userrecord that was made when the payment was created.
+ * This record should have the same paymentId and belong to the user identified in the metadata of the payment.
+ * If the record is found and has the correct contents, we create a transaction to topup the balance of the user
+ * and we update the userrecord.
+ *
  * In all other cases, nothing happens. This could be if:
  * - No payment id is posted at all.
  * - Mollie does not return a payment for the posted payment id.
  * - Mollie indicates the payment has a status other than 'paid'.
  * - The payment in Mollie does not contain a 'user' metadata field.
- * - Cyclos can not find a user with the given username.
+ * - Cyclos can not find a user with the given userId.
  *
  */
 import java.time.LocalDateTime
@@ -102,7 +109,7 @@ def handleTopupPayment(User user, String paymentId, def paymentResponse, Utils u
 }
 
 String ipAddress
-String userName = "onbekend"
+String userId = "onbekend"
 String paymentIdFromMollie = "onbekend"
 String source = "onbekend"
 
@@ -119,12 +126,12 @@ try {
 		return ''
 	}
         
-	// Get the username and source from Mollie response metadata.
-	userName = paymentResponse.metadata.user
+	// Get the user and source from Mollie response metadata.
+	userId = paymentResponse.metadata.user
 	source = paymentResponse.metadata?.source
 	
-	// Get the Cyclos user with this username.
-	def user = conversionHandler.convert(User, userName)
+	// Get the Cyclos user with this userId.
+	User user = userLocatorHandler.locate(new UserLocatorVO(id: scriptHelper.unmaskId(userId))).getUser()
 
 	// Check the source, this should indicate whether this is a registration payment or a topup payment.
 	switch (source){
@@ -136,12 +143,12 @@ try {
 			break;
 		default:
 			// This should not happen, so raise an exception.
-			throw new Exception(utils.prepareMessage("wrongSource", ['user': userName, 'payment_id': paymentIdFromMollie, 'source': source]))
+			throw new Exception(utils.prepareMessage("wrongSource", ['user': userId, 'payment_id': paymentIdFromMollie, 'source': source]))
 	}
 
 } catch (Exception e) {
     // Exceptions can happen in several cases as described at the top. We only use them to send an email to the tech team. No output is needed to the caller of the webhook (Mollie).
-	def vars = ["error": e.getMessage(), 'user': userName, 'paymentIdFromMollie': paymentIdFromMollie, 'ipAddress': ipAddress]
+	def vars = ["error": e.getMessage(), 'user': userId, 'paymentIdFromMollie': paymentIdFromMollie, 'ipAddress': ipAddress]
 	utils.sendMailToTechTeam("Foutmelding bij verwerken Mollie betaling", utils.prepareMessage("webhookError", vars), true)
 } finally {
     // Always return a 200 response code to Mollie otherwise it will try again.

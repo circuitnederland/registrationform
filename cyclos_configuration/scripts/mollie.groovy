@@ -66,7 +66,7 @@ class Constants {
         wrongContentsIdealDetailRecord: "Het idealDetail userrecord voor user #user# met paymentId #payment_id# heeft een verkeerde inhoud voor method, source en/of amount. Dit duidt op een poging om het opwaarderen te misbruiken.\r\n\r\nRecord inhoud: #idealDetailInfo#.",
         reusedIdealDetailRecord: "Het idealDetail userrecord voor user #user# met paymentId #payment_id# was al gevuld. Dit duidt op een poging om het opwaarderen te misbruiken.\r\n\r\nRecord inhoud: #idealDetailInfo#.",
         idealDetailRecordModified: "Het idealDetail userrecord voor user #user# met paymentId #payment_id# was ofwel gewijzigd ofwel niet aangemaakt door de user. Dit duidt op een poging om het opwaarderen te misbruiken.\r\n\r\nRecord inhoud: #idealDetailInfo#.",
-		webhookError: "Er is een exception opgetreden in het mollieWebhook script:\r\n\r\n#error#\r\n\r\nGegevens op dit moment:\r\nIP-adres: #ipAddress#\r\npayment id van Mollie: #paymentIdFromMollie#\r\nGebruikersnaam: #user#",
+		webhookError: "Er is een exception opgetreden in het mollieWebhook script:\r\n\r\n#error#\r\n\r\nGegevens op dit moment:\r\nIP-adres: #ipAddress#\r\npayment id van Mollie: #paymentIdFromMollie#\r\nuserId: #user#",
 		generalError: "Er is iets misgegaan#moment#. Wil je alsjeblieft contact opnemen met de administratie via info@circuitnederland.nl of 030-2314314?",
 		generalErrorWithRetry: "Er is iets misgegaan#moment#. Wil je het alsjeblieft nog een keer proberen en als het probleem blijft dan contact opnemen met de administratie via info@circuitnederland.nl of 030-2314314?",
 		techError: "Er is een exception opgetreden in een Cyclos script:\r\n\r\n#error#"
@@ -254,7 +254,7 @@ class MollieService {
     /**
      * Creates a payment in Mollie.
      */
-    public Object createPayment(String amount, String description, String redirectUrl, String webhookUrl, String userName, String source) {
+    public Object createPayment(String amount, String description, String redirectUrl, String webhookUrl, String userId, String source) {
         def jsonBody = [
             amount: [
                 currency: "EUR",
@@ -264,7 +264,7 @@ class MollieService {
             redirectUrl: redirectUrl,
             webhookUrl: webhookUrl,
             metadata: [
-                user: userName,
+                user: userId,
                 source: source
             ]
         ]
@@ -385,7 +385,8 @@ class Utils{
             redirectUrl += params.confirmationUrlPart + "?mail=" + StringHelper.encodeURIComponent(user.email) 
         }
         String webhookUrl = binding.sessionData.configuration.rootUrl + params.mollieWebhookUrlPart
-        return mollie.createPayment(amount, description, redirectUrl, webhookUrl, user.username, "registration")
+        String userId = String.valueOf(binding.scriptHelper.maskId(user.id))
+        return mollie.createPayment(amount, description, redirectUrl, webhookUrl, userId, "registration")
     }
 
     /**
@@ -401,7 +402,8 @@ class Utils{
         String amount = BigDecimalHelper.round(amountToTopup, 2).toString()
         String description = MessageProcessingHelper.processVariables(params.'mollie_payment.descriptionTopup', vars)
         String webhookUrl = binding.sessionData.configuration.rootUrl + params.mollieWebhookUrlPart
-        return mollie.createPayment(amount, description, returnUrl, webhookUrl, user.username, "topup")
+        String userId = String.valueOf(binding.scriptHelper.maskId(user.id))
+        return mollie.createPayment(amount, description, returnUrl, webhookUrl, userId, "topup")
     }
 
 	/**
@@ -449,12 +451,12 @@ class Utils{
     /**
     * Retrieves the payment information for the given paymentId from Mollie.
     * Checks whether the payment retrieved belongs to the given user indeed.
-    * If the username is not correct, an Exception is thrown.
+    * If the userId in the payment does not correspond with the given user, an Exception is thrown.
     */
     public Object getMolliePaymentForUser(def usr, String paymentId) {
         def paymentResponse = mollie.getPayment(paymentId)
-        if (paymentResponse.metadata?.user != usr.username) {
-            throw new Exception("Wrong username ${paymentResponse.metadata?.user} in Mollie payment (${paymentId}) when validating ${usr.username}.")
+        if (paymentResponse.metadata?.user != String.valueOf(binding.scriptHelper.maskId(usr.id))) {
+            throw new Exception("Wrong user id ${paymentResponse.metadata?.user} in Mollie payment (${paymentId}) for ${usr.username}.")
         }
         return paymentResponse
     }
