@@ -7,6 +7,14 @@ import org.cyclos.impl.utils.LinkType
 import org.cyclos.model.users.records.RecordDataParams
 import org.cyclos.model.users.recordtypes.RecordTypeVO
 
+// Temporary fix for operations of resulttype external_redirect in the mobile app.
+// Code can be removed after migrating to Cyclos 4.12. Credits to Rodrigo Leon.
+if(type == LinkType.EXTERNAL_REDIRECT && sessionData.channelName == "mobile") {
+	def operationId = scriptHelper.maskId(externalRedirectExecution.id)
+	def token = externalRedirectExecution.verificationToken
+    return linkGeneratorHandler.mobileRedirect("/externalRedirect?id=${operationId}&token=${token}", sessionData.loggedUser)
+}
+
 // Only generate a custom link if this is the validation link.
 if (type != LinkType.REGISTRATION_VALIDATION) {
 	return null
