@@ -1,3 +1,6 @@
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import org.cyclos.impl.access.DirectUserSessionData
 import org.cyclos.model.ValidationException
 import org.cyclos.model.utils.TransactionLevel
@@ -35,13 +38,11 @@ try{
 				paymentId = paymentResponse.id
 				usr.payment_id = paymentId
 			}
-			// Verify if the payment_id was used before by someone else. We check the idealDetail userrecords for this. This can happen if an admin reuses a payment_id from someone else.
-			if (utils.isPaymentIdUsedBefore(paymentId, user)) {
-				throw new Exception(utils.prepareMessage('paymentAlreadyUsed', ['user': usr.username, 'payment_id': paymentId]))
-			}
-			// Verify if the payment is too old. This can only happen if an admin reuses an old payment_id that is not in a userrecord (which we checked with isPaymentIdUsedBefore above).
-			if (utils.isPaymentTooOld(paymentResponse.createdAt)) {
-				throw new Exception(utils.prepareMessage('paymentTooOld', ['user': usr.username, 'payment_id': paymentId]))
+			// Verify the payment is not older than the user itself. Take into account the server-times might be some hours apart.
+			LocalDateTime paymentTime = LocalDateTime.parse(paymentResponse.createdAt, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+			LocalDateTime userTime = LocalDateTime.ofInstant(user.creationDate.toInstant(), ZoneId.systemDefault())
+			if (paymentTime.plusHours(3).isBefore(userTime)){
+				throw new Exception(utils.prepareMessage("paymentTooOld", ['user': user.username, 'payment_id': paymentId]))
 			}
 			// Verify whether the paid amount is correct.
 			BigDecimal paidAmount = new BigDecimal(paymentResponse.amount.value)

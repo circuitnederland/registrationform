@@ -105,7 +105,7 @@ def handleTopupPayment(User user, String paymentId, def paymentResponse, Utils u
 	idealDetailInfo.bic = paymentResponse.details.consumerBic?: ''
 	idealDetailInfo.transaction = paymentVO
 	idealDetailInfo.paid = true
-	userRecord.lastModifiedDate = new Date()
+	userRecord.lastModifiedDate = new java.util.Date()
 }
 
 String ipAddress

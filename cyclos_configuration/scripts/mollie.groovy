@@ -1,9 +1,7 @@
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.Method
-import java.util.Date
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import javax.mail.internet.InternetAddress
 import org.cyclos.entities.users.RecordCustomField
 import org.cyclos.entities.users.SystemRecord
@@ -23,7 +21,6 @@ import org.cyclos.model.users.recordtypes.RecordTypeVO
 import org.cyclos.model.users.users.UserLocatorVO
 import org.cyclos.server.utils.MessageProcessingHelper
 import org.cyclos.utils.BigDecimalHelper
-import org.cyclos.utils.DateTime
 import org.cyclos.utils.StringHelper
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.cyclos.entities.banking.PaymentTransferType
@@ -56,7 +53,6 @@ class Constants {
         topupSuccess: "Opwaarderen is gelukt. Je Circulaire Euro's zijn bijgeschreven.",
         topupPending: "Opwaarderen is in behandeling. Zodra je betaling is verwerkt, worden je Circulaire Euro's bijgeschreven.",
         topupFailed: "Opwaarderen is niet gelukt. Mogelijke oorzaken: je hebt de betaling via iDEAL geannuleerd of de sessie is verlopen. Als dit volgens jou een andere oorzaak betreft, neem dan alsjeblieft contact op met de administratie via info@circuitnederland.nl of 030-2314314.",
-		paymentAlreadyUsed: "Bij activeren van gebruiker #user# is gebleken dat de paymentID (#payment_id#) van deze gebruiker al eerder gebruikt is. De activatie van de gebruiker is hierdoor mislukt.",
 		paymentTooOld: "De payment met paymentID #payment_id# van gebruiker #user# is langer geleden aangemaakt dan gebruikelijk. De activatie of opwaardeer-actie van de gebruiker is hierdoor mislukt.",
 		incorrectAmount: "Het door gebruiker #user# betaalde bedrag (#paidAmount#) in de payment (paymentID: #payment_id#) is anders dan het bedrag dat hij/zij zou moeten betalen (#expectedAmount#). De activatie of opwaardeer-actie van de gebruiker is hierdoor mislukt.",
 		wrongSource: "De payment met paymentId #payment_id# van gebruiker #user# heeft een verkeerde source in de metadata: '#source#' in plaats van 'registration' of 'topup'. De activatie of opwaardeer-actie van de gebruiker is hierdoor mislukt.",
@@ -341,26 +337,6 @@ class Utils{
         this.auth = auth
         this.mollie = mollie
         this.idealRecord = idealRecord
-    }
-	
-    /**
-     * Checks whether the given paymentId is used in an idealDetail userrecord that does not belong to the given user.
-     */
-    public Boolean isPaymentIdUsedBefore(String paymentId, User user) {
-        // @todo: implement this function. For now, just return false.
-        return false
-    }
-    
-    /**
-     * Checks whether the given payment date is older than desired.
-     */
-    public Boolean isPaymentTooOld(String paymentDate) {
-        DateTime now = new DateTime(new Date().format("yyyy-MM-dd"))
-        // Add the max age (in days) to the paymentDate. If the result is still in the past, it is too old.
-        // @todo: instead of using a script parameter for the max age, would it be better to use binding.cyclosProperties.purgeUnconfirmedUsersDays and add 1 day?
-        Long max_days = Long.valueOf(binding.scriptParameters.'mollie_payment.max_age' ?: "61")
-        DateTime groovyPlus = new DateTime(paymentDate).add(TimeUnit.DAYS.toMillis(max_days))
-        return groovyPlus.before(now)
     }
     
     /**
