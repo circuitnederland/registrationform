@@ -50,9 +50,9 @@ class Constants {
     static final String NOT_IDEAL = 'not_ideal'
     static final String BETAALD = 'betaald'
     static final Map<String, String> techMessages = [
-        topupSuccess: "Opwaarderen is gelukt. Je Circulaire Euro's zijn bijgeschreven.",
+        topupSuccess: "Opwaarderen is gelukt. Je circulaire geld is bijgeschreven.",
         topupPending: "Opwaarderen is in behandeling. Zodra je betaling is verwerkt, worden je Circulaire Euro's bijgeschreven.",
-        topupFailed: "Opwaarderen is niet gelukt. Mogelijke oorzaken: je hebt de betaling via iDEAL geannuleerd of de sessie is verlopen. Als dit volgens jou een andere oorzaak betreft, neem dan alsjeblieft contact op met de administratie via info@circuitnederland.nl of 030-2314314.",
+        topupFailed: "Opwaarderen is niet gelukt. Mogelijke oorzaken: je hebt de betaling via iDEAL geannuleerd of wij hebben voor de veiligheid, omdat we te lang geen activiteit van jouw kant merkten, automatisch het proces afgebroken. Als dit volgens jou een andere oorzaak betreft, neem dan alsjeblieft contact op met de administratie via info@circuitnederland.nl of 030-2314314.",
 		paymentTooOld: "De payment met paymentID #payment_id# van gebruiker #user# is langer geleden aangemaakt dan gebruikelijk. De activatie of opwaardeer-actie van de gebruiker is hierdoor mislukt.",
 		incorrectAmount: "Het door gebruiker #user# betaalde bedrag (#paidAmount#) in de payment (paymentID: #payment_id#) is anders dan het bedrag dat hij/zij zou moeten betalen (#expectedAmount#). De activatie of opwaardeer-actie van de gebruiker is hierdoor mislukt.",
 		wrongSource: "De payment met paymentId #payment_id# van gebruiker #user# heeft een verkeerde source in de metadata: '#source#' in plaats van 'registration' of 'topup'. De activatie of opwaardeer-actie van de gebruiker is hierdoor mislukt.",
