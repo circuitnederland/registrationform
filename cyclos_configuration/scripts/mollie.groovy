@@ -316,7 +316,6 @@ class MollieService {
             }
         }
 
-        // @todo: add a timeout and check the response of the await() call. If false, throw an Exception("mollieUnreachable").
         latch.await()
         if (!responseError.empty) {
             throw new RuntimeException("Error making Mollie request to ${url}"
