@@ -79,8 +79,10 @@ def handleTopupPayment(User user, String paymentId, def paymentResponse, Utils u
 		throw new Exception(utils.prepareMessage("wrongOwnerIdealDetailRecord", ['owner': userRecord.user.username, 'user': user.username, 'payment_id': paymentId]))
 	}
 
+	def userRecordDTO = recordServiceSecurity.load(userRecord.id)
+	def idealDetailInfo = scriptHelper.wrap(userRecordDTO)
+
 	// Check the contents of the userrecord we found. The source, method and amount fields should be correct.
-	def idealDetailInfo = scriptHelper.wrap(userRecord)
 	BigDecimal paidAmount = new BigDecimal(paymentResponse.amount.value)
 	if (idealDetailInfo.source.internalName != Constants.TOPUP || idealDetailInfo.method != Constants.IDEAL || idealDetailInfo.amount != paidAmount){
 		throw new Exception(utils.prepareMessage("wrongContentsIdealDetailRecord", ['user': user.username, 'payment_id': paymentId, 'idealDetailInfo': idealDetailInfo]))
@@ -99,13 +101,13 @@ def handleTopupPayment(User user, String paymentId, def paymentResponse, Utils u
 	// All checks passed. Create a transaction from system to the user for the amount the user paid.
 	PaymentVO paymentVO = utils.transferPurchasedUnits(user, paidAmount, Constants.TOPUP)
 
-	// Update the user record.
+	// Update the user record and save the changes.
 	idealDetailInfo.consumerName = paymentResponse.details.consumerName?: ''
 	idealDetailInfo.iban = paymentResponse.details.consumerAccount?: ''
 	idealDetailInfo.bic = paymentResponse.details.consumerBic?: ''
 	idealDetailInfo.transaction = paymentVO
 	idealDetailInfo.paid = true
-	userRecord.lastModifiedDate = new java.util.Date()
+	recordServiceSecurity.save(userRecordDTO)
 }
 
 String ipAddress
