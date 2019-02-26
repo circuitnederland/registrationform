@@ -381,6 +381,13 @@ class Utils{
         return mollie.createPayment(amount, description, returnUrl, webhookUrl, userId, "topup")
     }
 
+    /**
+     * Checks whether two given IBANs are the same, ignoring upper-/lowercase and spaces.
+     */
+    public Boolean isIbansEqual(String ibanA, String ibanB){
+        return ibanA?.replace(" ","").equalsIgnoreCase(ibanB?.replace(" ", ""))
+    }
+
 	/**
 	 * Determines and returns the contribution amount for the given user.
 	 */
@@ -513,7 +520,7 @@ class Utils{
         Boolean paid = true
         idealRecord.create(user, consName, iban, bic, paymentId, method, paymentVO, totalAmount, paid, source)
         def usr = binding.scriptHelper.wrap(user)
-        if (!usr.iban.equalsIgnoreCase(iban)) {
+        if (!isIbansEqual(usr.iban, iban)){
             sendMailToAdmin("Circuit Nederland: different bank account", prepareMessage("differentBankAccount", ["user": usr.name]), true)
         }
     }

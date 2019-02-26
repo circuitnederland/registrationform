@@ -7,7 +7,7 @@ def usr = scriptHelper.wrap(usrDTO)
 if (formParameters.email != user.email) {
     throw new ValidationException("Het ingevoerde e-mailadres (${formParameters.email}) komt niet overeen met het e-mailadres van deze gebruiker in Cyclos (${user.email}).")
 }
-if (!usr.iban.replace(" ","").equalsIgnoreCase(formParameters.iban.replace(" ", ""))) {
+if (!utils.isIbansEqual(usr.iban, formParameters.iban)){
     throw new ValidationException("Het ingevoerde IBAN (${formParameters.iban}) komt niet overeen met het IBAN van deze gebruiker in Cyclos (${usr.iban}). Controleer of je het IBAN correct hebt ingevuld of, als het IBAN in Cyclos niet juist is, pas dan eerst het IBAN van deze gebruiker in Cyclos aan in het geverifieerde IBAN voordat je deze operatie laat uitvoeren.")
 }
 
