@@ -1,4 +1,3 @@
-import org.cyclos.entities.utils.DatePeriod
 import org.cyclos.impl.utils.formatting.PredefinedPeriodDataValueFormatter
 import org.cyclos.model.system.fields.DynamicFieldValueVO
 import org.cyclos.model.utils.PeriodType
@@ -16,16 +15,13 @@ rawOptions.addAll(DateHelper.createPeriodRange(lastQuarter, -numOfQuarters))
 def lastMonth = DateHelper.getLastCompletedPeriod(PeriodType.MONTH, timeZone)
 rawOptions.addAll(DateHelper.createPeriodRange(lastMonth, -numOfMonths))
 
-List<DynamicFieldValueVO> options = new ArrayList<>();
-boolean first = true
+List<DynamicFieldValueVO> options = new ArrayList<>()
 for (PredefinedPeriodData rawOption : rawOptions) {
     Pair<Date, Date> pair = DateHelper.createPeriod(rawOption, timeZone);
-    DatePeriod period = new DatePeriod(pair);
     def value = "${conversionHandler.toDateTime(pair.first)},${conversionHandler.toDateTime(pair.second)}"
     def label = PredefinedPeriodDataValueFormatter.instance().format(null, rawOption, formatter)
-    DynamicFieldValueVO option = new DynamicFieldValueVO(value, label)
-    option.defaultValue = first
-    options.add(option)
-    first = false
+    options.add(new DynamicFieldValueVO(value, label))
 }
+options.add(new DynamicFieldValueVO("custom", "Aangepast"))
+options.get(0).defaultValue = true
 return options
