@@ -1,4 +1,23 @@
 # Changelog
+## 1.3.0 (2019-03-05)
+### Added
+<ul>
+	<li>Added topup functionality, so users can now buy credits via iDEAL.</li>
+</ul>
+
+### Changed
+<ul>
+	<li>Changed user identification in Mollie payments to use userId instead of username.</li>
+	<li>Set PaymentId fields to be unique in Cyclos within profile fields and record fields.</li>
+	<li>Improved check on payment age: it should not be older than the user itself.</li>
+	<li>Let mollieWebhook use recordService so changes in the idealDetail records become visible in the record history.</li>
+</ul>
+
+### Bugfixes
+<ul>
+	<li>Changed iban comparison to avoid warning e-mails to admin when ibans differ only in whitespace.</li>
+</ul>
+
 ## 1.2.0 (2019-01-08)
 ### Added
 <ul>
