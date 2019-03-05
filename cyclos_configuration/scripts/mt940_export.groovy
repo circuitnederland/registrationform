@@ -31,22 +31,22 @@ def formatSignal(amount) {
 def formatOwner(AccountVO account) {
     if (account.owner instanceof UserVO) {
 		def user = userService.find(account.owner.id)
-        // Let formatDescription() make sure the username is clean. With the current rules on usernames this is not neccessary,
-        // but if these rules would ever change, using formatDescription here makes sure it would not break the mt940.
-        return formatDescription(user.username)
+        // Let sanitizeString() make sure the username is clean. With the current rules on usernames this is not neccessary,
+        // but if these rules would ever change, using sanitizeString() here makes sure it would not break the mt940.
+        return sanitizeString(user.username)
     }
     return account.type.internalName
 }
 
-def formatDescription(description) {
-	// First make sure that the description isn't longer then 60 characters
- 	description = description?.replaceAll("[\n|\r]+", " ")
- 	description = description?.replaceAll("\\s+", " ")
- 	description = StringHelper.trim(StringHelper.truncate(description, 60))
+String sanitizeString(String inputString) {
+	// First make sure that the inputString isn't longer then 60 characters
+ 	inputString = inputString?.replaceAll("[\n|\r]+", " ")
+ 	inputString = inputString?.replaceAll("\\s+", " ")
+ 	inputString = StringHelper.trim(StringHelper.truncate(inputString, 60))
  	// Second make sure that no special characters are used
- 	description = StringHelper.asciiOnly(StringHelper.unaccent(description))
+ 	inputString = StringHelper.asciiOnly(StringHelper.unaccent(inputString))
  	// Finally make sure that no colon character is used, this might mess up the mt940 file
- 	return description.replaceAll('\\:', ' ')
+ 	return inputString.replaceAll('\\:', ' ')
 }
 
 // Get the form parameters
@@ -83,7 +83,7 @@ entries.forEach { AccountHistoryEntryVO entry ->
     def amount = formatAmount(entry.amount)
     def signal = formatSignal(entry.amount)
     def fromTo = formatOwner(entry.relatedAccount)
-    def description = formatDescription(entry.description)
+    def description = sanitizeString(entry.description)
     out << ":61:${date}${signal}${amount}NOV NONREF\n"
     out << ":86:${fromTo} > ${description}\n"
 }
