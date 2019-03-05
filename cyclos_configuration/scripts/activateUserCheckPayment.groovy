@@ -1,3 +1,6 @@
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import org.cyclos.impl.access.DirectUserSessionData
 import org.cyclos.model.ValidationException
 import org.cyclos.model.utils.TransactionLevel
@@ -35,13 +38,11 @@ try{
 				paymentId = paymentResponse.id
 				usr.payment_id = paymentId
 			}
-			// Verify if the payment_id was used before by someone else. We check the idealDetail userrecords for this. This can happen if an admin reuses a payment_id from someone else.
-			if (utils.isPaymentIdUsedBefore(paymentId, user)) {
-				throw new Exception(utils.prepareMessage('paymentAlreadyUsed', ['user': usr.username, 'payment_id': paymentId]))
-			}
-			// Verify if the payment is too old. This can only happen if an admin reuses an old payment_id that is not in a userrecord (which we checked with isPaymentIdUsedBefore above).
-			if (utils.isPaymentTooOld(paymentResponse.createdAt)) {
-				throw new Exception(utils.prepareMessage('paymentTooOld', ['user': usr.username, 'payment_id': paymentId]))
+			// Verify the payment is not older than the user itself. Take into account the server-times might be some hours apart.
+			LocalDateTime paymentTime = LocalDateTime.parse(paymentResponse.createdAt, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+			LocalDateTime userTime = LocalDateTime.ofInstant(user.creationDate.toInstant(), ZoneId.systemDefault())
+			if (paymentTime.plusHours(3).isBefore(userTime)){
+				throw new Exception(utils.prepareMessage("paymentTooOld", ['user': user.username, 'payment_id': paymentId]))
 			}
 			// Verify whether the paid amount is correct.
 			BigDecimal paidAmount = new BigDecimal(paymentResponse.amount.value)
@@ -51,13 +52,11 @@ try{
 			}
 			// Verify the payment originaly came from a registration. Payments can also have source ‘topup’, but not when activating a user.
 			if (paymentResponse.metadata?.source != 'registration'){
-				// @todo: if the payment metadata has no source information at all, is this an error? Or is it simply an older payment?
 				throw new Exception(utils.prepareMessage("wrongSource", ['user': usr.username, 'payment_id': paymentId, 'source': paymentResponse.metadata?.source]))
 			}
 			// All checks are oke: set betaald field to the internal value for 'Heeft betaald'.
-			// @todo: normally the mollieWebhook should have set the betaald field already to 'Heeft betaald', right after the user paid in mollie.
-			// So should we remove this code here? And if so, should we replace it with a check whether the betaald field is indeed 'Heeft betaald'? Or just ignore if it is not?
-			// And if we DO want to set the betaald veld here (again), should we use a parallel transaction for this, so it will always work even if something later on fails? I don't think so?
+			// Normally the mollieWebhook should have set the betaald field already to 'Heeft betaald', right after the user paid in mollie.
+			// But in case the webhook did not set it, we set it here anyway.
 			usr.betaald = 'betaald'
 			// @todo: change this back to use the userService - GH issue #51.
 			// userService.save(usrDTO)
@@ -87,9 +86,6 @@ try{
 				// Save the userprofile field changes.
 				userService.save(usrDTO)
 
-				// @todo: in the (new) documentation we wrote 'Also make sure to set the betaald field to not paid.'. But the field can not be anything else yet. Should we check this?
-				// // Fill the Betaald field of the Cyclos user with the initial value of 'Niet betaald'.
-				// usr.betaald = 'niet_betaald'
 			}
 			// Wait for the transaction to finish.
 			future.get()

@@ -1,7 +1,7 @@
 /**
  * The createUser script creates a payment in Mollie and saves the payment id together with the payment url in the user profile in Cyclos.
  * It also fills the Betaald field to the initial value 'Niet betaald'.
- * It passes metadata to the payment with 'user': the username and 'source': 'registration' (to differentiate from payments made via the 'topup' function).
+ * It passes metadata to the payment with 'user': the userId and 'source': 'registration' (to differentiate from payments made via the 'topup' function).
  */
 
 import org.cyclos.model.ValidationException
