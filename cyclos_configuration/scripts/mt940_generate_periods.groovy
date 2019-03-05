@@ -8,12 +8,15 @@ import org.cyclos.utils.Pair
 def timeZone = sessionData.configuration.timeZone
 def numOfQuarters = Integer.parseInt(scriptParameters.quarters)
 def numOfMonths = Integer.parseInt(scriptParameters.months)
+def numOfYears = Integer.parseInt(scriptParameters.years)
 
 List<PredefinedPeriodData> rawOptions = []
 def lastQuarter = DateHelper.getLastCompletedPeriod(PeriodType.QUARTER, timeZone)
 rawOptions.addAll(DateHelper.createPeriodRange(lastQuarter, -numOfQuarters))
 def lastMonth = DateHelper.getLastCompletedPeriod(PeriodType.MONTH, timeZone)
 rawOptions.addAll(DateHelper.createPeriodRange(lastMonth, -numOfMonths))
+def lastYear = DateHelper.getLastCompletedPeriod(PeriodType.YEAR, timeZone)
+rawOptions.addAll(DateHelper.createPeriodRange(lastYear, -numOfYears))
 
 List<DynamicFieldValueVO> options = new ArrayList<>()
 for (PredefinedPeriodData rawOption : rawOptions) {
