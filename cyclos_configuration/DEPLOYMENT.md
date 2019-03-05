@@ -37,7 +37,7 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 			Verplicht: Check this  
 			Bereik: 25,00 tot 10000,00  
 
-	- Go to Systeem > [Gebruikers configuratie] Producten > 'Algemeen (voor iedereen)'. Under [Algemeen] change 'Operaties' so 'Opwaarderen' has both 'Geactiveerd' and 'Uitvoeren op mezelf' checked.
+	- Go to Systeem > [Gebruikers configuratie] Producten > 'Algemeen (handelsrekening)'. Under [Algemeen] change 'Operaties' so 'Opwaarderen' has both 'Geactiveerd' and 'Uitvoeren op mezelf' checked.
 
 2. Set the payment_id field to be unique within idealDetail userrecords:
 	- Go to Systeem > [Systeemconfiguratie] Recordtypen > 'iDEAL transacties' and click the 'Fields' tab. Open the paymentId field and check its 'Uniek' property.
