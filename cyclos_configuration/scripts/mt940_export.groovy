@@ -54,8 +54,10 @@ def begin = formParameters.begin
 // Make sure the end date spans the entire day, using the org.cyclos.utils.DateTime constructor DateTime(String string, boolean fillToDayEnd).
 def end = conversionHandler.convert(Date, new DateTime(new SimpleDateFormat("yyyy-MM-dd").format(formParameters.end), true))
 
+def storage = scriptStorageHandler.getIfValid("mt940_${sessionData.loggedUser.id}")
+
 // Find the user account
-AccountType accountType = entityManagerHandler.find(AccountType, scriptParameters.accountType)
+AccountType accountType = entityManagerHandler.find(AccountType, storage.accountType)
 Account account = accountService.load(sessionData.loggedUser, accountType)
 
 // Get the balance at begin / end
@@ -64,7 +66,7 @@ def balanceEnd = accountService.getBalance(account, end)
 def currency = scriptParameters.currencyCode
 
 StringBuilder out = new StringBuilder(""":20:CN${dateFormat.format(end)}
-:25:${scriptParameters.iban}
+:25:${storage.iban}
 :28:000
 :60F:${formatSignal(balanceBegin)}${dateFormat.format(begin)}${currency}${formatAmount(balanceBegin)}
 """)
