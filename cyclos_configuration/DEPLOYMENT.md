@@ -1,6 +1,45 @@
 # Deployment Tasks per release
 Things to do manually in the Cyclos production-environment when deploying a new release of the PHP registrationform to production.
 
+## Deployment Tasks for next release
+1. Changes to add custom period and year options to the MT940 export functionality:  
+	- Go to Systeem > [Operaties] Scripts: 'Toevoegen'. Choose 'Operatie'. Fill in the form for creating a new script:  
+	Naam									: MT940 selecteer periode  
+	Uitgevoerd met alle permissies			: Uncheck  
+	Script code uitgevoerd wanneer de operatie wordt uitgevoerd: Paste the contents of cyclos_configuration\scripts\mt940_select_period.groovy in the textarea field.
+
+	- Go to Systeem > [Operaties] Scripts: click the existing 'MT940 export' script and change:  
+	Uitgevoerd met alle permissies			: Uncheck  
+	Script code uitgevoerd wanneer de operatie wordt uitgevoerd: Paste the contents of cyclos_configuration\scripts\mt940_export.groovy in the textarea field.
+
+	- Go to Systeem > [Operaties] Scripts: click the existing 'MT940 genereer periodes' script and change:  
+	Uitgevoerd met alle permissies			: Uncheck  
+	Parameters	: Paste the contents of cyclos_configuration\scripts\mt940_generate_periods.properties in the textarea field.  
+	Script code uitgevoerd wanneer de operatie wordt uitgevoerd: Paste the contents of cyclos_configuration\scripts\mt940_generate_periods.groovy in the textarea field.
+
+	- Go to Systeem > [Operaties] Operaties: Toevoegen. Fill in the form for creating a new operation:  
+	[Detail tab]:  
+	Naam			: MT940 Export  
+	Interne naam	: mt940_export  
+	Label			: Selecteer periode  
+	Ingeschakeld voor kanalen: select 'Main'  
+	Omvang			: Interne  
+	Script			: MT940 export  
+	Resultaattype	: Bestand downloaden  
+	
+	[Formuliervelden tab]:  
+	Create the following two 'formuliervelden':  
+		Weergegeven naam: Begin/Eind  
+		Interne naam: begin/end  
+		Datatype: Datum  
+		Verplicht: Check this  
+
+	- Go to Systeem > [Operaties] Operaties: open the existing 'Transacties exporteren (MT940)' and 'Transacties kredietrekening exporteren (MT940)' operations and change:  
+	[Detail tab]:  
+	Script			: Change 'MT940 export' into 'MT940 selecteer periode'  
+	Resultaattype	: Change 'Bestand downloaden' into 'Onopgemaakte tekst'  
+	[Acties tab]: Add a new Actie (Toevoegen) and fill in: 'MT940 Export'. Click on the checkbox next to both Begin and End parameters and choose 'Gedefinieerd door het script'.
+
 ## Deployment Tasks for release 1.3.0
 1. Add a new operation for the topup functionality:
 	- Go to Systeem > [Operaties] Scripts: 'Toevoegen'. Choose 'Operatie'. Fill in the form for creating a new script:
