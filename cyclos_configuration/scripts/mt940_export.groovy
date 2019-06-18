@@ -10,6 +10,7 @@ import org.cyclos.model.banking.accounts.AccountVO
 import org.cyclos.model.users.users.UserVO
 import org.cyclos.model.utils.DatePeriodDTO
 import org.cyclos.model.utils.FileInfo
+import org.cyclos.server.utils.DateHelper
 import org.cyclos.server.utils.SerializableInputStream
 import org.cyclos.utils.StringHelper
 
@@ -51,9 +52,7 @@ String sanitizeString(String inputString) {
 // Get the form parameters
 def begin = formParameters.begin
 // Make sure the end date spans the entire day.
-def endFullDay = conversionHandler.toDateTime(formParameters.end)
-endFullDay.setHMSM(23, 59, 59, 999)
-def end = conversionHandler.convert(Date, endFullDay)
+def end = DateHelper.shiftToEnd(formParameters.end, timeZone)
 
 def storage = scriptStorageHandler.getIfValid("mt940_${sessionData.loggedUser.id}")
 
