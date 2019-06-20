@@ -9,7 +9,6 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 	Script code uitgevoerd wanneer de operatie wordt uitgevoerd: Paste the contents of cyclos_configuration\scripts\mt940_select_period.groovy in the textarea field.
 
 	- Go to Systeem > [Operaties] Scripts: click the existing 'MT940 export' script and change:  
-	Uitgevoerd met alle permissies			: Uncheck  
 	Script code uitgevoerd wanneer de operatie wordt uitgevoerd: Paste the contents of cyclos_configuration\scripts\mt940_export.groovy in the textarea field.
 
 	- Go to Systeem > [Operaties] Scripts: click the existing 'MT940 genereer periodes' script and change:  
