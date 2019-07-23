@@ -1,4 +1,10 @@
 # Changelog
+## 1.4.0 (2019-07-09)
+### Added
+<ul>
+	<li>Added a custom period to the MT940 export, next to the existing month/quarter/year options, so uses can choose a custom start and end date.</li>
+</ul>
+
 ## 1.3.0 (2019-03-05)
 ### Added
 <ul>
