@@ -1,14 +1,9 @@
 import java.nio.charset.StandardCharsets
 import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeFormatterBuilder
-import java.time.temporal.ChronoField
-import java.time.temporal.TemporalField
-
-import org.codehaus.groovy.runtime.ConversionHandler
 import org.cyclos.entities.banking.Account
 import org.cyclos.entities.banking.AccountType
 import org.cyclos.entities.utils.DatePeriod
+import org.cyclos.model.ValidationException
 import org.cyclos.model.banking.accounts.AccountHistoryEntryVO
 import org.cyclos.model.banking.accounts.AccountHistoryQuery
 import org.cyclos.model.banking.accounts.AccountVO
@@ -17,9 +12,6 @@ import org.cyclos.model.utils.DatePeriodDTO
 import org.cyclos.model.utils.FileInfo
 import org.cyclos.server.utils.DateHelper
 import org.cyclos.server.utils.SerializableInputStream
-import org.cyclos.utils.DateTime
-import org.cyclos.utils.StringHelper
-import org.cyclos.model.ValidationException
 import org.cyclos.utils.StringHelper
 
 def timeZone = sessionData.configuration.timeZone
@@ -38,40 +30,43 @@ def formatSignal(amount) {
 
 def formatOwner(AccountVO account) {
     if (account.owner instanceof UserVO) {
-		def user = userService.find(account.owner.id)       
-        return user.username
+		def user = userService.find(account.owner.id)
+        // Let sanitizeString() make sure the username is clean. With the current rules on usernames this is not neccessary,
+        // but if these rules would ever change, using sanitizeString() here makes sure it would not break the mt940.
+        return sanitizeString(user.username)
     }
     return account.type.internalName
 }
 
-def formatDescription(description) {
-	// First make sure that the description isn't longer then 60 characters
- 	description = description?.replaceAll("[\n|\r]+", " ")
- 	description = description?.replaceAll("\\s+", " ")
- 	description = StringHelper.trim(StringHelper.truncate(description, 60))
+String sanitizeString(String inputString) {
+	// First make sure that the inputString isn't longer then 60 characters
+ 	inputString = inputString?.replaceAll("[\n|\r]+", " ")
+ 	inputString = inputString?.replaceAll("\\s+", " ")
+ 	inputString = StringHelper.trim(StringHelper.truncate(inputString, 60))
  	// Second make sure that no special characters are used
- 	description = StringHelper.asciiOnly(StringHelper.unaccent(description))
+ 	inputString = StringHelper.asciiOnly(StringHelper.unaccent(inputString))
  	// Finally make sure that no colon character is used, this might mess up the mt940 file
- 	return description.replaceAll('\\:', ' ')
+ 	return inputString.replaceAll('\\:', ' ')
 }
 
 // Get the form parameters
-def period = formParameters.period.value.split(",")
-def begin = conversionHandler.toDate(new DateTime(period[0]))
-def end = conversionHandler.toDate(new DateTime(period[1]))
+def begin = formParameters.begin
+// Make sure the end date spans the entire day.
+def end = DateHelper.shiftToEnd(formParameters.end, timeZone)
+
+def storage = scriptStorageHandler.getIfValid("mt940_${sessionData.loggedUser.id}")
 
 // Find the user account
-AccountType accountType = entityManagerHandler.find(AccountType, scriptParameters.accountType)
-Account account = accountService.load(user, accountType)
+AccountType accountType = entityManagerHandler.find(AccountType, storage.accountType)
+Account account = accountService.load(sessionData.loggedUser, accountType)
 
 // Get the balance at begin / end
 def balanceBegin = accountService.getBalance(account, begin)
 def balanceEnd = accountService.getBalance(account, end)
 def currency = scriptParameters.currencyCode
-def accountNumber = scriptParameters.iban
 
 StringBuilder out = new StringBuilder(""":20:CN${dateFormat.format(end)}
-:25:${accountNumber}
+:25:${storage.iban}
 :28:000
 :60F:${formatSignal(balanceBegin)}${dateFormat.format(begin)}${currency}${formatAmount(balanceBegin)}
 """)
@@ -90,7 +85,7 @@ entries.forEach { AccountHistoryEntryVO entry ->
     def amount = formatAmount(entry.amount)
     def signal = formatSignal(entry.amount)
     def fromTo = formatOwner(entry.relatedAccount)
-    def description = formatDescription(entry.description)
+    def description = sanitizeString(entry.description)
     out << ":61:${date}${signal}${amount}NOV NONREF\n"
     out << ":86:${fromTo} > ${description}\n"
 }
