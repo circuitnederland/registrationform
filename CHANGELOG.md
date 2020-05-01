@@ -1,4 +1,10 @@
 # Changelog
+## 1.4.1 (2020-04-30)
+### Changed
+<ul>
+	<li>Removed the options for users to buy circular euro's via iDEAL.</li>
+</ul>
+
 ## 1.4.0 (2019-07-09)
 ### Added
 <ul>

@@ -1,7 +1,7 @@
 # Deployment Tasks per release
 Things to do manually in the Cyclos production-environment when deploying a new release of the PHP registrationform to production.
 
-## Deployment Tasks for next release
+## Deployment Tasks for release 1.4.1
 1. Remove the option for users to buy extra units during registration:
 
 	- Go to Systeem > [Gebruikers configuratie] Producten > 'Algemeen voor iedereen (behalve UE)' > 'Aanpassen' > [Algemeen] 'Mijn profiel velden': Uncheck the value 'Ingeschakeld' for 'Aankoop saldo'.
