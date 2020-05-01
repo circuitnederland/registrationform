@@ -501,24 +501,50 @@ class Utils{
     }
 
     /**
-     * Creates the two transactions needed when a new user is being validated (aankoop saldo from debiet to user and contribution from user to sys).
+     * Creates a transaction from debiet to system directly for paying the membership fee of a user.
+     */
+    public PaymentVO transferDirectMembershipPayment(User user, BigDecimal amount, String paymentId = ''){
+        def params = binding.scriptParameters
+        PaymentTransferType type = binding.entityManagerHandler.find(PaymentTransferType, params.'directMembershipFee.paymentType')
+        def vars = [
+         user: user.username,
+         community: user.group?.name,
+         paymentId: paymentId
+        ]
+        return binding.paymentService.perform(
+            new PerformPaymentDTO([
+            from: SystemAccountOwner.instance(),
+            to: SystemAccountOwner.instance(),
+            type: new TransferTypeVO(type.id),
+            amount: amount,
+            description: MessageProcessingHelper.processVariables(params.'directMembershipFee.paymentDescription', vars)])
+        )
+    }
+
+    /**
+     * Creates a transaction to pay the contribution when a new user is being validated (from debiet to sys).
+     * // Previously, we made two transactions for this, via the new user:
+     * // Creates the two transactions needed when a new user is being validated (aankoop saldo from debiet to user and contribution from user to sys).
      * Also creates an idealDetail userrecord storing the relevant info of the aankoop transaction.
      */
     public void processRegistrationPayments(User user, BigDecimal totalAmount, BigDecimal contribution, String method, Map<String, String> paymentInfo, String paymentId = ''){
         String source = Constants.REGISTRATION
 
-        // Make a Cyclos payment from debit to user with the total amount the user paid. Keep the resulting payment so we can store it in the user record below.
-        PaymentVO paymentVO = transferPurchasedUnits(user, totalAmount, source)
-
-        // Make a Cyclos payment from user to sys organization with the contribution fee.
-        transferMembershipPayment(user, contribution)
+// Previously, we made two transactions, to/from the new user.
+//        // Make a Cyclos payment from debit to user with the total amount the user paid. Keep the resulting payment so we can store it in the user record below.
+//        PaymentVO paymentVO = transferPurchasedUnits(user, totalAmount, source)
+//
+//        // Make a Cyclos payment from user to sys organization with the contribution fee.
+//        transferMembershipPayment(user, contribution)
+        // Now, we make one transaction, directly from debiet to sys.
+        transferDirectMembershipPayment( user, contribution, paymentId )
 
         // Store bank account info on member record.
         def consName = paymentInfo['consName']?: ''
         def iban = paymentInfo['iban']?: ''
         def bic = paymentInfo['bic']?: ''
         Boolean paid = true
-        idealRecord.create(user, consName, iban, bic, paymentId, method, paymentVO, totalAmount, paid, source)
+        idealRecord.create(user, consName, iban, bic, paymentId, method, null, totalAmount, paid, source)
         def usr = binding.scriptHelper.wrap(user)
         if (!isIbansEqual(usr.iban, iban)){
             sendMailToAdmin("Circuit Nederland: different bank account", prepareMessage("differentBankAccount", ["user": usr.name]), true)

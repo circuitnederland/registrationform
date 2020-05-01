@@ -1,6 +1,52 @@
 # Deployment Tasks per release
 Things to do manually in the Cyclos production-environment when deploying a new release of the PHP registrationform to production.
 
+## Deployment Tasks for next release
+1. Remove the option for users to buy extra units during registration:
+
+	- Go to Systeem > [Gebruikers configuratie] Producten > 'Algemeen voor iedereen (behalve UE)' > 'Aanpassen' > [Algemeen] 'Mijn profiel velden': Uncheck the value 'Ingeschakeld' for 'Aankoop saldo'.
+
+2. Remove the aankoopsaldo and total lines from the warning when a user opens the activationmail without having paid first:
+
+	- Go to Systeem > Rapporten > [Systeem records] Molly configuration (keep safe) > 'Schermmelding aan bezoeker bij openen link activatiemail zonder betaling'. Remove the lines:  
+	Aankoopsaldo: #aankoop#  
+	Totaal: #totaal#
+
+3. Adjust the Mollie description visible in the IDEAL screen (mollie_payment.description):
+
+	- Go to System > Scripts and edit the mollie library script parameters (paste from cyclos_configuration\scripts\mollie.properties).
+
+4. Adjust the contents of the registration e-mail:
+
+	- Go to Content > Systeemvertaling > Circuit Nederland > Content Management > Emails > 'Content management > E-mails > activated.body.singlePrincipal'. Remove the text from 'Let op'.
+
+5. Create a new payment type from Debiet to Circuit Beheer:
+
+	- Go to Systeem > [Account configuratie] Rekeningtypen > Debiet rekening > Tab Betalingstypen > Nieuw > Choose 'Betalingstype'. Fill in the form:  
+	Naam			: Storting lidmaatschapsbijdrage  
+	Interne naam	: lidmaatschapsbijdrage  
+	Kanalen			: Check the 'Web services' channel (besides the already checked Main channel).
+
+6. Instead of creating two transactions to/from the user, create one transaction directly from debit to Circuit beheer for the contribution:
+
+	- Go to Systeem > [Operaties] Scripts: click the existing 'mollie' library script and change:  
+	Script parameters: Paste the contents of cyclos_configuration\scripts\mollie.properties.  
+	Script code uitgevoerd wanneer de operatie wordt uitgevoerd: Paste the contents of cyclos_configuration\scripts\mollie.groovy in the textarea field.
+
+7. Remove the option for users to topup (see the 1.3.0 changelog for the previous settings of the topup operation):
+
+	- Go to Content > Menu en pagina's > Default for Nederland > Click Toevoegen, choose 'Contentpagina'. Fill in the form:  
+	Label	: Opwaarderen  
+	Content	: {fill in the explanation text}  
+	Take note of the pageId in the URL, right above the Content area. For example: 6745336155068047248
+
+	- Go to Systeem > [Operaties] Operaties > Opwaarderen. Change the following fields:  
+	Script			: Menupagina's als custom operatie (instead of: topup)  
+	Scriptparameters: pageId = 6745336155068047248 (use the pageId from the 'Contentpagina' above)  
+	Resultaattype	: RTF (instead of: Externe redirect)  
+	Informatie tekst: empty (instead of the old text explaining iDEAL and the minimum amount of 25 euro's)  
+	Tab Formuliervelden: remove the old Bedrag field.
+
 ## Deployment Tasks for release 1.4.0
 1. Changes to add custom period and year options to the MT940 export functionality:  
 	- Go to Systeem > [Operaties] Scripts: 'Toevoegen'. Choose 'Operatie'. Fill in the form for creating a new script:  
