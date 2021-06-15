@@ -25,6 +25,7 @@ import org.cyclos.utils.StringHelper
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.cyclos.entities.banking.PaymentTransferType
 import org.cyclos.entities.banking.SystemAccountType
+import org.cyclos.model.access.agreements.UserAgreementsData
 import org.cyclos.model.banking.accounts.SystemAccountOwner
 import org.cyclos.model.banking.transactions.PaymentVO
 import org.cyclos.model.banking.transactions.PerformPaymentDTO
@@ -556,9 +557,10 @@ class Utils{
      */
     public void acceptAgreements(User user){
         binding.invokerHandler.runAs(new DirectUserSessionData(user, binding.sessionData)) {
-            def pendingAgreements = binding.agreementLogService.getPendingAgreements()
+            UserAgreementsData agreementsData = binding.agreementLogService.getData(new UserLocatorVO(id: user.id))
+            Set pendingAgreements = agreementsData.getPending()
             if (pendingAgreements) {
-                binding.agreementLogService.accept(pendingAgreements.toSet())
+                binding.agreementLogService.acceptPending(pendingAgreements.toSet())
             }
         }
     }

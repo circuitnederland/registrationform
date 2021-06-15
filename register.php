@@ -372,6 +372,7 @@ include 'show_errors.php';
 				This edit takes care that the file is actually uploaded. Therefore, it MUST have a name attribute. -->
 				<input id="uploadBtn" name="uploadedPic" type="file" class="upload" accept="image/png,image/jpeg,image/gif" />
 			</div>
+            <div id="uploadFileFeedback" style="display:none;"><p class="error">Ondersteunde bestandstypen: *.png, *.jpg, *.jpeg, *.jfif, *.pjpeg, *.pjp, *.gif</p></div>
 		</div>
 	</div>
 
@@ -514,14 +515,17 @@ include 'show_errors.php';
 	document.getElementById("uploadBtn").onchange = function () {
 		var uploadPathName = this.value.replace("C:\\fakepath\\", "");
 		var uploadedFileExtension = uploadPathName.split('.').pop();
-		var allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+		var allowedExtensions = ['png', 'jpg', 'jpeg', 'jfif', 'pjpeg', 'pjp', 'gif'];
 		var uploadedFileNameDiv = document.getElementById("uploadFile");
+        var fileUploadFeedback = document.getElementById("uploadFileFeedback");
 		if (allowedExtensions.indexOf(uploadedFileExtension) != -1){ 
 			uploadedFileNameDiv.value = uploadPathName;
-			uploadedFileNameDiv.classList.remove("error");
+			fileUploadFeedback.style.display = "none";
 		} else {
-			uploadedFileNameDiv.value = "Ongeldig type bestand.";
-			uploadedFileNameDiv.classList.add("error");
+            // Don't set the file if it is not the proper type.
+			uploadedFileNameDiv.value = "";
+            this.value = "";
+			fileUploadFeedback.style.display = "block";
 		}
 	}
 </script>
