@@ -1,4 +1,11 @@
 # Changelog
+## 1.4.2 (2021-06-15)
+### Bugfixes
+<ul>
+	<li>Fix logo upload</li>
+	<li>Fix for AgreementLogService API changes in Cyclos 4.13</li>
+</ul>
+
 ## 1.4.1 (2020-04-30)
 ### Changed
 <ul>
