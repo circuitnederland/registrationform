@@ -3,8 +3,8 @@ import org.cyclos.utils.StringHelper
 
 def rootUrl = sessionData.configuration.fullUrl
 
-// Get the amount
-def amount = formParameters.amount.toPlainString()
+// Get the amount. Convert it to plain string unless it is empty (the amount is optional).
+def amount = formParameters.amount ? formParameters.amount.toPlainString() : ''
 
 // Get the description
 def description = formParameters.description
@@ -17,7 +17,11 @@ if (StringHelper.isNotBlank(description)) {
 // Get the to user his username
 def to = user.username
 
-def parameters = "&amount=${amount}"
+def parameters = ""
+
+if (StringHelper.isNotBlank(amount)) {
+    parameters += "&amount=${amount}"
+}
 
 if (StringHelper.isNotBlank(description)) {
     parameters += "&description=${description}"
