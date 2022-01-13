@@ -1,4 +1,11 @@
 # Changelog
+## 1.4.3 (2022-01-13)
+### Added
+<ul>
+	<li>Allow easy invoice amount to be optional.</li>
+	<li>Imported some C3NL scripts that were not in the git repo yet.</li>
+</ul>
+
 ## 1.4.2 (2021-06-15)
 ### Bugfixes
 <ul>
