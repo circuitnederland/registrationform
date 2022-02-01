@@ -37,7 +37,7 @@ Create the following steps:
 1. Type: Form fields
 - Name: Intro
 - Description: Introduction step, containing explanatory text only.
-- Title: Welkom bij Circuit Nederland!
+- Title: Welkom bij Circuit Nederland
 - Information text: (use html with explanatory text as decided on by stakeholders)
 
 2. Type: Group selection
@@ -55,16 +55,9 @@ Create the following steps:
 - Show privacy control for fields: Yes
 
 4. Type: Form fields
-- Name: eMandate
-- Description: Step to request an eMandate. For users with an eMandate we can make a direct debit to cash the contribution amount.
-- Title: Digitale machtiging
-- Information text: (use html with explanatory text as decided on by stakeholders)
-- Show wizard fields: Bank
-
-5. Type: Form fields
-- Name: Basic fields
-- Description: Step containing the required basic profile fields like username and password.
-- Title: Basisgegevens voor jouw account
+- Name: Accountinfo
+- Description: Step containing the required account fields like username and password.
+- Title: Accountgegevens
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show profile fields: Shows specific profile fields
 - Profile fields to show: Full name, Login name
@@ -72,11 +65,47 @@ Create the following steps:
 - Show security question: Yes
 - Show agreement: Yes
 
-6. Type: Form fields
-- Name: Profile fields
-- Description: All other profile fields we did not retrieve in previous steps.
-- Title: Jouw profiel
+5. Type: Form fields
+- Name: eMandate
+- Description: Step to request an eMandate. For users with an eMandate we can make a direct debit to cash the contribution amount.
+- Title: Digitale machtiging
 - Information text: (use html with explanatory text as decided on by stakeholders)
+- Show wizard fields: Bank
+
+6. Type: Form fields
+- Name: Profile fields particulieren
+- Description: Profile fields for particulieren.
+- Title: Registratiegegevens
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Show only for specific groups: (select all Particulieren groups)
+- Show profile fields: Show specific profile fields
+- Profile fields to show: Image, Geboortedatum, IBAN, Lidmaatschapsbijdrage particulieren, Actiecode
+
+7. Type: Form fields
+- Name: Profile fields bedrijven
+- Description: Profile fields for bedrijven.
+- Title: Registratiegegevens
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Show only for specific groups: (select all Bedrijven groups)
+- Show profile fields: Show specific profile fields
+- Profile fields to show: Phone, Address
+- Phone numbers to show: Both mobile and land-line phones
+- Show privacy control for fields: Yes
+
+8. Type: Form fields
+- Name: Contact fields
+- Description: Address and phone fields.
+- Title: Contactgegevens
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Show profile fields: Show specific profile fields
+- Profile fields to show: Contactpersoon Bedrijf, Geboortedatum, IBAN, K.v.K. nummer, Lidmaatschapsbijdrage bedrijven, Actiecode
+
+9. Type: Form fields
+- Name: Company profile
+- Description: All other profile fields we did not retrieve in previous steps.
+- Title: Bedrijfsprofiel
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Show only for specific groups: (select all Bedrijven groups)
 - Show profile fields: Show all remaining profile fields
 
 # Configuration
@@ -139,3 +168,4 @@ Adjust some of the translations via Content > [Content management] Application t
 - APP.TRANSLATIONS.address-region: Add a custom translation: "Provincie".
 - USERS.ADDRESSES.addressFields.CITY: Add a custom translation: "Plaats".
 - APP.TRANSLATIONS.address-city: Add a custom translation: "Plaats".
+- APP.TRANSLATIONS.user-title-images: Add a custom translation: "Afbeeldingen".
