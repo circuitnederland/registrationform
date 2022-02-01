@@ -132,3 +132,10 @@ Adjust some of the translations via Content > [Content management] Application t
 - USERS.USERS.publicRegistration.securityQuestion.answer: Change "Antwoord" into "Antwoord op beveiligingsvraag"
 - APP.TRANSLATIONS.field-privacy-public.tooltip: Change "Dit veld is zichtbaar door anderen. Klik op maken." into "Dit veld is zichtbaar voor anderen. Klik op dit icoontje om het privé te maken."
 - APP.TRANSLATIONS.field-privacy-private.tooltip: Change "Dit veld is privé. Klik op toestaan om het te bekijken." into "Dit veld is privé. Klik op dit icoontje om het voor andere deelnemers zichtbaar te maken."
+- USERS.PHONES.type.LANDLINE: Remove the current translation "Vast telefoonnummer" by clicking the button 'Restore original translation' (which is "Vaste telefoon").
+- APP.TRANSLATIONS.phone-landLine: Add a custom translation: "Vaste telefoon".
+- APP.TRANSLATIONS.address-line1: Add a custom translation: "Adres".
+- APP.TRANSLATIONS.address-poBox: Add a custom translation: "Postbus".
+- APP.TRANSLATIONS.address-region: Add a custom translation: "Provincie".
+- USERS.ADDRESSES.addressFields.CITY: Add a custom translation: "Plaats".
+- APP.TRANSLATIONS.address-city: Add a custom translation: "Plaats".
