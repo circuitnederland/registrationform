@@ -89,6 +89,26 @@ Set the registration wizard in the configuration: System > [System configuration
 
 # Changes to left-overs from the old registration process
 
+## Hide profile fields
+
+Hide profile fields we no longer wish to use:
+
+- 'Lid van een broodfonds'
+- 'Klant bij Triodos'
+
+Go to System > [User configuration] Products. Adjust the following permissions:
+
+- Product 'Algemeen voor bedrijven (behalve UE)':
+    - 'Description': Remove the two fields from the list.
+    - 'My profile fields': Set all columns for both fields to 'No' except the column 'Enabled'.
+
+- Product 'Algemeen voor iedereen (behalve UE)':
+    - 'Profile fields of other users': Set both fields to Visible 'No' (this also removes the 'User filter').
+
+- Product 'Algemeen United Economy':
+    - 'My profile fields': Set all columns for both fields to 'No' except the column 'Enabled'.
+    - 'Profile fields of other users': Set both fields to Visible 'No' (this also removes the 'User filter').
+
 ## Remove extension points
 
 Remove the extension points we used in the old registration process, involving an iDeal/Mollie payment: System > [Tools] > Extension points. Open the following extension points and uncheck the 'Enabled' checkbox:
