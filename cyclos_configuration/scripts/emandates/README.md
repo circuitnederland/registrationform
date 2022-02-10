@@ -17,7 +17,6 @@ This system record will be used to store the eMandate. It cannot be of scope use
 - Name: eMandate (can be changed)
 - internalName: eMandate
 - Plural name: eMandates (can be changed)
-- Display style: List
 - Use separated view / edit pages: Yes
 
 Setup the following fields:
@@ -26,27 +25,26 @@ User
 - Internal name: owner (user is reserved)
 - Data type: Linked entity
 - Linked entity type: User
-- Include as search filter: Yes
 - Show in results: Yes
+- Include as search filter: Yes
 
 Bank id
 - Internal name: bankId
 - Data type: Single line text
-- Show in results: No
 - Required: Yes
 
 Bank name
 - Internal name: bankName
 - Data type: Single line text
-- Show in results: Yes
 - Required: Yes
+- Show in results: Yes
 
 Status
 - Internal name: status
 - Data type: Single selection
+- Required: Yes
 - Show in results: Yes
 - Include as search filter: Yes (this is required for the task that checks for pending)
-- Required: yes
 - Possible values: internal names must be those in lowercase. Values can be changed:
     - Success
     - Cancelled
@@ -57,38 +55,31 @@ Status
 
 Status date
 - Internal name: statusDate
-- Data type: date
+- Data type: Date
 - Show in results: Yes
-- Required: No
 
 Transaction ID
 - Internal name: transactionId
 - Data type: Single line text
 - Use exact matching on search filters: Yes
-- Include as search filter: Yes (the library will search, even if not needed on page)
 - Unique: Yes
-- Required: No
+- Include as search filter: Yes (the library will search, even if not needed on page)
 
 IBAN
 - Internal name: iban
 - Data type: Single line text
-- Required: No
 
 Account name
 - Internal name: accountName
 - Data type: Single line text
-- Required: No
 
 Signer name
 - Internal name: signerName
 - Data type: Single line text
-- Required: No
 
 Raw message
 - Internal name: rawMessage
 - Data type: Multi line text
-- Show in results: No
-- Required: No
 
 # Scripts
 
@@ -96,7 +87,7 @@ The following scripts will be used:
 
 ## eMandates Library
 
-The library holds most of the logic. It has some parameters that should be set to.
+The library holds most of the logic.
 
 - Script: `Library.groovy`
 - Parameters: `Library.properties`
@@ -141,11 +132,11 @@ Custom web service responds to the *eMandates.Merchant.ReturnUrl* setting in the
 
 # Scheduled tasks
 
-## eMandates Update banklist
+## eMandates Update Banklist
 
 The documentation requires us to call this no more than once per week. So the period should be set to 7 days. But it needs to be executed run manually to update the banks initially.
 
-## eMandates Check pending
+## eMandates Check Pending
 
 If an eMandate needs to be signed by multiple parties, the approval won't be online. Instead, the eMandate is returned in pending status and needs to be checked periodically. The documentation requires us to call this no more than once per day per eMandate. So the period should be set to 1 day.
 
@@ -164,8 +155,9 @@ Cyclos' custom operations use a dynamic return URL. However, as the Java library
 
 ## Create eMandate
 
-- Name: Incasso machtiging afgeven (can be changed)
+- Name: Incassomachtiging afgeven (can be changed)
 - Internal name: createEMandate
+- Enabled for channels: Main
 - Scope: Internal
 - Script: eMandates Create
 - Result type: External redirect
@@ -185,8 +177,9 @@ Debtor bank
 
 ## Amend eMandate
 
-- Name: Incasso machtiging wijzigen (can be changed)
+- Name: Incassomachtiging wijzigen (can be changed)
 - Internal name: amendEMandate
+- Enabled for channels: Main
 - Scope: Internal
 - Script: eMandates Update
 - Result type: External redirect
@@ -204,27 +197,32 @@ Debtor bank
 - Data type: Single selection
 - Required: Yes
 
-## Digitale machtiging
+## Incassomachtiging
 
-Displays the current eMandate status for a user
+Displays the current eMandate status for a user.
 
-- Name: Digitale machtiging (can be changed)
+- Name: Incassomachtiging (can be changed)
 - Internal name: eMandate
+- Enabled for channels: Main
 - Scope: User
 - Script: eMandates Main
 - Result type: Rich text
 
 Actions:
-- Create eMandate (User parameter checked)
-- Amend eMandate (User parameter checked)
+- Incassomachtiging afgeven (User parameter checked)
+- Incassomachtiging wijzigen (User parameter checked)
 
 # Products / Admin permissions
 
 ## Member product
 
-- In records, enable the eMandates record, and grant view in the desired fields
-- In custom operations, enable and allow the eMandate operation
+During the test phase we will use a separate Product so we can give the eMandates functionality to a selected number of users. Later on, we will move the permissions to a Product that is active for all users.
+
+- In custom operations, enable and allow the eMandate ('Incassomachtiging') operation to 'Run self'.
 
 ## Administrator
 
-In user records grant view to all fields. No other operation should be granted, as the records will be managed by the scripts.
+Change permissions in the Group 'Administrateurs C3-Nederland (Netwerk)':
+
+- [System] 'System records': remove the Create, Edit and Remove permissions for the eMandate system record. Admins should only be allowed to see this record, not change it.
+- [User management] 'Add / remove individual products': Add the new temporary Product.

@@ -1,6 +1,4 @@
 import org.cyclos.model.utils.RequestInfo
-import org.cyclos.model.utils.ResponseInfo
-import org.springframework.http.HttpStatus
 
 RequestInfo request = binding.request
 

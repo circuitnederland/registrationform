@@ -454,7 +454,7 @@ class EMandates {
 			cache.flush()
 		}
 		return "A total of ${records.size()} eMandates were pending, of which " + 
-			"${nowSuccess} are now sucessful, ${nowExpired} are now expired " +
+			"${nowSuccess} are now successful, ${nowExpired} are now expired " +
 			" and ${stillPending} are still pending"
 	}
 }
