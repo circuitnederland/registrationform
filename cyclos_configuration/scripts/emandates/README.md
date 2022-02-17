@@ -171,7 +171,8 @@ User
 - Required: Yes
 
 Debtor bank
-- internal name: debtorBank
+- Display name: Bank (can be changed)
+- Internal name: debtorBank
 - Data type: Single selection
 - Required: Yes
 
@@ -193,7 +194,8 @@ User
 - Required: Yes
 
 Debtor bank
-- internal name: debtorBank
+- Display name: Bank (can be changed)
+- Internal name: debtorBank
 - Data type: Single selection
 - Required: Yes
 
