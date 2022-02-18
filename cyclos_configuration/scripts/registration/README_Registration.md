@@ -15,7 +15,6 @@ Create a wizard of type 'Registration form': System > [Tools] Wizards > New > 'R
 
 - Name: Registration wizard (can be changed)
 - Internal name: registration *
-- Show steps progress: Yes
 
 ****Note***: The internal name of the wizard (= 'registration') will be used inside the eMandates script to update the dropdown containing the banks the user can choose from. So, if you must change it here, make sure to change it in the eMandates script as well.
 
