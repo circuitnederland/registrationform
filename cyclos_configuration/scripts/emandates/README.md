@@ -97,18 +97,22 @@ The library holds most of the logic.
 
 Custom scheduled task script which updates the possible values and categories of the custom operation fields reflecting the available banks.
 
+- Included libraries: eMandates Library
 - Script: `ScheduledTask_UpdateBanklist.groovy`
 
 ## eMandates Check Pending
 
 Custom scheduled task script which checks whether eMandates of status pending were procesed.
 
+- Included libraries: eMandates Library
 - Script: `ScheduledTask_CheckPending.groovy`
 
 ## eMandates Create
 
 Custom operation script to create an eMandate.
 
+- Run with all permissions: Yes
+- Included libraries: eMandates Library
 - Script when operation is executed: `Operation_InternalCreate.groovy`
 - Script when the external site redirects: `Operation_InternalCrud_Callback.groovy`
 
@@ -116,6 +120,8 @@ Custom operation script to create an eMandate.
 
 Custom operation script to amend an eMandate.
 
+- Run with all permissions: Yes
+- Included libraries: eMandates Library
 - Script when operation is executed: `Operation_InternalUpdate.groovy`
 - Script when the external site redirects: `Operation_InternalCrud_Callback.groovy`
 
@@ -123,12 +129,15 @@ Custom operation script to amend an eMandate.
 
 Custom operation script to let the user start a create or update.
 
+- Run with all permissions: Yes
+- Included libraries: eMandates Library
 - Script when operation is executed: `Operation_Main.groovy`
 
 ## eMandates Generic Callback
 
 Custom web service responds to the *eMandates.Merchant.ReturnUrl* setting in the *emandates-config.xml* file.
 
+- Included libraries: eMandates Library
 - Script: `WebService_GenericCallback.groovy`
 
 # Scheduled tasks
