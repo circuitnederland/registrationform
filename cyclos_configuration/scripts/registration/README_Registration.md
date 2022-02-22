@@ -117,25 +117,36 @@ Set the registration wizard in the configuration: System > [System configuration
 
 # Changes to left-overs from the old registration process
 
-## Hide profile fields
+## Remove profile fields
 
-Hide profile fields we no longer wish to use:
+We remove profile fields we no longer wish to use:
 
 - 'Lid van een broodfonds'
 - 'Klant bij Triodos'
+- 'Bedrijf'
 
-Go to System > [User configuration] Products. Adjust the following permissions:
+First, go to System > [User configuration] Products. Adjust the following permissions:
 
 - Product 'Algemeen voor bedrijven (behalve UE)':
-    - 'Description': Remove the two fields from the list.
-    - 'My profile fields': Set all columns for both fields to 'No' except the column 'Enabled'.
+    - 'Description': Remove the above fields from the list.
+    - 'My profile fields': Set 'Enabled' to 'No' for the above fields (this also sets all other columns to No).
 
 - Product 'Algemeen voor iedereen (behalve UE)':
-    - 'Profile fields of other users': Set both fields to Visible 'No' (this also removes the 'User filter').
+    - 'Profile fields of other users': Set the above fields to Visible 'No' (this also sets all other columns to No).
 
 - Product 'Algemeen United Economy':
-    - 'My profile fields': Set all columns for both fields to 'No' except the column 'Enabled'.
-    - 'Profile fields of other users': Set both fields to Visible 'No' (this also removes the 'User filter').
+    - 'Profile fields of other users': Set the above fields to Visible 'No' (this also sets all other columns to No).
+    - 'My profile fields': Set 'Enabled' to 'No' for the above fields (this also sets all other columns to No).
+
+Next, go to System > [User configuration] Groups. Adjust the permissions for the following groups:
+
+- 'Administrateurs C3-Nederland (Netwerk)'
+- 'Administrateurs financieel - Circuit Nederland'
+- 'All United - Content beheerders'
+    - 'Profile fields of other users': Set 'Enabled' to 'No' for the above fields (this also sets all other columns to No).
+    - 'Profile fields in simple users search': uncheck 'Bedrijf'.
+
+Finally, go to System > [User configuration] Profile fields. Click the trash icon for each of the above profile fields to remove it.
 
 ## Remove extension points
 
