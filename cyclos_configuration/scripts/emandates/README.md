@@ -7,6 +7,7 @@ Additional resources are required to deploy the solution on the Cyclos installat
 
 - *eMandates.jks*: Copy it to WEB-INF/classes folder
 - *eMandates-config.xml: Copy it to WEB-INF/classes folder
+- *emandates.jar*: From the eMandates github page, copy the net.emandates.merchant.library.jar to WEB-INF/lib
 - *jaxb-runtime*: Download the [jar from maven](https://mvnrepository.com/artifact/org.glassfish.jaxb/jaxb-runtime/2.3.4) and put it in WEB-INF/lib
 - *istack-commons-runtime*: Download the [jar from maven](https://mvnrepository.com/artifact/com.sun.istack/istack-commons-runtime/3.0.12) and put it in WEB-INF/lib
 
