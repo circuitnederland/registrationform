@@ -37,7 +37,6 @@ import org.cyclos.model.system.fields.LinkedEntityVO
 import org.cyclos.model.system.languages.BuiltinLanguage
 import org.cyclos.model.users.records.RecordDataParams
 import org.cyclos.model.users.records.SystemRecordQuery
-import org.cyclos.model.users.records.UserRecordQuery
 import org.cyclos.model.users.recordtypes.RecordTypeVO
 import org.cyclos.model.utils.ResponseInfo
 import org.cyclos.server.utils.ObjectParameterStorage
@@ -399,17 +398,16 @@ class EMandates {
 	 * Returns the current eMandate record for the given user
 	 */
 	SystemRecord current(User user) {
-		def recordType = entityManagerHandler.find(SystemRecordType, 'eMandate')
 		def query = new SystemRecordQuery()
-		query.setType(new RecordTypeVO(recordType.id))
-		query.setCustomValues([
+		query.type = new RecordTypeVO(internalName: 'eMandate')
+		query.customValues = [
 			new CustomFieldValueForSearchDTO(
 				field: new CustomFieldVO(internalName: 'owner'),
 				linkedEntityValues: [
 					new LinkedEntityVO(user.id)
 				] as Set
 			)
-		] as Set)
+		] as Set
 		query.setPageSize(1)
 		def results = recordService.search(query).pageItems
 		return results.isEmpty() ? null : entityManagerHandler.find(SystemRecord, results[0].id)
@@ -419,7 +417,7 @@ class EMandates {
 	 * Checks the pending eMandates to determine whether the status has changed
 	 */
 	String checkPending() {
-		def query = new UserRecordQuery()
+		def query = new SystemRecordQuery()
 		query.type = new RecordTypeVO(internalName: 'eMandate')
 		query.customValues = [
 			new CustomFieldValueForSearchDTO(
