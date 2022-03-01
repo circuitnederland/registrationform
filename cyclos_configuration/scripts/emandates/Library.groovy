@@ -274,17 +274,22 @@ class EMandates {
 	 * Request of a mandate amend. Returns the URL to which the user should be redirected.
 	 */
 	String amendMandateRequest(User user, ExternalRedirectExecution execution, String bankId) {
-		// Find the record
-		def record = current(user)
-		if (record == null) {
+		// Find the current record. We need some data from it for the amend request.
+		def curRecord = current(user)
+		if (curRecord == null) {
 			throw new ValidationException("No current eMandate")
 		}
-		def fields = scriptHelper.wrap(record)
-
-		// Store the record in the storage, so we can lookup it later
-		def storage = new EntityBackedParameterStorage(objectMapper, execution)
-		storage.setObject('record', record)
+		def curFields = scriptHelper.wrap(curRecord)
 		
+		// Create a new record.
+		def data = recordService.getDataForNew(new RecordDataParams(
+			recordType: new RecordTypeVO(internalName: 'eMandate')))
+		def newFields = scriptHelper.wrap(data.dto)
+		newFields.bankId = bankId
+		newFields.bankName = bankName(bankId)
+		newFields.owner = user
+		def newRecord = recordService.saveEntity(data.dto)
+
 		// Build the request parameters
 		def config = configurationHandler.getAccessAccessor(execution.basicUser)
 		def lang = config.language.template == BuiltinLanguage.NL ? 'nl' : 'en'
@@ -292,14 +297,14 @@ class EMandates {
 			"operation${execution.id}",
 			lang, // Language
 			null, // Use the default duration
-			record.id as String, // The eMandate id is the record id
+			newRecord.id as String, // The eMandate id is the new record id
 			scriptParameters["description.${lang}"],
 			user.username as String, // The debtor reference is the username
-			bankId, // The debtor bank id
-			record.id as String, // The purchase id is the record id
+			bankId, // The new debtor bank id
+			newRecord.id as String, // The purchase id is the new record id
 			SequenceType.RCUR, // We always request for recurring mandates
-			fields.iban as String, // Original iban
-			fields.bankId as String // Original bank id
+			curFields.iban as String, // Original iban
+			curFields.bankId as String // Original bank id
 		)
 		
 		// Perform the request
@@ -310,9 +315,14 @@ class EMandates {
 				resp.errorResponse?.consumerMessage ?: resp.errorResponse?.errorMessage)
 		}
 		
-		// Update the record
-		fields.transactionId = resp.transactionID
+		// Store the new record in the storage, so we can lookup it later.
+		// The status request later on will then fill in the status and rawMessage details.
+		def storage = new EntityBackedParameterStorage(objectMapper, execution)
+		storage.setObject('record', newRecord)
 
+		// Update the new record.
+		newFields = scriptHelper.wrap(newRecord)
+		newFields.transactionId = resp.transactionID
 		return resp.issuerAuthenticationURL
 	}
 	
@@ -408,7 +418,7 @@ class EMandates {
 				] as Set
 			)
 		] as Set
-		query.setPageSize(1)
+		query.setPageSize(1) // Since the result is by default ordered by creation date, this gives us the newest record.
 		def results = recordService.search(query).pageItems
 		return results.isEmpty() ? null : entityManagerHandler.find(SystemRecord, results[0].id)
 	}
