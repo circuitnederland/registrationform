@@ -82,6 +82,22 @@ Raw message
 - Internal name: rawMessage
 - Data type: Multi line text
 
+# User profile field
+
+Add a user profile field to indicate the status of a user's eMandate. Admins can use this field to stop all eMandate / direct debit functionality for a specific user in one go:
+
+Go to System > Profile fields and add a new user profile field. Fill in the following:
+- Display name: Status incassomachtiging
+- Internal name: emandate_status
+- Data type: Single selection
+- Include in file export: No
+- Include in account history print (PDF): No
+
+After saving, add the following Possible values:
+- Value: "Actief" / Internal name: "active"
+- Value: "Geblokkeerd (incasso's te vaak mislukt)" / Internal name: "blocked"
+- Value: "Ingetrokken door deelnemer" / Internal name: "withdrawn"
+
 # Scripts
 
 The following scripts will be used:
@@ -230,7 +246,8 @@ Actions:
 
 During the test phase we will use a separate Product so we can give the eMandates functionality to a selected number of users. Later on, we will move the permissions to a Product that is active for all users.
 
-- In custom operations, enable and allow the eMandate ('Incassomachtiging') operation to 'Run self'.
+- In 'My profile fields' set the field 'Status incassomachtiging' to Enabled.
+- In 'Custom operations' enable and allow the eMandate ('Incassomachtiging') operation to 'Run self'.
 
 ## Administrator
 
@@ -238,3 +255,7 @@ Change permissions in the Group 'Administrateurs C3-Nederland (Netwerk)':
 
 - [System] 'System records': remove the Create, Edit and Remove permissions for the eMandate system record. Admins should only be allowed to see this record, not change it.
 - [User management] 'Add / remove individual products': Add the new temporary Product.
+
+Change permissions in the group 'Administrateurs financieel - Circuit Nederland' and in the Group 'Administrateurs C3-Nederland (Netwerk)':
+
+- [User management] 'Profile fields of other users': set the new 'Status incassomachtiging' field to Visible.
