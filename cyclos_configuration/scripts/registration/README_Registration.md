@@ -80,7 +80,7 @@ Create the following steps:
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Particulieren groups)
 - Show profile fields: Show specific profile fields
-- Profile fields to show: Image, Geboortedatum, IBAN, Actiecode
+- Profile fields to show: Image, Geboortedatum, Actiecode
 
 7. Type: Form fields
 - Name: Profile fields bedrijven
@@ -89,7 +89,7 @@ Create the following steps:
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Bedrijven groups)
 - Show profile fields: Show specific profile fields
-- Profile fields to show: Contactpersoon Bedrijf, Geboortedatum, IBAN, K.v.K. nummer, Actiecode
+- Profile fields to show: Contactpersoon Bedrijf, Geboortedatum, K.v.K. nummer, Actiecode
 
 8. Type: Form fields
 - Name: Contact fields
@@ -107,7 +107,8 @@ Create the following steps:
 - Title: Bedrijfsprofiel
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Bedrijven groups)
-- Show profile fields: Show all remaining profile fields
+- Show profile fields: Show specific profile fields
+- Profile fields to show: Image, Website, Branche informatie, Diensten/producten
 
 # Configuration
 
