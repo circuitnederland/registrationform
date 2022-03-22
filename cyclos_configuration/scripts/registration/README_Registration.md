@@ -69,6 +69,8 @@ Create the following steps:
 - Description: Step to request an eMandate. For users with an eMandate we can make a direct debit to cash the contribution amount.
 - Title: Digitale machtiging
 - Information text: (use html with explanatory text as decided on by stakeholders)
+- Show profile fields: Show specific profile fields
+- Profile fields to show: Lidmaatschapsbijdrage bedrijven, Lidmaatschapsbijdrage particulieren
 - Show wizard fields: Bank
 
 6. Type: Form fields
@@ -78,7 +80,7 @@ Create the following steps:
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Particulieren groups)
 - Show profile fields: Show specific profile fields
-- Profile fields to show: Image, Geboortedatum, IBAN, Lidmaatschapsbijdrage particulieren, Actiecode
+- Profile fields to show: Image, Geboortedatum, IBAN, Actiecode
 
 7. Type: Form fields
 - Name: Profile fields bedrijven
@@ -87,9 +89,7 @@ Create the following steps:
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Bedrijven groups)
 - Show profile fields: Show specific profile fields
-- Profile fields to show: Phone, Address
-- Phone numbers to show: Both mobile and land-line phones
-- Show privacy control for fields: Yes
+- Profile fields to show: Contactpersoon Bedrijf, Geboortedatum, IBAN, K.v.K. nummer, Actiecode
 
 8. Type: Form fields
 - Name: Contact fields
@@ -97,7 +97,9 @@ Create the following steps:
 - Title: Contactgegevens
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show profile fields: Show specific profile fields
-- Profile fields to show: Contactpersoon Bedrijf, Geboortedatum, IBAN, K.v.K. nummer, Lidmaatschapsbijdrage bedrijven, Actiecode
+- Profile fields to show: Phone, Address
+- Phone numbers to show: Both mobile and land-line phones
+- Show privacy control for fields: Yes
 
 9. Type: Form fields
 - Name: Company profile
