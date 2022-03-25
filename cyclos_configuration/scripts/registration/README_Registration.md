@@ -5,7 +5,14 @@ We use the Cyclos wizard functionality for the Circuit Nederland (C3NL) registra
 
 # Scripts
 
-@todo
+1. Type: Wizard
+- Name: registration Wizard
+- 'Script code executed when the wizard finishes': add // because this code block is required but we don't need it to do anything.
+- 'Script code executed on transitions between steps': paste the contents of Wizard_PrefillData_StepTransition.groovy.
+
+2. Type: Custom web service
+- Name: registration Wizard Preparation
+- Script code: paste the contents of WebService_PrepareRegistrationWizard.groovy.
 
 # Wizard
 
@@ -15,16 +22,35 @@ Create a wizard of type 'Registration form': System > [Tools] Wizards > New > 'R
 
 - Name: Registration wizard (can be changed)
 - Internal name: registration *
+- Script: registration Wizard
 
 ****Note***: The internal name of the wizard (= 'registration') will be used inside the eMandates script to update the dropdown containing the banks the user can choose from. So, if you must change it here, make sure to change it in the eMandates script as well.
 
 ## Custom fields
 
-Create a new custom field:
+1. Bank:
 - Display name: Bank (can be changed)
 - Internal name: debtorBank *
 - Data type: Single selection
 - Required: Yes
+
+2. Community:
+- Display name: Community (can be changed)
+- Internal name: community
+- Data type: Single selection
+- Size: Medium
+- Required: Yes
+
+After saving the Community field, add Possible values for each of the current Group sets, i.e. All United, Arnhems Hert, etc. Open each value after saving and fill in the internal name with the community name without spaces in small caps, i.e. allunited, arnhemshert, utrechtseeuro, etc.
+
+3. Type:
+- Display name: Inschrijven als (can be changed)
+- Internal name: type
+- Data type: Single selection
+- Size: Medium
+- Required: Yes
+
+After saving the Type field, add Possible values 'Bedrijf' (internal name 'bedrijven') and 'Particulier' (internal name 'particulieren').
 
 ****Note***: The internal name of the custom field (= 'debtorBank') will be used inside the eMandates script to update the dropdown containing the banks the user can choose from. So, if you must change it here, make sure to change it in the eMandates script as well.
 
@@ -39,13 +65,23 @@ Create the following steps:
 - Title: Welkom bij Circuit Nederland
 - Information text: (use html with explanatory text as decided on by stakeholders)
 
-2. Type: Group selection
-- Name: Group selection
-- Title: Kies je community
+2. Type: Form fields
+- Name: Community
+- Internal name: community
+- Title: Kies uw community
 - Information text: (use html with explanatory text as decided on by stakeholders)
+- Show wizard fields: Community
 
 3. Type: Form fields
+- Name: Type
+- Internal name: type
+- Title: Schrijft u zich in als bedrijf of als particulier?
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Show wizard fields: Type
+
+4. Type: Form fields
 - Name: E-mail activation
+- Internal name: email
 - Title: E-mail verificatie
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show profile fields: Shows specific profile fields
@@ -53,7 +89,7 @@ Create the following steps:
 - Require e-mail validation: Yes
 - Show privacy control for fields: Yes
 
-4. Type: Form fields
+5. Type: Form fields
 - Name: Accountinfo
 - Description: Step containing the required account fields like username and password.
 - Title: Accountgegevens
@@ -64,7 +100,7 @@ Create the following steps:
 - Show security question: Yes
 - Show agreement: Yes
 
-5. Type: Form fields
+6. Type: Form fields
 - Name: eMandate
 - Description: Step to request an eMandate. For users with an eMandate we can make a direct debit to cash the contribution amount.
 - Title: Digitale machtiging
@@ -73,7 +109,7 @@ Create the following steps:
 - Profile fields to show: Lidmaatschapsbijdrage bedrijven, Lidmaatschapsbijdrage particulieren
 - Show wizard fields: Bank
 
-6. Type: Form fields
+7. Type: Form fields
 - Name: Profile fields particulieren
 - Description: Profile fields for particulieren.
 - Title: Registratiegegevens
@@ -82,7 +118,7 @@ Create the following steps:
 - Show profile fields: Show specific profile fields
 - Profile fields to show: Image, Geboortedatum, Actiecode
 
-7. Type: Form fields
+8. Type: Form fields
 - Name: Profile fields bedrijven
 - Description: Profile fields for bedrijven.
 - Title: Registratiegegevens
@@ -91,7 +127,7 @@ Create the following steps:
 - Show profile fields: Show specific profile fields
 - Profile fields to show: Contactpersoon Bedrijf, Geboortedatum, K.v.K. nummer, Actiecode
 
-8. Type: Form fields
+9. Type: Form fields
 - Name: Contact fields
 - Description: Address and phone fields.
 - Title: Contactgegevens
@@ -101,7 +137,7 @@ Create the following steps:
 - Phone numbers to show: Both mobile and land-line phones
 - Show privacy control for fields: Yes
 
-9. Type: Form fields
+10. Type: Form fields
 - Name: Company profile
 - Description: All other profile fields we did not retrieve in previous steps.
 - Title: Bedrijfsprofiel
@@ -110,6 +146,24 @@ Create the following steps:
 - Show profile fields: Show specific profile fields
 - Profile fields to show: Image, Website, Branche informatie, Diensten/producten
 
+11. Type: Form fields *
+- Name: Ending
+
+* Note: this last empty step is not needed anymore when Cyclos release containing fix for CYCLOS-9653 is deployed to C3NL.
+
+# Custom web service
+
+- Name: registration Wizard Startup
+- Description: Start a registration wizard, optionally with community and type already filled in if these are given in the request URL.
+- Http method: GET
+- Run as: Guest
+- Script: registration Wizard Preparation
+- Url mappings:  
+inschrijven  
+inschrijven/{community}/{type}  
+inschrijven/{community}
+
+
 # Configuration
 
 Set the registration wizard in the configuration: System > [System configuration] Configurations > 'Default for Nederland', under the [Data visible to guests] section:
@@ -117,6 +171,10 @@ Set the registration wizard in the configuration: System > [System configuration
 - Registration wizard for large screens: Registration wizard
 - Registration wizard for medium screens: Registration wizard
 - Registration wizard for small screens: Registration wizard
+
+# Groups
+
+Correct the internal names of all groups that are open for public registration.  The internal name should follow the convention {community}_{type}. For example utrechtseeuro_bedrijven, fryskeeuro_particulieren, etc.
 
 # Changes to left-overs from the old registration process
 
