@@ -176,6 +176,14 @@ Set the registration wizard in the configuration: System > [System configuration
 
 Correct the internal names of all groups that are open for public registration.  The internal name should follow the convention {community}_{type}. For example utrechtseeuro_bedrijven, fryskeeuro_particulieren, etc.
 
+# Agreements
+
+Add a new agreement for United Economy:
+- Name: Ledencontract United Economy
+- Content: {as supplied by UnEc.}
+
+Add the new United Economy agreement to the Product 'Algemeen United Economy'. And also the general 'Algemene Voorwaarden' agreement.
+
 # Changes to left-overs from the old registration process
 
 ## Remove profile fields
