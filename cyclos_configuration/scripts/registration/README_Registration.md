@@ -98,7 +98,6 @@ Create the following steps:
 - Profile fields to show: Full name, Login name
 - Show password: Yes
 - Show security question: Yes
-- Show agreement: Yes
 
 6. Type: Form fields
 - Name: eMandate
@@ -108,6 +107,7 @@ Create the following steps:
 - Show profile fields: Show specific profile fields
 - Profile fields to show: Lidmaatschapsbijdrage bedrijven, Lidmaatschapsbijdrage particulieren
 - Show wizard fields: Bank
+- Show agreement: Yes
 
 7. Type: Form fields
 - Name: Profile fields particulieren
