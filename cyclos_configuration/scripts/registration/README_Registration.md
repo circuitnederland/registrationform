@@ -105,7 +105,7 @@ Create the following steps:
 - Title: Digitale machtiging
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show profile fields: Show specific profile fields
-- Profile fields to show: Lidmaatschapsbijdrage bedrijven, Lidmaatschapsbijdrage particulieren
+- Profile fields to show: Lidmaatschapsbijdrage bedrijven, Lidmaatschapsbijdrage particulieren, Actiecode
 - Show wizard fields: Bank
 - Show agreement: Yes
 
@@ -116,7 +116,7 @@ Create the following steps:
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Particulieren groups)
 - Show profile fields: Show specific profile fields
-- Profile fields to show: Image, Geboortedatum, Actiecode
+- Profile fields to show: Image, Geboortedatum
 
 8. Type: Form fields
 - Name: Profile fields bedrijven
@@ -125,7 +125,7 @@ Create the following steps:
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Bedrijven groups)
 - Show profile fields: Show specific profile fields
-- Profile fields to show: Contactpersoon Bedrijf, Geboortedatum, K.v.K. nummer, Actiecode
+- Profile fields to show: Contactpersoon Bedrijf, Geboortedatum, K.v.K. nummer
 
 9. Type: Form fields
 - Name: Contact fields
