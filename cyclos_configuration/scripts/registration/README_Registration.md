@@ -14,6 +14,21 @@ We use the Cyclos wizard functionality for the Circuit Nederland (C3NL) registra
 - Name: registration Wizard Preparation
 - Script code: paste the contents of WebService_PrepareRegistrationWizard.groovy.
 
+# Profile fields
+
+Add a new profile field for authorized signatories: System > [User configuration] 'Profile fields' > New.
+- Display name: Tekeningsbevoegde
+- Internal name: authorized_signatory
+- Required: Yes
+
+After saving the new profile field, use the arrows to move the field up, just above the 'Contactpersoon bedrijf' field.
+
+Add permissions for the new profile field for authorized signatories:
+- Group 'Administrateurs C3-Nederland (Netwerk)' > 'Profile fields of other users': Add Visible for 'Tekeningsbevoegde'.
+- Group 'Administrateurs financieel - Circuit Nederland' > 'Profile fields of other users': Add Visible and Editable for 'Tekeningsbevoegde'.
+- Product 'Algemeen voor bedrijven (behalve UE)' > 'My profile fields': Add Enabled, At registration, Visible and Editable for 'Tekeningsbevoegde'.
+- Product 'Algemeen United Economy' > 'My profile fields': Add Enabled, At registration, Visible and Editable for 'Tekeningsbevoegde'.
+
 # Wizard
 
 Create a wizard of type 'Registration form': System > [Tools] Wizards > New > 'Registration form'.
@@ -100,16 +115,28 @@ Create the following steps:
 - Show security question: Yes
 
 6. Type: Form fields
-- Name: eMandate
+- Name: eMandate Companies
 - Description: Step to request an eMandate. For users with an eMandate we can make a direct debit to cash the contribution amount.
 - Title: Digitale machtiging
 - Information text: (use html with explanatory text as decided on by stakeholders)
+- Show only for specific groups: (select all Bedrijven groups)
 - Show profile fields: Show specific profile fields
-- Profile fields to show: Lidmaatschapsbijdrage bedrijven, Lidmaatschapsbijdrage particulieren, Actiecode
+- Profile fields to show: Tekeningsbevoegde, Lidmaatschapsbijdrage bedrijven, Actiecode
 - Show wizard fields: Bank
 - Show agreement: Yes
 
 7. Type: Form fields
+- Name: eMandate Consumers
+- Description: Step to request an eMandate. For users with an eMandate we can make a direct debit to cash the contribution amount.
+- Title: Digitale machtiging
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Show only for specific groups: (select all Consumer groups)
+- Show profile fields: Show specific profile fields
+- Profile fields to show: Lidmaatschapsbijdrage particulieren, Actiecode
+- Show wizard fields: Bank
+- Show agreement: Yes
+
+8. Type: Form fields
 - Name: Profile fields particulieren
 - Description: Profile fields for particulieren.
 - Title: Registratiegegevens
@@ -118,7 +145,7 @@ Create the following steps:
 - Show profile fields: Show specific profile fields
 - Profile fields to show: Image, Geboortedatum
 
-8. Type: Form fields
+9. Type: Form fields
 - Name: Profile fields bedrijven
 - Description: Profile fields for bedrijven.
 - Title: Registratiegegevens
@@ -127,7 +154,7 @@ Create the following steps:
 - Show profile fields: Show specific profile fields
 - Profile fields to show: Contactpersoon Bedrijf, Geboortedatum, K.v.K. nummer
 
-9. Type: Form fields
+10. Type: Form fields
 - Name: Contact fields
 - Description: Address and phone fields.
 - Title: Contactgegevens
@@ -137,7 +164,7 @@ Create the following steps:
 - Phone numbers to show: Both mobile and land-line phones
 - Show privacy control for fields: Yes
 
-10. Type: Form fields
+11. Type: Form fields
 - Name: Company profile
 - Description: All other profile fields we did not retrieve in previous steps.
 - Title: Bedrijfsprofiel
@@ -146,7 +173,7 @@ Create the following steps:
 - Show profile fields: Show specific profile fields
 - Profile fields to show: Image, Website, Branche informatie, Diensten/producten
 
-11. Type: Form fields *
+12. Type: Form fields *
 - Name: Ending
 
 * Note: this last empty step is not needed anymore when Cyclos release containing fix for CYCLOS-9653 is deployed to C3NL.
