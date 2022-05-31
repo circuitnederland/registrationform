@@ -137,30 +137,33 @@ Create the following steps:
 - Show agreement: Yes
 
 8. Type: Form fields
-- Name: Profile fields particulieren
-- Description: Profile fields for particulieren.
-- Title: Registratiegegevens
-- Information text: (use html with explanatory text as decided on by stakeholders)
-- Show only for specific groups: (select all Particulieren groups)
-- Show profile fields: Show specific profile fields
-- Profile fields to show: Image, Geboortedatum
-
-9. Type: Form fields
-- Name: Profile fields bedrijven
-- Description: Profile fields for bedrijven.
+- Name: Profile fields Companies
+- Description: Profile fields for companies.
 - Title: Registratiegegevens
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Bedrijven groups)
 - Show profile fields: Show specific profile fields
 - Profile fields to show: Contactpersoon Bedrijf, Geboortedatum, K.v.K. nummer
 
-10. Type: Form fields
-- Name: Contact fields
-- Description: Address and phone fields.
+9. Type: Form fields
+- Name: Contact fields Companies
+- Description: Contact fields for companies.
 - Title: Contactgegevens
 - Information text: (use html with explanatory text as decided on by stakeholders)
+- Show only for specific groups: (select all Bedrijven groups)
 - Show profile fields: Show specific profile fields
 - Profile fields to show: Phone, Address
+- Phone numbers to show: Both mobile and land-line phones
+- Show privacy control for fields: Yes
+
+10. Type: Form fields
+- Name: Contact fields Consumers
+- Description: Contact fields for consumers.
+- Title: Contactgegevens
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Show only for specific groups: (select all Particulieren groups)
+- Show profile fields: Show specific profile fields
+- Profile fields to show: Phone, Address, Image, Geboortedatum
 - Phone numbers to show: Both mobile and land-line phones
 - Show privacy control for fields: Yes
 
