@@ -67,6 +67,18 @@ After saving the Community field, add Possible values for each of the current Gr
 
 After saving the Type field, add Possible values 'Bedrijf' (internal name 'bedrijven') and 'Particulier' (internal name 'particulieren').
 
+4. Name Companies:
+- Display name: Bedrijfsnaam (can be changed)
+- Internal name: company_name
+- Data type: Single line text (= default)
+- Required: Yes
+
+5. Name Consumers:
+- Display name: Volledige naam (can be changed)
+- Internal name: consumer_name
+- Data type: Single line text (= default)
+- Required: Yes
+
 ****Note***: The internal name of the custom field (= 'debtorBank') will be used inside the eMandates script to update the dropdown containing the banks the user can choose from. So, if you must change it here, make sure to change it in the eMandates script as well.
 
 
@@ -105,16 +117,32 @@ Create the following steps:
 - Show privacy control for fields: Yes
 
 5. Type: Form fields
-- Name: Accountinfo
+- Name: Accountinfo Companies
+- Internal name: accountinfo_companies
 - Description: Step containing the required account fields like username and password.
 - Title: Accountgegevens
 - Information text: (use html with explanatory text as decided on by stakeholders)
+- Show only for specific groups: (select all Bedrijven groups)
 - Show profile fields: Shows specific profile fields
-- Profile fields to show: Full name, Login name
+- Profile fields to show: Login name
+- Show wizard fields: Bedrijfsnaam
 - Show password: Yes
 - Show security question: Yes
 
 6. Type: Form fields
+- Name: Accountinfo Consumers
+- Internal name: accountinfo_consumers
+- Description: Step containing the required account fields like username and password.
+- Title: Accountgegevens
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Show only for specific groups: (select all Particulieren groups)
+- Show profile fields: Shows specific profile fields
+- Profile fields to show: Login name
+- Show wizard fields: Volledige naam
+- Show password: Yes
+- Show security question: Yes
+
+7. Type: Form fields
 - Name: eMandate Companies
 - Description: Step to request an eMandate. For users with an eMandate we can make a direct debit to cash the contribution amount.
 - Title: Digitale machtiging
@@ -125,7 +153,7 @@ Create the following steps:
 - Show wizard fields: Bank
 - Show agreement: Yes
 
-7. Type: Form fields
+8. Type: Form fields
 - Name: eMandate Consumers
 - Description: Step to request an eMandate. For users with an eMandate we can make a direct debit to cash the contribution amount.
 - Title: Digitale machtiging
@@ -136,7 +164,7 @@ Create the following steps:
 - Show wizard fields: Bank
 - Show agreement: Yes
 
-8. Type: Form fields
+9. Type: Form fields
 - Name: Profile fields Companies
 - Description: Profile fields for companies.
 - Title: Registratiegegevens
@@ -145,7 +173,7 @@ Create the following steps:
 - Show profile fields: Show specific profile fields
 - Profile fields to show: Contactpersoon Bedrijf, Geboortedatum, K.v.K. nummer
 
-9. Type: Form fields
+10. Type: Form fields
 - Name: Contact fields Companies
 - Description: Contact fields for companies.
 - Title: Contactgegevens
@@ -156,7 +184,7 @@ Create the following steps:
 - Phone numbers to show: Both mobile and land-line phones
 - Show privacy control for fields: Yes
 
-10. Type: Form fields
+11. Type: Form fields
 - Name: Contact fields Consumers
 - Description: Contact fields for consumers.
 - Title: Contactgegevens
@@ -167,7 +195,7 @@ Create the following steps:
 - Phone numbers to show: Both mobile and land-line phones
 - Show privacy control for fields: Yes
 
-11. Type: Form fields
+12. Type: Form fields
 - Name: Company profile
 - Description: All other profile fields we did not retrieve in previous steps.
 - Title: Bedrijfsprofiel
@@ -176,7 +204,7 @@ Create the following steps:
 - Show profile fields: Show specific profile fields
 - Profile fields to show: Image, Website, Branche informatie, Diensten/producten
 
-12. Type: Form fields *
+13. Type: Form fields *
 - Name: Ending
 
 * Note: this last empty step is not needed anymore when Cyclos release containing fix for CYCLOS-9653 is deployed to C3NL.
