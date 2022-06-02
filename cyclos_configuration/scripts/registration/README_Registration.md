@@ -49,6 +49,8 @@ Create a wizard of type 'Registration form': System > [Tools] Wizards > New > 'R
 - Data type: Single selection
 - Required: Yes
 
+****Note***: The internal name of the custom field (= 'debtorBank') will be used inside the eMandates script to update the dropdown containing the banks the user can choose from. So, if you must change it here, make sure to change it in the eMandates script as well.
+
 2. Community:
 - Display name: Community (can be changed)
 - Internal name: community
@@ -79,8 +81,15 @@ After saving the Type field, add Possible values 'Bedrijf' (internal name 'bedri
 - Data type: Single line text (= default)
 - Required: Yes
 
-****Note***: The internal name of the custom field (= 'debtorBank') will be used inside the eMandates script to update the dropdown containing the banks the user can choose from. So, if you must change it here, make sure to change it in the eMandates script as well.
+6. Image Companies:
+- Display name: Bedrijfslogo (can be changed)
+- Internal name: company_image
+- Data type: Image
 
+6. Image Consumers:
+- Display name: Profielfoto (can be changed)
+- Internal name: consumer_image
+- Data type: Image
 
 ## Steps
 
@@ -191,9 +200,10 @@ Create the following steps:
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Particulieren groups)
 - Show profile fields: Show specific profile fields
-- Profile fields to show: Phone, Address, Image, Geboortedatum
+- Profile fields to show: Phone, Address, Geboortedatum
 - Phone numbers to show: Both mobile and land-line phones
 - Show privacy control for fields: Yes
+- Show wizard fields: Profielfoto
 
 12. Type: Form fields
 - Name: Company profile
@@ -202,7 +212,8 @@ Create the following steps:
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Bedrijven groups)
 - Show profile fields: Show specific profile fields
-- Profile fields to show: Image, Website, Branche informatie, Diensten/producten
+- Profile fields to show: Website, Branche informatie, Diensten/producten
+- Show wizard fields: Bedrijfslogo
 
 13. Type: Form fields *
 - Name: Ending
