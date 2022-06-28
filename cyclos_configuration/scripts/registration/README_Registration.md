@@ -302,6 +302,12 @@ Remove the extension points we used in the old registration process, involving a
 - activateUserCheckPayment
 - createUser
 
+## Remove unused address field
+
+Remove the region (= Provincie) address field:
+
+Go to System > [System configuration] Configurations > 'Default for Nederland' > [Addresses] 'Enabled address fields': remove the checkbox for 'Region or state'.
+
 ## Change group properties
 
 In the groups 'United Economy - Bedrijven' and 'United Economy - Particulieren' remove the property 'Name on registration', which was set to resp. 'Bedrijven' and 'Particulieren'. Make those empty, so the group name is shown instead, in the group selection step in the wizard.
