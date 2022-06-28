@@ -16,6 +16,10 @@ We use the Cyclos wizard functionality for the Circuit Nederland (C3NL) registra
 
 # Profile fields
 
+Change the existing 'Aankoop saldo' profile field:
+- Information text: (use text as decided on by stakeholders)
+- Allowed values range: change the maximum value from 10000,00 to 50,00.
+
 Add a new profile field for authorized signatories: System > [User configuration] 'Profile fields' > New.
 - Display name: Tekeningsbevoegde
 - Internal name: authorized_signatory
@@ -28,6 +32,12 @@ Add permissions for the new profile field for authorized signatories:
 - Group 'Administrateurs financieel - Circuit Nederland' > 'Profile fields of other users': Add Visible and Editable for 'Tekeningsbevoegde'.
 - Product 'Algemeen voor bedrijven (behalve UE)' > 'My profile fields': Add Enabled, At registration, Visible and Editable for 'Tekeningsbevoegde'.
 - Product 'Algemeen United Economy' > 'My profile fields': Add Enabled, At registration, Visible and Editable for 'Tekeningsbevoegde'.
+
+# Products
+
+Change the Product 'Algemeen (handelsrekening)':
+- My profile fields: Set 'Enabled' and 'At registration' to 'Yes' for the profile field 'Aankoop saldo'.
+- Description: add a line to describe the Aankoop saldo field is added at registration.
 
 # Wizard
 
@@ -158,7 +168,7 @@ Create the following steps:
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Bedrijven groups)
 - Show profile fields: Show specific profile fields
-- Profile fields to show: Tekeningsbevoegde, Lidmaatschapsbijdrage bedrijven, Actiecode
+- Profile fields to show: Tekeningsbevoegde, Lidmaatschapsbijdrage bedrijven, Actiecode, Aankoop saldo
 - Show wizard fields: Bank
 - Show agreement: Yes
 
@@ -169,7 +179,7 @@ Create the following steps:
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Consumer groups)
 - Show profile fields: Show specific profile fields
-- Profile fields to show: Lidmaatschapsbijdrage particulieren, Actiecode
+- Profile fields to show: Lidmaatschapsbijdrage particulieren, Actiecode, Aankoop saldo
 - Show wizard fields: Bank
 - Show agreement: Yes
 
@@ -243,7 +253,7 @@ Set the registration wizard in the configuration: System > [System configuration
 
 # Groups
 
-Correct the internal names of all groups that are open for public registration.  The internal name should follow the convention {community}_{type}. For example utrechtseeuro_bedrijven, fryskeeuro_particulieren, etc.
+Correct the internal names of all groups that are open for public registration. The internal name should follow the convention {community}_{type}. For example utrechtseeuro_bedrijven, fryskeeuro_particulieren, etc.
 
 # Agreements
 
