@@ -20,6 +20,11 @@ Change the existing 'Aankoop saldo' profile field:
 - Information text: (use text as decided on by stakeholders)
 - Allowed values range: change the maximum value from 10000,00 to 50,00.
 
+Change the existing 'K.v.K. nummer' profile field:
+- Information text: (use text as decided on by stakeholders)
+
+Remove the permission to edit the own profilefield for the KvK nr field in the Products 'Algemeen voor bedrijven (behalve UE)' and 'Algemeen United Economy'.
+
 Add a new profile field for authorized signatories: System > [User configuration] 'Profile fields' > New.
 - Display name: Tekeningsbevoegde
 - Internal name: authorized_signatory
