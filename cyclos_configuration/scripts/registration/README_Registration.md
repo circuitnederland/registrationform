@@ -30,8 +30,8 @@ After saving the new profile field, use the arrows to move the field up, just ab
 Add permissions for the new profile field for authorized signatories:
 - Group 'Administrateurs C3-Nederland (Netwerk)' > 'Profile fields of other users': Add Visible for 'Tekeningsbevoegde'.
 - Group 'Administrateurs financieel - Circuit Nederland' > 'Profile fields of other users': Add Visible and Editable for 'Tekeningsbevoegde'.
-- Product 'Algemeen voor bedrijven (behalve UE)' > 'My profile fields': Add Enabled, At registration, Visible and Editable for 'Tekeningsbevoegde'.
-- Product 'Algemeen United Economy' > 'My profile fields': Add Enabled, At registration, Visible and Editable for 'Tekeningsbevoegde'.
+- Product 'Algemeen voor bedrijven (behalve UE)' > 'My profile fields': Add Enabled, At registration and Visible for 'Tekeningsbevoegde'.
+- Product 'Algemeen United Economy' > 'My profile fields': Add Enabled, At registration and Visible for 'Tekeningsbevoegde'.
 
 # Products
 
