@@ -14,6 +14,11 @@ We use the Cyclos wizard functionality for the Circuit Nederland (C3NL) registra
 - Name: registration Wizard Preparation
 - Script code: paste the contents of WebService_PrepareRegistrationWizard.groovy.
 
+3. Type: Load custom field values
+- Name: contribution scales
+- Run with all permissions: No
+- Script code that returns the possible values when either creating or editing an entity: paste the contents of ../loadCustomFieldValues_ContributionScales.groovy.
+
 # Profile fields
 
 Change the existing 'Aankoop saldo' profile field:
@@ -37,6 +42,29 @@ Add permissions for the new profile field for authorized signatories:
 - Group 'Administrateurs financieel - Circuit Nederland' > 'Profile fields of other users': Add Visible and Editable for 'Tekeningsbevoegde'.
 - Product 'Algemeen voor bedrijven (behalve UE)' > 'My profile fields': Add Enabled, At registration and Visible for 'Tekeningsbevoegde'.
 - Product 'Algemeen United Economy' > 'My profile fields': Add Enabled, At registration and Visible for 'Tekeningsbevoegde'.
+
+Add a new profile field for the contribution: System > [User configuration] 'Profile fields' > New.
+- Display name: Lidmaatschapsbijdrage
+- Internal name: lidmaatschapsbijdrage
+- Data type: Single selection
+- Load values script: contribution scales
+- Required: Yes
+
+After saving the new profile field, add the Possible values for the default company and consumer contribution scales:
+- Value: {Use the texts as requested by the business, making sure the amount is the first number in the string}
+- Internal name: standaard_bedrijven_1 / standaard_bedrijven_2 etc or standaard_particulieren_1 / standaard_particulieren_2 etc
+
+After creating the new profile field, use the arrows to move the field up, just above the 'Actiecode' field.
+
+Add permissions for the new contribution profile field:
+- Group 'Administrateurs C3-Nederland (Netwerk)' > 'Profile fields of other users': Add Visible, Editable and User filter for 'Lidmaatschapsbijdrage'.
+- Group 'Administrateurs financieel - Circuit Nederland' > 'Profile fields of other users': Add Visible, Editable and User filter for 'Lidmaatschapsbijdrage'.
+- Product 'Algemeen voor iedereen (behalve UE)' > 'My profile fields': Add Enabled, At registration, Visible and Editable for 'Lidmaatschapsbijdrage'.
+- Product 'Algemeen United Economy' > 'My profile fields': Add Enabled, At registration, Visible and Editable for 'Lidmaatschapsbijdrage'.
+
+Remove the permissions for the two old contribution fields that were specific for companies and consumers:
+- Product 'Algemeen (voor particulieren)' > 'My profile fields': Remove all permissions for 'Lidmaatschapsbijdrage particulieren'.
+- Product 'Algemeen voor bedrijven (behalve UE)' > 'My profile fields': Remove all permissions for 'Lidmaatschapsbijdrage bedrijven'.
 
 # Products
 
@@ -173,7 +201,7 @@ Create the following steps:
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Bedrijven groups)
 - Show profile fields: Show specific profile fields
-- Profile fields to show: Tekeningsbevoegde, Lidmaatschapsbijdrage bedrijven, Actiecode, Aankoop saldo
+- Profile fields to show: Tekeningsbevoegde, Lidmaatschapsbijdrage, Actiecode, Aankoop saldo
 - Show wizard fields: Bank
 - Show agreement: Yes
 
@@ -184,7 +212,7 @@ Create the following steps:
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Consumer groups)
 - Show profile fields: Show specific profile fields
-- Profile fields to show: Lidmaatschapsbijdrage particulieren, Actiecode, Aankoop saldo
+- Profile fields to show: Lidmaatschapsbijdrage, Actiecode, Aankoop saldo
 - Show wizard fields: Bank
 - Show agreement: Yes
 
