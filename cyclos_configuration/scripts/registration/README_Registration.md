@@ -21,6 +21,11 @@ We use the Cyclos wizard functionality for the Circuit Nederland (C3NL) registra
 
 # Profile fields
 
+Change the Information text of profile fields to use formal instead of informal Dutch:
+- Website (also remove the remark about required http(s), which is no longer needed now we use the wizard)
+- K.v.K. nummer
+- Diensten/producten
+
 Change the existing 'Aankoop saldo' profile field:
 - Information text: (use text as decided on by stakeholders)
 - Allowed values range: change the maximum value from 10000,00 to 50,00.
