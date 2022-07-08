@@ -141,7 +141,7 @@ After saving the Type field, add Possible values 'Bedrijf' (internal name 'bedri
 
 ## Steps
 
-Create the following steps:
+Create the following steps (use a surrounding `<div class="wizardstep"></div>` in each Information text):
 
 1. Type: Form fields
 - Name: Intro
@@ -300,6 +300,17 @@ Add a new agreement for United Economy:
 - Content: {as supplied by UnEc.}
 
 Add the new United Economy agreement to the Product 'Algemeen United Economy'. And also the general 'Algemene Voorwaarden' agreement.
+
+# Themes
+
+Go to Content > [Content management] Themes > 'Default for Nederland' > 'Circuit Nederland' theme and add the following to the 'Custom style' section:
+
+```
+/* Wizard step Information text color, added July 2022, SB */
+.wizardstep {
+    color: #333;
+}
+```
 
 # Changes to left-overs from the old registration process
 
