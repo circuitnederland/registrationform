@@ -19,6 +19,11 @@ We use the Cyclos wizard functionality for the Circuit Nederland (C3NL) registra
 - Run with all permissions: No
 - Script code that returns the possible values when either creating or editing an entity: paste the contents of ../loadCustomFieldValues_ContributionScales.groovy.
 
+4. Type: Custom field validation
+- Name: check DateOfBirth
+- Run with all permissions: No
+- Script code: paste the contents of ../customFieldValidation_DateOfBirth.groovy.
+
 # Profile fields
 
 Change the Information text of profile fields to use formal instead of informal Dutch:
@@ -30,10 +35,15 @@ Change the existing 'Aankoop saldo' profile field:
 - Information text: (use text as decided on by stakeholders)
 - Allowed values range: change the maximum value from 10000,00 to 50,00.
 
-Change the existing 'K.v.K. nummer' profile field:
-- Information text: (use text as decided on by stakeholders)
+Change the existing 'Geboortedatum' profile field:
+- Validation script: check DateOfBirth
+- Validation script parameters:
+```
+minimumLeeftijd = 18
+teJongMelding = De minimum leeftijd om te kunnen deelnemen is #minimumLeeftijd# jaar.
+```
 
-Remove the permission to edit the own profilefield for the KvK nr field in the Products 'Algemeen voor bedrijven (behalve UE)' and 'Algemeen United Economy'.
+Remove the permission to edit the own profile field for the 'K.v.K. nummer' profile field in the Products 'Algemeen voor bedrijven (behalve UE)' and 'Algemeen United Economy'.
 
 Add a new profile field for authorized signatories: System > [User configuration] 'Profile fields' > New.
 - Display name: Tekeningsbevoegde
