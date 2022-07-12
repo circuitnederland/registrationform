@@ -392,3 +392,4 @@ Adjust some of the translations via Content > [Content management] Application t
 - USERS.ADDRESSES.addressFields.CITY: Add a custom translation: "Plaats".
 - APP.TRANSLATIONS.address-city: Add a custom translation: "Plaats".
 - APP.TRANSLATIONS.user-title-images: Add a custom translation: "Afbeeldingen".
+- CONTENT_MANAGEMENT.EMAILS.activated.body.template: {Add a line with links to the apps as decided on by stakeholders}
