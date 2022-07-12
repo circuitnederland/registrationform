@@ -24,6 +24,11 @@ We use the Cyclos wizard functionality for the Circuit Nederland (C3NL) registra
 - Run with all permissions: No
 - Script code: paste the contents of ../customFieldValidation_DateOfBirth.groovy.
 
+5. Type: Load custom field values
+- Name: restrict community groups in registration
+- Run with all permissions: No
+- Script code that returns the possible values when either creating or editing an entity: paste the contents of LoadCustomFieldValues_WizardType.groovy.
+
 # Profile fields
 
 Change the Information text of profile fields to use formal instead of informal Dutch:
@@ -122,6 +127,12 @@ After saving the Community field, add Possible values for each of the current Gr
 - Display name: Inschrijven als (can be changed)
 - Internal name: type
 - Data type: Single selection
+- Load values script: restrict community groups in registration
+- Load values script parameters: {the type to show for each community that should not have both types visible, for example:}
+```
+allunited = particulieren
+unitedeconomy = bedrijven
+```
 - Size: Medium
 - Required: Yes
 
