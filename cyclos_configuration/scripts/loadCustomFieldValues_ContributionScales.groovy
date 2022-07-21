@@ -5,7 +5,7 @@
  * When a community does not want to use custom scales, their users get the default (standaard) scales.
 */
 
-def groupName = user.group.internalName
+def groupName = user.group.internalName ?: ''
 
 // Filter the List of possible values.
 
@@ -21,6 +21,15 @@ if (customList) {
 
 // If filtering on the group gives no values, return the values for the default user type (companies or consumers).
 def userType = groupName.substring(groupName.indexOf("_"))
-return field.possibleValues.stream()
+def stdList = field.possibleValues.stream()
     .filter(x -> x.internalName.startsWith("standaard${userType}"))
     .findAll()
+
+// If we found a standard list of values based on the usertype, return that.
+if (stdList) {
+    return stdList
+}
+
+// If the group internal name is not using the convention of {community}_{usertype}, just return the entire list of possible values.
+// This can happen for brokers.
+return field.possibleValues
