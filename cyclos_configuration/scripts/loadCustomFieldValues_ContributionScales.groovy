@@ -5,6 +5,8 @@
  * When a community does not want to use custom scales, their users get the default (standaard) scales.
 */
 
+// The internal names of member groups should follow the convention {community}_{type}, where type is bedrijven (companies) or particulieren (consumers).
+// For example arnhemshert_bedrijven or utrechtseeuro_particulieren.
 def groupName = user.group.internalName ?: ''
 
 // Filter the List of possible values.
@@ -19,10 +21,10 @@ if (customList) {
     return customList
 }
 
-// If filtering on the group gives no values, return the values for the default user type (companies or consumers).
-def userType = groupName.substring(groupName.indexOf("_"))
+// If filtering on the group gives no values, try filtering the values for the default user type (companies or consumers).
+def (community, userType) = groupName.tokenize('_')
 def stdList = field.possibleValues.stream()
-    .filter(x -> x.internalName.startsWith("standaard${userType}"))
+    .filter(x -> x.internalName.startsWith("standaard_${userType}"))
     .findAll()
 
 // If we found a standard list of values based on the usertype, return that.
