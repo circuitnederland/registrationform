@@ -69,6 +69,8 @@ Add a new profile field for the contribution: System > [User configuration] 'Pro
 - Data type: Single selection
 - Load values script: contribution scales
 - Required: Yes
+- Include in account history print (PDF): No
+- Hidden by default: Yes
 
 After saving the new profile field, add the Possible values for the default company and consumer contribution scales:
 - Value: {Use the texts as requested by the business, making sure the amount is the first number in the string}
