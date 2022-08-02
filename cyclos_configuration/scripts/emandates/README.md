@@ -82,6 +82,25 @@ Raw message
 - Internal name: rawMessage
 - Data type: Multi line text
 
+Enter the Dutch translation for the recordtype. Go to Content > [Content management] Data translation > Circuit Nederland > [Records] Record types. Enter the following translations:
+- eMandate: Digitale machtiging
+- eMandates: Digitale machtigingen
+
+Enter the Dutch translation for the recordtype fields. Go to Content > [Content management] Data translation > Circuit Nederland > [Records] Record fields. In the eMandate section enter the following translations:
+- User: Deelnemer
+- Bank name: Bank naam
+- Status date: Status datum
+- Transaction ID: Transactie ID
+- Account name: Rekeninghouder
+- Signer name: Ondertekenaar
+
+Enter the Dutch translation for the possible values of the recordtype fields. Go to Content > [Content management] Data translation > Circuit Nederland > [Records] Record fields possible values. In the 'eMandate Status' section enter the following translations:
+- Cancelled: Geannuleerd
+- Expired: Verlopen
+- Failure: Mislukt
+- Pending: In behandeling
+- Success: Succesvol
+
 # User profile field
 
 Add a user profile field to indicate the status of a user's eMandate. Admins can use this field to stop all eMandate / direct debit functionality for a specific user in one go:
