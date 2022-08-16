@@ -5,7 +5,6 @@ import org.cyclos.impl.access.ConfigurationHandler
 import org.cyclos.impl.contentmanagement.DataTranslationHandler
 import org.cyclos.impl.system.ScriptHelper
 import org.cyclos.impl.utils.formatting.FormatterImpl
-import org.cyclos.model.system.languages.BuiltinLanguage
 
 // Read the binding variables
 ScriptHelper scriptHelper = binding.scriptHelper
@@ -17,7 +16,6 @@ FormatterImpl formatter = binding.formatter
 
 // Get the current user and eMandates status
 def config = configurationHandler.getAccessor(user)
-def lang = config.language.template == BuiltinLanguage.NL ? 'nl' : 'en'
 def emandates = new EMandates(binding)
 def record = emandates.current(user)
 
@@ -25,10 +23,10 @@ def record = emandates.current(user)
 def fields = record ? scriptHelper.wrap(record) : null
 RecordCustomFieldPossibleValue statusValue = fields?.status
 def status = statusValue?.internalName ?: 'none'
-def statusMessage = scriptParameters["status.${status}.${lang}"]
+def statusMessage = scriptParameters["status.${status}"]
 String html = "<div>${statusMessage}</div>"
 if (fields) {
-	def details = scriptParameters["details.${lang}"]
+	def details = scriptParameters["details"]
 	html += "<div>${details}</div>"
 
 	def bankNameField = record.type.fields.find { it.internalName == 'bankName' }

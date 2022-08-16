@@ -13,7 +13,6 @@ import org.cyclos.entities.users.SystemRecord
 import org.cyclos.entities.users.SystemRecordType
 import org.cyclos.entities.users.User
 import org.cyclos.impl.InvocationContext
-import org.cyclos.impl.access.ConfigurationHandler
 import org.cyclos.impl.system.BaseCustomFieldPossibleValueCategoryServiceLocal
 import org.cyclos.impl.system.BaseCustomFieldPossibleValueServiceLocal
 import org.cyclos.impl.system.ConfigurationAccessor
@@ -34,7 +33,6 @@ import org.cyclos.model.system.fields.CustomFieldPossibleValueVO
 import org.cyclos.model.system.fields.CustomFieldVO
 import org.cyclos.model.system.fields.CustomFieldValueForSearchDTO
 import org.cyclos.model.system.fields.LinkedEntityVO
-import org.cyclos.model.system.languages.BuiltinLanguage
 import org.cyclos.model.users.records.RecordDataParams
 import org.cyclos.model.users.records.SystemRecordQuery
 import org.cyclos.model.users.recordtypes.RecordTypeVO
@@ -67,7 +65,6 @@ class EMandates {
 	CustomWizardFieldPossibleValueCategoryServiceLocal wizardPossibleValueCategoryService
 	CustomOperationFieldPossibleValueServiceLocal operationPossibleValueService
 	CustomOperationFieldPossibleValueCategoryServiceLocal operationPossibleValueCategoryService
-	ConfigurationHandler configurationHandler
 	LinkGeneratorHandler linkGeneratorHandler
 	RecordServiceLocal recordService
 	CoreCommunicator coreComm
@@ -82,7 +79,6 @@ class EMandates {
 		wizardPossibleValueCategoryService = vars.customWizardFieldPossibleValueCategoryService as CustomWizardFieldPossibleValueCategoryServiceLocal
 		operationPossibleValueService = vars.customOperationFieldPossibleValueService as CustomOperationFieldPossibleValueServiceLocal
 		operationPossibleValueCategoryService = vars.customOperationFieldPossibleValueCategoryService as CustomOperationFieldPossibleValueCategoryServiceLocal
-		configurationHandler = vars.configurationHandler as ConfigurationHandler
 		linkGeneratorHandler = vars.linkGeneratorHandler as LinkGeneratorHandler
 		recordService = vars.recordService as RecordServiceLocal
 		scriptParameters = vars.scriptParameters as Map<String, String>
@@ -230,7 +226,7 @@ class EMandates {
 	 * Returns the URL to which the user should be redirected.
 	 */
 	String newMandateRequest(User user, String entranceCode, String debtorReference,
-		ConfigurationAccessor config, ObjectParameterStorage storage, String bankId) {
+		ObjectParameterStorage storage, String bankId) {
 		// First create the record
 		def data = recordService.getDataForNew(new RecordDataParams(
 			recordType: new RecordTypeVO(internalName: 'eMandate')))
@@ -244,13 +240,12 @@ class EMandates {
 		storage.setObject('record', record)
 		
 		// Build the request parameters
-		def lang = config.language.template == BuiltinLanguage.NL ? 'nl' : 'en'
 		def req = new NewMandateRequest(
 			entranceCode,
-			lang, // Language 
+			'nl', // Language 
 			null, // Use the default duration 
 			record.id as String, // The eMandate id is the record id
-			scriptParameters["description.${lang}"], 
+			scriptParameters["description"], 
 			debtorReference,
 			bankId, // The debtor bank id
 			record.id as String, // The purchase id is the record id
@@ -291,14 +286,12 @@ class EMandates {
 		def newRecord = recordService.saveEntity(data.dto)
 
 		// Build the request parameters
-		def config = configurationHandler.getAccessAccessor(execution.basicUser)
-		def lang = config.language.template == BuiltinLanguage.NL ? 'nl' : 'en'
 		def req = new AmendmentRequest(
 			"operation${execution.id}",
-			lang, // Language
+			'nl', // Language
 			null, // Use the default duration
 			newRecord.id as String, // The eMandate id is the new record id
-			scriptParameters["description.${lang}"],
+			scriptParameters["description"],
 			user.username as String, // The debtor reference is the username
 			bankId, // The new debtor bank id
 			newRecord.id as String, // The purchase id is the new record id
@@ -354,7 +347,7 @@ class EMandates {
 	 * This is the callback by the proper custom operation.
 	 * It will check the status of the transaction
 	 */
-	String callback(ConfigurationAccessor config, ObjectParameterStorage storage, String transactionId) {
+	String callback(ObjectParameterStorage storage, String transactionId) {
 		def record = storage.getObject('record') as SystemRecord
 		def fields = scriptHelper.wrap(record)
 		if (fields.transactionId != transactionId) {
@@ -363,8 +356,7 @@ class EMandates {
 		
 		// Now we need to check the status of the record
 		def status = updateStatus(record)
-		def lang = config.language.template == BuiltinLanguage.NL ? 'nl' : 'en'
-		return scriptParameters["result.${status}.${lang}"]
+		return scriptParameters["result.${status}"]
 	}
 	
 	/**
