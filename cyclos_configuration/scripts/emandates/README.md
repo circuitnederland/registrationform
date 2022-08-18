@@ -149,7 +149,7 @@ Custom operation script to create an eMandate.
 - Run with all permissions: Yes
 - Included libraries: eMandates Library
 - Script when operation is executed: `Operation_InternalCreate.groovy`
-- Script when the external site redirects: `Operation_InternalCrud_Callback.groovy`
+- Script when the external site redirects: `Operation_InternalCreate_Callback.groovy`
 
 ## eMandates Update
 
@@ -158,7 +158,7 @@ Custom operation script to amend an eMandate.
 - Run with all permissions: Yes
 - Included libraries: eMandates Library
 - Script when operation is executed: `Operation_InternalUpdate.groovy`
-- Script when the external site redirects: `Operation_InternalCrud_Callback.groovy`
+- Script when the external site redirects: `Operation_InternalUpdate_Callback.groovy`
 
 ## eMandates Main
 

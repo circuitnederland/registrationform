@@ -347,28 +347,27 @@ class EMandates {
 	 * This is the callback by the proper custom operation.
 	 * It will check the status of the transaction
 	 */
-	String callback(ObjectParameterStorage storage, String transactionId) {
+	Map<String, Object> callback(ObjectParameterStorage storage, String transactionId) {
 		def record = storage.getObject('record') as SystemRecord
 		def fields = scriptHelper.wrap(record)
 		if (fields.transactionId != transactionId) {
 			throw new ValidationException("Invalid transactionId")
 		}
 		
-		// Now we need to check the status of the record
-		def status = updateStatus(record)
-		return scriptParameters["result.${status}"]
+		// Now we need to check the status and update the record with this information.
+		return updateStatus(record)
 	}
 	
 	/**
 	 * Calls the web service to update the eMandate status for the given record
 	 */
-	String updateStatus(SystemRecord record) {
+	Map<String, Object> updateStatus(SystemRecord record) {
 		def fields = scriptHelper.wrap(record)
 		
 		// Only proceed if the status is either open or pending
 		def currentStatus = (fields.status as CustomFieldPossibleValue).internalName
 		if (!['open', 'pending'].contains(currentStatus)) {
-			return currentStatus
+			return fields
 		}
 		
 		// Perform the request
@@ -393,9 +392,9 @@ class EMandates {
 		}
 		fields.rawMessage = resp.rawMessage
 		
-		return resp.status.toLowerCase()
+		return fields
 	}
-	
+
 	/**
 	 * Returns the current eMandate record for the given user
 	 */
@@ -440,7 +439,8 @@ class EMandates {
 			def record = entityManagerHandler.find(SystemRecord.class, it.id)
 			def toIncrement = stillPending
 			try {
-				String newStatus = updateStatus(record)
+				def fields = updateStatus(record)
+				String newStatus = (fields.status as CustomFieldPossibleValue).internalName
 				if (newStatus == 'success') {
 					toIncrement = nowSuccess
 				} else if (newStatus == 'expired') { 
