@@ -53,7 +53,6 @@ Remove the permission to edit the own profile field for the 'K.v.K. nummer' prof
 Add a new profile field for authorized signatories: System > [User configuration] 'Profile fields' > New.
 - Display name: Tekeningsbevoegde
 - Internal name: authorized_signatory
-- Required: Yes
 
 After saving the new profile field, use the arrows to move the field up, just above the 'Contactpersoon bedrijf' field.
 
@@ -182,6 +181,12 @@ After saving the Type field, add Possible values 'Bedrijf' (internal name 'bedri
 - Internal name: consumer_image
 - Data type: Image
 
+7. Authorized signatories Companies:
+- Display name: Tekeningsbevoegde
+- Internal name: authorized_signatory
+- Data type: Single line text (= default)
+- Required: Yes
+
 ## Steps
 
 Create the following steps (use a surrounding `<div class="wizardstep"></div>` in each Information text):
@@ -244,17 +249,19 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 
 7. Type: Form fields
 - Name: eMandate Companies
+- Internal name: eMandate_companies
 - Description: Step to request an eMandate. For users with an eMandate we can make a direct debit to cash the contribution amount.
 - Title: Digitale machtiging
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Bedrijven groups)
 - Show profile fields: Show specific profile fields
-- Profile fields to show: Tekeningsbevoegde, Lidmaatschapsbijdrage, Actiecode, Aankoop saldo
-- Show wizard fields: Bank
+- Profile fields to show: Lidmaatschapsbijdrage, Actiecode, Aankoop saldo
+- Show wizard fields: Bank, Tekeningsbevoegde
 - Show agreement: Yes
 
 8. Type: Form fields
 - Name: eMandate Consumers
+- Internal name: eMandate_consumers
 - Description: Step to request an eMandate. For users with an eMandate we can make a direct debit to cash the contribution amount.
 - Title: Digitale machtiging
 - Information text: (use html with explanatory text as decided on by stakeholders)

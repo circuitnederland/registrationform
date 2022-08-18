@@ -26,3 +26,13 @@ if ('accountinfo_consumers' == previousStep.internalName) {
     storage.registration = registration
     return null
 }
+
+// Fill the authorized_signatory profile field.
+// We need to do this via a wizard field, because we want it to be required during registration.
+// Making the profile field itself required is problematic for existing users, because this would mean they can not change their profile anymore.
+if ('eMandate_companies' == previousStep.internalName) {
+    def usr = scriptHelper.wrap(registration)
+    usr.authorized_signatory = customValues.authorized_signatory
+    storage.registration = registration
+    return null
+}
