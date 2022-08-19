@@ -23,6 +23,7 @@ import org.cyclos.impl.system.CustomWizardFieldPossibleValueServiceLocal
 import org.cyclos.impl.system.EntityBackedParameterStorage
 import org.cyclos.impl.system.ScriptHelper
 import org.cyclos.impl.users.RecordServiceLocal
+import org.cyclos.impl.users.UserServiceLocal
 import org.cyclos.impl.utils.LinkGeneratorHandler
 import org.cyclos.impl.utils.persistence.EntityManagerHandler
 import org.cyclos.model.ValidationException
@@ -67,6 +68,7 @@ class EMandates {
 	CustomOperationFieldPossibleValueCategoryServiceLocal operationPossibleValueCategoryService
 	LinkGeneratorHandler linkGeneratorHandler
 	RecordServiceLocal recordService
+	UserServiceLocal userService
 	CoreCommunicator coreComm
 	Map<String, String> scriptParameters
 	
@@ -81,6 +83,7 @@ class EMandates {
 		operationPossibleValueCategoryService = vars.customOperationFieldPossibleValueCategoryService as CustomOperationFieldPossibleValueCategoryServiceLocal
 		linkGeneratorHandler = vars.linkGeneratorHandler as LinkGeneratorHandler
 		recordService = vars.recordService as RecordServiceLocal
+		userService = vars.userService as UserServiceLocal
 		scriptParameters = vars.scriptParameters as Map<String, String>
 		
 		servletContext = scriptHelper.bean(ServletContext)
@@ -391,8 +394,33 @@ class EMandates {
 			fields.statusDate = resp.statusDateTimestamp.toGregorianCalendar().time
 		}
 		fields.rawMessage = resp.rawMessage
+
+		// Update the user profile
+		updateUserIBAN(fields)
 		
 		return fields
+	}
+
+	/**
+	 * Store the iban from the eMandate in the user profile.
+	 */
+	void updateUserIBAN(Map fields) {
+		String status = (fields.status as CustomFieldPossibleValue).internalName
+		if ('success' == status && fields.owner instanceof User) {
+			try{
+				def usrDTO = userService.load((fields.owner as User).id)
+				def usr = scriptHelper.wrap(usrDTO)
+				// If the iban in the eMandate record is different than the iban we have for this user, inform our financial admin by mail.
+				// Implement the new Utils library before using the next lines.
+				//	if ( ! utils.isIbansEqual(usr.iban, fields.iban) ) {
+				//		sendMailToAdmin("Incassomachtiging van afwijkend iban", utils.prepareMessage("eMandateDifferentBankAccount", ["user": usr.name]))
+				//	}
+				usr.iban = fields.iban
+				userService.save(usrDTO)
+			} catch (ValidationException vE) {
+				throw new ValidationException(scriptParameters["errorSaveIBAN"] + " '${vE.validation?.firstError}'.")
+			}
+		}
 	}
 
 	/**
