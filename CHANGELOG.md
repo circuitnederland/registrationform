@@ -1,4 +1,15 @@
 # Changelog
+## 1.4.4 (2022-09-01)
+### Added
+<ul>
+	<li>Added scripts for the new eMandate functionality (not live yet).</li>
+</ul>
+
+### Bugfixes
+<ul>
+	<li>Update the moment library to 2.29.4.</li>
+</ul>
+
 ## 1.4.3 (2022-01-13)
 ### Added
 <ul>
