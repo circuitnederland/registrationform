@@ -144,6 +144,14 @@ Custom operation script to amend an eMandate.
 - Script when operation is executed: `Operation_InternalUpdate.groovy`
 - Script when the external site redirects: `Operation_InternalUpdate_Callback.groovy`
 
+## eMandates Locking by user
+
+Custom operation script to let the user lock or unlock their emandate.
+
+- Run with all permissions: Yes
+- Included libraries: eMandates Library
+- Script when operation is executed: `Operation_InternalToggleWithdraw.groovy`
+
 ## eMandates Main
 
 Custom operation script to let the user start a create or update.
@@ -179,6 +187,26 @@ Cyclos' custom operations use a dynamic return URL. However, as the Java library
 - Run as: Guest
 - Script: eMandates Generic Callback
 - URL mappings: eMandatesCallback
+
+# Profile fields
+
+## Lock emandates field
+
+Add a new user profile field: System > [User configuration] 'Profile fields' > New.
+
+- Display name: Incassomachtiging vergrendeling (can be changed)
+- Internal name: emandates_lock
+- Data type: Single selection
+- Include in file export: No
+- Include in account history print (PDF): No
+- Hidden by default: Yes
+
+After saving the new profile field, add two Possible values (text values can be changed):
+
+- Geblokkeerd door admin (incasso's te vaak mislukt)
+- Ingetrokken door deelnemer
+
+Add the English translation in small caps as the internal name for both values: blocked and withdrawn.
 
 # Custom operations
 
@@ -228,6 +256,23 @@ Debtor bank
 - Data type: Single selection
 - Required: Yes
 
+## eMandate Locking
+
+- Name: Incassomachtiging intrekken of herstellen (can be changed)
+- Internal name: eMandateLockingByUser
+- Enabled for channels: Main
+- Scope: Internal
+- Script: eMandates Locking
+- Result type: Notification
+
+Form fields:
+
+User
+- internal name: user
+- Data type: Linked entity
+- Linked entity type: User
+- Required: Yes
+
 ## Incassomachtiging
 
 Displays the current eMandate status for a user.
@@ -242,6 +287,7 @@ Displays the current eMandate status for a user.
 Actions:
 - Incassomachtiging afgeven (User parameter checked)
 - Incassomachtiging wijzigen (User parameter checked)
+- Incassomachtigin intrekken of herstellen (User paramter checked)
 
 # Products / Admin permissions
 
@@ -249,6 +295,7 @@ Actions:
 
 During the test phase we will use a separate Product so we can give the eMandates functionality to a selected number of users. Later on, we will move the permissions to a Product that is active for all users.
 
+- In 'My profile fields' set the field 'Incassomachtiging vergrendeling' to Enabled.
 - In 'Custom operations' enable and allow the eMandate ('Incassomachtiging') operation to 'Run self'.
 
 ## Administrator
@@ -256,4 +303,5 @@ During the test phase we will use a separate Product so we can give the eMandate
 Change permissions in the Group 'Administrateurs C3-Nederland (Netwerk)':
 
 - [System] 'System records': remove the Create, Edit and Remove permissions for the eMandate system record. Admins should only be allowed to see this record, not change it.
+- [User management] 'Profile fields of other users': set the new 'Incassomachtiging vergrendeling' field to Visible.
 - [User management] 'Add / remove individual products': Add the new temporary Product.

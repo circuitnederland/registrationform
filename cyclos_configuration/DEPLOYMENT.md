@@ -15,6 +15,8 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 
 - Go to Systeem > [Gebruikers configuratie] Groepen > 'Administrateurs - Netwerk'. At the Permissies tab change [Gebruikerbeheer] 'Toevoegen / verwijderen van afzonderlijke producten' so 'Incassomachtiging (eMandate)' is checked.  
 
+3. Add the emandates lock functionality: deploy all steps that were added to emandates/README.md since the last deployment.
+
 ## Deployment Tasks for release 1.4.1
 1. Remove the option for users to buy extra units during registration:
 

@@ -1,3 +1,4 @@
+import org.cyclos.entities.system.CustomOperation
 import org.cyclos.entities.users.QRecordCustomFieldPossibleValue
 import org.cyclos.entities.users.RecordCustomFieldPossibleValue
 import org.cyclos.entities.users.User
@@ -19,12 +20,19 @@ def config = configurationHandler.getAccessor(user)
 def emandates = new EMandates(binding)
 def record = emandates.current(user)
 
-// Build an HTML content accordingly
 def fields = record ? scriptHelper.wrap(record) : null
 RecordCustomFieldPossibleValue statusValue = fields?.status
 def status = statusValue?.internalName ?: 'none'
 def statusMessage = scriptParameters["status.${status}"]
-String html = "<div>${statusMessage}</div>"
+def usr = scriptHelper.wrap(user)
+def locked = usr.emandates_lock?.internalName
+def cssClass = locked ? ' class="disabled"' : ''
+def lockedMessage = locked ? scriptParameters["locked.${locked}"] : ''
+CustomOperation lockingOperation = entityManagerHandler.find(CustomOperation, 'eMandateLockingByUser')
+lockingOperation?.label = (locked == 'withdrawn') ? scriptParameters["lockingbutton.reset"] : scriptParameters["lockingbutton.withdraw"]
+// Build an HTML content accordingly
+String html = locked ? "<div>${lockedMessage}</div><br>" : ''
+html += "<div${cssClass}><div>${statusMessage}</div>"
 if (fields) {
 	def details = scriptParameters["details"]
 	html += "<div>${details}</div>"
@@ -68,6 +76,7 @@ if (fields) {
 		html += "<div><strong>${statusDateLabel}:</strong> ${formatter.format(statusDate)}</div>"
 	}
 }
+html += "</div>"
 
 return [
     content: html,
@@ -83,6 +92,12 @@ return [
                 user: user.id
             ],
             enabled: status == 'success'
+        ],
+        eMandateLockingByUser: [
+            parameters: [
+                user: user.id
+            ],
+            enabled: status == 'success' && locked != 'blocked'
         ]
     ]
 ]
