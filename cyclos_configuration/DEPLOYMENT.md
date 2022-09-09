@@ -20,6 +20,9 @@ minimumLeeftijd = 18
 teJongMelding = De minimum leeftijd om te kunnen deelnemen is #minimumLeeftijd# jaar.
 ```
 
+2. Change the existing 'K.v.K. nummer' profile field:
+- Pattern: 00000000
+
 ## Deployment Tasks for next release
 1. Enable the scheduled tasks for the eMandates:
 
