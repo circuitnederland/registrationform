@@ -1,6 +1,25 @@
 # Deployment Tasks per release
 Things to do manually in the Cyclos production-environment when deploying a new release of the PHP registrationform to production.
 
+## Deployment Tasks for release with improved profile field validations
+
+### Scripts
+
+1. Type: Custom field validation
+- Name: check DateOfBirth
+- Run with all permissions: No
+- Script code: paste the contents of scripts/customFieldValidation_DateOfBirth.groovy.
+
+### Profile fields
+
+1. Change the existing 'Geboortedatum' profile field:
+- Validation script: check DateOfBirth
+- Validation script parameters:
+```
+minimumLeeftijd = 18
+teJongMelding = De minimum leeftijd om te kunnen deelnemen is #minimumLeeftijd# jaar.
+```
+
 ## Deployment Tasks for next release
 1. Enable the scheduled tasks for the eMandates:
 
