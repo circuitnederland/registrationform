@@ -15,6 +15,11 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 - Run with all permissions: No
 - Script code: paste the contents of scripts/customFieldValidation_Iban.groovy.
 
+3. Type: Custom operation
+- Name: Bulk action check user profiles
+- Run with all permissions: No
+- Script code: paste the contents of scripts/bulkCheckUserProfiles.groovy.
+
 ### Profile fields
 
 1. Change the existing 'Geboortedatum' profile field:
@@ -31,6 +36,18 @@ teJongMelding = De minimum leeftijd om te kunnen deelnemen is #minimumLeeftijd# 
 3. Change the existing 'IBAN' profile field:
 - Min / max length: remove the minimum of 18 characters. It is no longer needed now we have a validation script and would refuse Belgian ibans without spaces.
 - Validation script: check IBAN
+
+### Custom operation
+
+1. Name: Bulk actie deelnemer controles
+- Enabled for channels: Main
+- Scope: Bulk action
+- Script: Bulk action check user profiles
+
+### Groups
+
+1. Group 'Network Administrators', tab Permissions:
+- Run custom operations over users: Add 'Bulk actie deelnemer controles'
 
 ## Deployment Tasks for next release
 1. Enable the scheduled tasks for the eMandates:
