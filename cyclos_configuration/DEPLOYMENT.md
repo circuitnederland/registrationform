@@ -1,7 +1,21 @@
 # Deployment Tasks per release
 Things to do manually in the Cyclos production-environment when deploying a new release of the PHP registrationform to production.
 
-## Deployment Tasks for release with improved profile field validations
+## Deployment Tasks for next release
+1. Enable the scheduled tasks for the eMandates:
+
+	- Go to Systeem > [Operaties] Geplande taken. Open both tasks ('eMandates Check Pending' and 'eMandates Update Banklist') and set them to 'Ingeschakeld': Yes.
+
+2. Create and configure a new temporary Product to give eMandate functionality to specific users (later on we will move those permissions to all users):
+
+	- Go to Systeem > [Gebruikers configuratie] Producten > Nieuw > Gebruiker. Fill in the form:  
+	Naam: Incassomachtiging (eMandate)  
+	Beschrijving: {copy-paste from testC3NL}.  
+	[Algemeen] 'Operaties': check 'Geactiveerd' and 'Uitvoeren op mezelf' for 'Incassomachtiging'.
+
+- Go to Systeem > [Gebruikers configuratie] Groepen > 'Administrateurs - Netwerk'. At the Permissies tab change [Gebruikerbeheer] 'Toevoegen / verwijderen van afzonderlijke producten' so 'Incassomachtiging (eMandate)' is checked.  
+
+## Deployment Tasks for release 1.4.5
 
 ### Scripts
 
@@ -35,20 +49,6 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 
 1. Group 'Network Administrators', tab Permissions:
 - Run custom operations over users: Add 'Bulk actie deelnemer controles'
-
-## Deployment Tasks for next release
-1. Enable the scheduled tasks for the eMandates:
-
-	- Go to Systeem > [Operaties] Geplande taken. Open both tasks ('eMandates Check Pending' and 'eMandates Update Banklist') and set them to 'Ingeschakeld': Yes.
-
-2. Create and configure a new temporary Product to give eMandate functionality to specific users (later on we will move those permissions to all users):
-
-	- Go to Systeem > [Gebruikers configuratie] Producten > Nieuw > Gebruiker. Fill in the form:  
-	Naam: Incassomachtiging (eMandate)  
-	Beschrijving: {copy-paste from testC3NL}.  
-	[Algemeen] 'Operaties': check 'Geactiveerd' and 'Uitvoeren op mezelf' for 'Incassomachtiging'.
-
-- Go to Systeem > [Gebruikers configuratie] Groepen > 'Administrateurs - Netwerk'. At the Permissies tab change [Gebruikerbeheer] 'Toevoegen / verwijderen van afzonderlijke producten' so 'Incassomachtiging (eMandate)' is checked.  
 
 ## Deployment Tasks for release 1.4.1
 1. Remove the option for users to buy extra units during registration:

@@ -1,4 +1,10 @@
 # Changelog
+## 1.4.5 (2022-09-20)
+### Improved
+<ul>
+	<li>Improved profile fields validation.</li>
+</ul>
+
 ## 1.4.4 (2022-09-01)
 ### Added
 <ul>
