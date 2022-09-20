@@ -6,34 +6,21 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 ### Scripts
 
 1. Type: Custom field validation
-- Name: check DateOfBirth
-- Run with all permissions: No
-- Script code: paste the contents of scripts/customFieldValidation_DateOfBirth.groovy.
-
-2. Type: Custom field validation
 - Name: check IBAN
 - Run with all permissions: No
 - Script code: paste the contents of scripts/customFieldValidation_Iban.groovy.
 
-3. Type: Custom operation
+2. Type: Custom operation
 - Name: Bulk action check user profiles
 - Run with all permissions: No
 - Script code: paste the contents of scripts/bulkCheckUserProfiles.groovy.
 
 ### Profile fields
 
-1. Change the existing 'Geboortedatum' profile field:
-- Validation script: check DateOfBirth
-- Validation script parameters:
-```
-minimumLeeftijd = 18
-teJongMelding = De minimum leeftijd om te kunnen deelnemen is #minimumLeeftijd# jaar.
-```
-
-2. Change the existing 'K.v.K. nummer' profile field:
+1. Change the existing 'K.v.K. nummer' profile field:
 - Pattern: 00000000
 
-3. Change the existing 'IBAN' profile field:
+2. Change the existing 'IBAN' profile field:
 - Min / max length: remove the minimum of 18 characters. It is no longer needed now we have a validation script and would refuse Belgian ibans without spaces.
 - Validation script: check IBAN
 
