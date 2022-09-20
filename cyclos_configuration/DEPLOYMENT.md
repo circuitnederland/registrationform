@@ -12,7 +12,7 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 
 2. Type: Custom operation
 - Name: Bulk action check user profiles
-- Run with all permissions: No
+- Run with all permissions: Yes
 - Script code: paste the contents of scripts/bulkCheckUserProfiles.groovy.
 
 ### Profile fields
