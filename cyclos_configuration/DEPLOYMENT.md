@@ -1,6 +1,41 @@
 # Deployment Tasks per release
 Things to do manually in the Cyclos production-environment when deploying a new release of the PHP registrationform to production.
 
+## Deployment Tasks for release with improved profile field validations
+
+### Scripts
+
+1. Type: Custom field validation
+- Name: check IBAN
+- Run with all permissions: No
+- Script code: paste the contents of scripts/customFieldValidation_Iban.groovy.
+
+2. Type: Custom operation
+- Name: Bulk action check user profiles
+- Run with all permissions: No
+- Script code: paste the contents of scripts/bulkCheckUserProfiles.groovy.
+
+### Profile fields
+
+1. Change the existing 'K.v.K. nummer' profile field:
+- Pattern: 00000000
+
+2. Change the existing 'IBAN' profile field:
+- Min / max length: remove the minimum of 18 characters. It is no longer needed now we have a validation script and would refuse Belgian ibans without spaces.
+- Validation script: check IBAN
+
+### Custom operation
+
+1. Name: Bulk actie deelnemer controles
+- Enabled for channels: Main
+- Scope: Bulk action
+- Script: Bulk action check user profiles
+
+### Groups
+
+1. Group 'Network Administrators', tab Permissions:
+- Run custom operations over users: Add 'Bulk actie deelnemer controles'
+
 ## Deployment Tasks for next release
 1. Enable the scheduled tasks for the eMandates:
 
