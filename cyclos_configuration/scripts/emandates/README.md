@@ -78,6 +78,10 @@ Signer name
 - Internal name: signerName
 - Data type: Single line text
 
+Withdrawn by user
+- Internal name: isWithdrawn
+- Data type: Boolean
+
 Raw message
 - Internal name: rawMessage
 - Data type: Multi line text
@@ -93,6 +97,7 @@ Enter the Dutch translation for the recordtype fields. Go to Content > [Content 
 - Transaction ID: Transactie ID
 - Account name: Rekeninghouder
 - Signer name: Ondertekenaar
+- Withdrawn: Ingetrokken
 
 Enter the Dutch translation for the possible values of the recordtype fields. Go to Content > [Content management] Data translation > Circuit Nederland > [Records] Record fields possible values. In the 'eMandate Status' section enter the following translations:
 - Cancelled: Geannuleerd
@@ -144,9 +149,9 @@ Custom operation script to amend an eMandate.
 - Script when operation is executed: `Operation_InternalUpdate.groovy`
 - Script when the external site redirects: `Operation_InternalUpdate_Callback.groovy`
 
-## eMandates Locking by user
+## eMandates Withdraw by user
 
-Custom operation script to let the user lock or unlock their emandate.
+Custom operation script to let the user withdraw or re-activate their emandate.
 
 - Run with all permissions: Yes
 - Included libraries: eMandates Library
@@ -201,12 +206,11 @@ Add a new user profile field: System > [User configuration] 'Profile fields' > N
 - Include in account history print (PDF): No
 - Hidden by default: Yes
 
-After saving the new profile field, add two Possible values (text values can be changed):
+After saving the new profile field, add one Possible value (text value can be changed):
 
 - Geblokkeerd door admin (incasso's te vaak mislukt)
-- Ingetrokken door deelnemer
 
-Add the English translation in small caps as the internal name for both values: blocked and withdrawn.
+Add the English translation in small caps as the internal name for the possible value: blocked.
 
 # Custom operations
 
@@ -256,13 +260,14 @@ Debtor bank
 - Data type: Single selection
 - Required: Yes
 
-## eMandate Locking
+## eMandate Withdrawing
 
 - Name: Incassomachtiging intrekken of herstellen (can be changed)
-- Internal name: eMandateLockingByUser
+- Internal name: eMandateWithdrawingByUser
+- Label: Incassomachtiging intrekken
 - Enabled for channels: Main
 - Scope: Internal
-- Script: eMandates Locking
+- Script: eMandates Withdraw by user
 - Result type: Notification
 
 Form fields:

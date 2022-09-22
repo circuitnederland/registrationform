@@ -26,12 +26,15 @@ def status = statusValue?.internalName ?: 'none'
 def statusMessage = scriptParameters["status.${status}"]
 def usr = scriptHelper.wrap(user)
 def locked = usr.emandates_lock?.internalName
-def cssClass = locked ? ' class="disabled"' : ''
+def withdrawn = fields.isWithdrawn
+def cssClass = ( locked || withdrawn ) ? ' class="disabled"' : ''
 def lockedMessage = locked ? scriptParameters["locked.${locked}"] : ''
-CustomOperation lockingOperation = entityManagerHandler.find(CustomOperation, 'eMandateLockingByUser')
-lockingOperation?.label = (locked == 'withdrawn') ? scriptParameters["lockingbutton.reset"] : scriptParameters["lockingbutton.withdraw"]
+def withdrawnMessage = withdrawn ? scriptParameters["locked.withdrawn"] : ''
+CustomOperation lockingOperation = entityManagerHandler.find(CustomOperation, 'eMandateWithdrawingByUser')
+lockingOperation?.label = withdrawn ? scriptParameters["lockingbutton.reset"] : scriptParameters["lockingbutton.withdraw"]
 // Build an HTML content accordingly
 String html = locked ? "<div>${lockedMessage}</div><br>" : ''
+html += withdrawn ? "<div>${withdrawnMessage}</div><br>" : ''
 html += "<div${cssClass}><div>${statusMessage}</div>"
 if (fields) {
 	def details = scriptParameters["details"]
@@ -93,11 +96,11 @@ return [
             ],
             enabled: status == 'success'
         ],
-        eMandateLockingByUser: [
+        eMandateWithdrawingByUser: [
             parameters: [
                 user: user.id
             ],
-            enabled: status == 'success' && locked != 'blocked'
+            enabled: status == 'success'
         ]
     ]
 ]

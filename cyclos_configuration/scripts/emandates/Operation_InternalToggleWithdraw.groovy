@@ -1,28 +1,28 @@
-import org.cyclos.entities.users.User
+/**
+ * Toggle the isWithdrawn field in the current emandate record of the user.
+ *
+ */
+
+import org.cyclos.entities.users.SystemRecord
 
 Map<String, String> scriptParameters = binding.scriptParameters
 Map<String, Object> formParameters = binding.formParameters
 User user = formParameters.user
 
-// Toggle the value of the emandates_lock profile field between 'withdrawn' and empty.
-def usrDTO = userService.load(user.id)
-def usr = scriptHelper.wrap(usrDTO)
-def lock = usr.emandates_lock?.internalName
+def emandates = new EMandates(binding)
+SystemRecord record = emandates.current(user)
+def fields = scriptHelper.wrap(record)
+
 def result = ''
-switch(lock) {
-    case 'withdrawn':
-        usr.emandates_lock = ''
-        result = scriptParameters["locking.reset"]
-        break
-    case null:
-        usr.emandates_lock = 'withdrawn'
-        result = scriptParameters["locking.withdrawn"]
-        break
-    default:
-        // Do nothing and bail out. We should never get here, the user may only toggle between 'withdrawn' and empty, not change any other lock possible value ('blocked').
-        return scriptParameters["locking.failed"]
+if (fields.isWithdrawn) {
+    // The emandate is withdrawn. Let the user re-activate it.
+    fields.isWithdrawn = false
+    result = scriptParameters["locking.reset"]
+} else {
+    // The emandate is active. Let the user withdraw it.
+    fields.isWithdrawn = true
+    result = scriptParameters["locking.withdrawn"]
 }
-userService.save(usrDTO)
 
 return [
     notification: result,
