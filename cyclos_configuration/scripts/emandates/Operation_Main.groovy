@@ -31,6 +31,7 @@ if (record) {
 	html += locked ? "<div>${lockedMessage}</div><br>" : ''
 	html += withdrawn ? "<div>${withdrawnMessage}</div><br>" : ''
 	html += "<div${cssClass}><div>${statusMessage}</div>"
+    html += "<div>${scriptParameters['details']}</div>"
 	html += emandates.emandateHtml(record, user)
 	html += "</div>"
 } else {

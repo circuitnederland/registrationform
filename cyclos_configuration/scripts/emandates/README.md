@@ -165,6 +165,22 @@ Custom operation script to let the user start a create or update.
 - Included libraries: eMandates Library
 - Script when operation is executed: `Operation_Main.groovy`
 
+## eMandates Block by admin
+
+Custom operation script to let financial admins block or deblock a user's emandate.
+
+- Run with all permissions: Yes
+- Included libraries: eMandates Library
+- Script when operation is executed: `Operation_InternalToggleBlock.groovy`
+
+## eMandates Manager
+
+Custom operation script to let financial admins manage the emandate of a user.
+
+- Run with all permissions: Yes
+- Included libraries: eMandates Library
+- Script when operation is executed: `Operation_Manager.groovy`
+
 ## eMandates Generic Callback
 
 Custom web service responds to the *eMandates.Merchant.ReturnUrl* setting in the *emandates-config.xml* file.
@@ -292,7 +308,39 @@ Displays the current eMandate status for a user.
 Actions:
 - Incassomachtiging afgeven (User parameter checked)
 - Incassomachtiging wijzigen (User parameter checked)
-- Incassomachtigin intrekken of herstellen (User paramter checked)
+- Incassomachtiging intrekken of herstellen (User parameter checked)
+
+## eMandate Blocking
+
+- Name: Incassomachtiging (de)blokkeren (can be changed)
+- Internal name: eMandateBlockByAdmin
+- Label: Incassomachtiging blokkeren
+- Enabled for channels: Main
+- Scope: Internal
+- Script: eMandates Block by admin
+- Result type: Notification
+
+Form fields:
+
+User
+- internal name: user
+- Data type: Linked entity
+- Linked entity type: User
+- Required: Yes
+
+## Incassomachtiging Beheer
+
+Displays the current eMandate status for a user to financial admins.
+
+- Name: Incassomachtiging (can be changed)
+- Internal name: eMandateManager
+- Enabled for channels: Main
+- Scope: User
+- Script: eMandates Manager
+- Result type: Rich text
+
+Actions:
+- Incassomachtiging (de)blokkeren (User parameter checked)
 
 # Products / Admin permissions
 
@@ -302,6 +350,7 @@ During the test phase we will use a separate Product so we can give the eMandate
 
 - In 'My profile fields' set the field 'Incassomachtiging vergrendeling' to Enabled.
 - In 'Custom operations' enable and allow the eMandate ('Incassomachtiging') operation to 'Run self'.
+- In 'Custom operations' enable the eMandate manager ('Incassomachtiging Beheer') operation.
 
 ## Administrator
 
@@ -310,3 +359,7 @@ Change permissions in the Group 'Administrateurs C3-Nederland (Netwerk)':
 - [System] 'System records': remove the Create, Edit and Remove permissions for the eMandate system record. Admins should only be allowed to see this record, not change it.
 - [User management] 'Profile fields of other users': set the new 'Incassomachtiging vergrendeling' field to Visible.
 - [User management] 'Add / remove individual products': Add the new temporary Product.
+
+Change permissions in the Group 'Administrateurs - Financieel':
+
+- [User management] 'Run custom operations over users': add 'Incassomachtiging Beheer'.

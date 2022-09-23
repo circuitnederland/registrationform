@@ -506,10 +506,7 @@ class EMandates {
 		}
 		def fields = scriptHelper.wrap(record)
 		def config = configurationHandler.getAccessor(user)
-
 		def html = ''
-		def details = scriptParameters["details"]
-		html += "<div>${details}</div>"
 
 		def bankName = fields.bankName
 		def bankNameField = record.type.fields.find { it.internalName == 'bankName' }
