@@ -1,7 +1,7 @@
 # Deployment Tasks per release
 Things to do manually in the Cyclos production-environment when deploying a new release of the PHP registrationform to production.
 
-## Deployment Tasks for next release
+## Deployment Tasks for releasing eMandates on production
 1. Enable the scheduled tasks for the eMandates:
 
 	- Go to Systeem > [Operaties] Geplande taken. Open both tasks ('eMandates Check Pending' and 'eMandates Update Banklist') and set them to 'Ingeschakeld': Yes.
@@ -11,9 +11,17 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 	- Go to Systeem > [Gebruikers configuratie] Producten > Nieuw > Gebruiker. Fill in the form:  
 	Naam: Incassomachtiging (eMandate)  
 	Beschrijving: {copy-paste from testC3NL}.  
-	[Algemeen] 'Operaties': check 'Geactiveerd' and 'Uitvoeren op mezelf' for 'Incassomachtiging'.
+	[Algemeen] 'Mijn profielvelden': check 'Ingeschakeld' for 'Incassomachtiging vergrendeling'.  
+	[Algemeen] 'Operaties': check 'Geactiveerd' and 'Uitvoeren op mezelf' for 'Incassomachtiging'.  
+	[Algemeen] 'Operaties': check 'Geactiveerd' for 'Incassomachtiging beheer'.
 
-- Go to Systeem > [Gebruikers configuratie] Groepen > 'Administrateurs - Netwerk'. At the Permissies tab change [Gebruikerbeheer] 'Toevoegen / verwijderen van afzonderlijke producten' so 'Incassomachtiging (eMandate)' is checked.  
+3. Add permissions to admin groups:
+	- Go to Systeem > [Gebruikers configuratie] Groepen > 'Administrateurs - Netwerk'. At the Permissies tab:  
+	[Gebruikerbeheer] 'Profiel velden van andere gebruikers': set 'Incassomachtiging vergrendeling' to Visible.  
+	[Gebruikerbeheer] 'Toevoegen / verwijderen van afzonderlijke producten': set 'Incassomachtiging (eMandate)' to checked.  
+
+	- Go to Systeem > [Gebruikers configuratie] Groepen > 'Administrateurs - Financieel'. At the Permissies tab:  
+	[Gebruikerbeheer] 'Uitvoeren operaties (op gebruikers)': add 'Incassomachtiging Beheer'.
 
 ## Deployment Tasks for release 1.4.5
 

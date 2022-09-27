@@ -78,6 +78,10 @@ Signer name
 - Internal name: signerName
 - Data type: Single line text
 
+Withdrawn by user
+- Internal name: isWithdrawn
+- Data type: Boolean
+
 Raw message
 - Internal name: rawMessage
 - Data type: Multi line text
@@ -93,6 +97,7 @@ Enter the Dutch translation for the recordtype fields. Go to Content > [Content 
 - Transaction ID: Transactie ID
 - Account name: Rekeninghouder
 - Signer name: Ondertekenaar
+- Withdrawn: Ingetrokken
 
 Enter the Dutch translation for the possible values of the recordtype fields. Go to Content > [Content management] Data translation > Circuit Nederland > [Records] Record fields possible values. In the 'eMandate Status' section enter the following translations:
 - Cancelled: Geannuleerd
@@ -144,6 +149,14 @@ Custom operation script to amend an eMandate.
 - Script when operation is executed: `Operation_InternalUpdate.groovy`
 - Script when the external site redirects: `Operation_InternalUpdate_Callback.groovy`
 
+## eMandates Withdraw by user
+
+Custom operation script to let the user withdraw or re-activate their emandate.
+
+- Run with all permissions: Yes
+- Included libraries: eMandates Library
+- Script when operation is executed: `Operation_InternalToggleWithdraw.groovy`
+
 ## eMandates Main
 
 Custom operation script to let the user start a create or update.
@@ -151,6 +164,22 @@ Custom operation script to let the user start a create or update.
 - Run with all permissions: Yes
 - Included libraries: eMandates Library
 - Script when operation is executed: `Operation_Main.groovy`
+
+## eMandates Block by admin
+
+Custom operation script to let financial admins block or deblock a user's emandate.
+
+- Run with all permissions: Yes
+- Included libraries: eMandates Library
+- Script when operation is executed: `Operation_InternalToggleBlock.groovy`
+
+## eMandates Manager
+
+Custom operation script to let financial admins manage the emandate of a user.
+
+- Run with all permissions: Yes
+- Included libraries: eMandates Library
+- Script when operation is executed: `Operation_Manager.groovy`
 
 ## eMandates Generic Callback
 
@@ -179,6 +208,25 @@ Cyclos' custom operations use a dynamic return URL. However, as the Java library
 - Run as: Guest
 - Script: eMandates Generic Callback
 - URL mappings: eMandatesCallback
+
+# Profile fields
+
+## Lock emandates field
+
+Add a new user profile field: System > [User configuration] 'Profile fields' > New.
+
+- Display name: Incassomachtiging vergrendeling (can be changed)
+- Internal name: emandates_lock
+- Data type: Single selection
+- Include in file export: No
+- Include in account history print (PDF): No
+- Hidden by default: Yes
+
+After saving the new profile field, add one Possible value (text value can be changed):
+
+- Geblokkeerd door admin (incasso's te vaak mislukt)
+
+Add the English translation in small caps as the internal name for the possible value: blocked.
 
 # Custom operations
 
@@ -228,6 +276,24 @@ Debtor bank
 - Data type: Single selection
 - Required: Yes
 
+## eMandate Withdrawing
+
+- Name: Incassomachtiging intrekken of herstellen (can be changed)
+- Internal name: eMandateWithdrawingByUser
+- Label: Incassomachtiging intrekken
+- Enabled for channels: Main
+- Scope: Internal
+- Script: eMandates Withdraw by user
+- Result type: Notification
+
+Form fields:
+
+User
+- internal name: user
+- Data type: Linked entity
+- Linked entity type: User
+- Required: Yes
+
 ## Incassomachtiging
 
 Displays the current eMandate status for a user.
@@ -242,6 +308,39 @@ Displays the current eMandate status for a user.
 Actions:
 - Incassomachtiging afgeven (User parameter checked)
 - Incassomachtiging wijzigen (User parameter checked)
+- Incassomachtiging intrekken of herstellen (User parameter checked)
+
+## eMandate Blocking
+
+- Name: Incassomachtiging (de)blokkeren (can be changed)
+- Internal name: eMandateBlockByAdmin
+- Label: Incassomachtiging blokkeren
+- Enabled for channels: Main
+- Scope: Internal
+- Script: eMandates Block by admin
+- Result type: Notification
+
+Form fields:
+
+User
+- internal name: user
+- Data type: Linked entity
+- Linked entity type: User
+- Required: Yes
+
+## Incassomachtiging Beheer
+
+Displays the current eMandate status for a user to financial admins.
+
+- Name: Incassomachtiging (can be changed)
+- Internal name: eMandateManager
+- Enabled for channels: Main
+- Scope: User
+- Script: eMandates Manager
+- Result type: Rich text
+
+Actions:
+- Incassomachtiging (de)blokkeren (User parameter checked)
 
 # Products / Admin permissions
 
@@ -249,11 +348,18 @@ Actions:
 
 During the test phase we will use a separate Product so we can give the eMandates functionality to a selected number of users. Later on, we will move the permissions to a Product that is active for all users.
 
+- In 'My profile fields' set the field 'Incassomachtiging vergrendeling' to Enabled.
 - In 'Custom operations' enable and allow the eMandate ('Incassomachtiging') operation to 'Run self'.
+- In 'Custom operations' enable the eMandate manager ('Incassomachtiging Beheer') operation.
 
 ## Administrator
 
 Change permissions in the Group 'Administrateurs C3-Nederland (Netwerk)':
 
 - [System] 'System records': remove the Create, Edit and Remove permissions for the eMandate system record. Admins should only be allowed to see this record, not change it.
+- [User management] 'Profile fields of other users': set the new 'Incassomachtiging vergrendeling' field to Visible.
 - [User management] 'Add / remove individual products': Add the new temporary Product.
+
+Change permissions in the Group 'Administrateurs - Financieel':
+
+- [User management] 'Run custom operations over users': add 'Incassomachtiging Beheer'.
