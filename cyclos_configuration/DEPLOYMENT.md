@@ -23,6 +23,13 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 	- Go to Systeem > [Gebruikers configuratie] Groepen > 'Administrateurs - Financieel'. At the Permissies tab:  
 	[Gebruikerbeheer] 'Uitvoeren operaties (op gebruikers)': add 'Incassomachtiging Beheer'.
 
+## Deployment Tasks for next release
+
+### Profile fields
+
+1. Remove the required property for the Date of Birth user profile field:  
+- Go to System > [User configuration] 'Profile fields': 'Geboortedatum' and uncheck the 'Required' property.
+
 ## Deployment Tasks for release 1.4.5
 
 ### Scripts
