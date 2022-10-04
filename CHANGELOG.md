@@ -1,4 +1,15 @@
 # Changelog
+## 1.4.6 (2022-10-04)
+### Improved
+<ul>
+	<li>DoB profile field is no longer required to avoid validation problems. It is required during registration in the PHP form.</li>
+</ul>
+
+### Added
+<ul>
+	<li>Added block/withdraw functionality to the new eMandate (not live yet).</li>
+</ul>
+
 ## 1.4.5 (2022-09-20)
 ### Improved
 <ul>
