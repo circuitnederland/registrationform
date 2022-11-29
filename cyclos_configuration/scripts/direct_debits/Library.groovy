@@ -17,6 +17,7 @@ import org.cyclos.model.system.fields.CustomFieldValueForSearchDTO
 import org.cyclos.model.system.fields.LinkedEntityVO
 import org.cyclos.model.utils.TimeField
 import org.cyclos.server.utils.DateHelper
+import org.cyclos.utils.Page
 
 import groovy.xml.StreamingMarkupBuilder
 import groovy.xml.XmlUtil
@@ -87,6 +88,17 @@ class DirectDebits {
         }
 
         return "${records.size()} direct debits were processed succesfully in batch ${pain_008.batchId}."
+    }
+
+    /**
+     * Returns a Page of PAIN.008 system records.
+     */
+    Page<RecordVO> listPAIN_008(Integer currentPage, Integer pageSize) {
+        def query = new SystemRecordQuery()
+        query.type = new RecordTypeVO(internalName: 'pain_008')
+		query.currentPage = currentPage
+		query.pageSize = pageSize
+        return recordService.search(query)
     }
 
     private List<RecordVO> _getDirectDebitRecords() {
