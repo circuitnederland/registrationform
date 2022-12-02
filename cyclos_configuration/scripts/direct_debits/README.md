@@ -81,6 +81,18 @@ XML
 - Required: Yes
 - Ignore value sanitization: Yes
 
+Nr of transactions
+- Name: Nr of transactions
+- Internal name: nrOfTrxs
+- Data type: Integer
+- Show in results: Yes
+
+Total amount
+- Name: Total amount
+- Internal name: totalAmount
+- Data type: Decimal
+- Show in results: Yes
+
 # Scripts
 
 ## Library script

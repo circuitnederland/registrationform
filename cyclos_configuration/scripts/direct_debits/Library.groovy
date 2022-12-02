@@ -74,6 +74,8 @@ class DirectDebits {
 		def batchFields = scriptHelper.wrap(data.dto)
 		batchFields.batchId = pain_008.batchId
 		batchFields.xml = xml
+        batchFields.totalAmount = pain_008.totalAmount
+        batchFields.nrOfTrxs = pain_008.trxs.size()
 		recordService.saveEntity(data.dto)
 
         // Update the status of the records that are succesfully added to the PAIN.008 string: change status open to submitted and retry to resubmitted.
