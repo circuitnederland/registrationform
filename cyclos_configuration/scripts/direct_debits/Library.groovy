@@ -71,11 +71,10 @@ class DirectDebits {
         // Store the batchId and the generated xml in a new pain_008 system record.
 		def data = recordService.getDataForNew(new RecordDataParams(
 			recordType: new RecordTypeVO(internalName: 'pain_008')))
-		def batchRecord = recordService.saveEntity(data.dto)
-        // Note: don't use the recordService to save the xml contents, because it destroys the xml tags adding spaces to them.
-		def batchFields = scriptHelper.wrap(batchRecord)
+		def batchFields = scriptHelper.wrap(data.dto)
 		batchFields.batchId = pain_008.batchId
 		batchFields.xml = xml
+		recordService.saveEntity(data.dto)
 
         // Update the status of the records that are succesfully added to the PAIN.008 string: change status open to submitted and retry to resubmitted.
         // Also store the batchId in the changed records.

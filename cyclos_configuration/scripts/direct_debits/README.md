@@ -70,12 +70,15 @@ Batch ID
 - Name: Batch ID
 - Internal name: batchId
 - Data type: Single line text
+- Unique: Yes
+- Required: Yes
 - Show in results: Yes
 
 XML
 - Name: XML
 - Internal name: xml
 - Data type: Multiple line text
+- Required: Yes
 - Ignore value sanitization: Yes
 
 # Scripts
