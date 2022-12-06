@@ -23,6 +23,61 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 	- Go to Systeem > [Gebruikers configuratie] Groepen > 'Administrateurs - Financieel'. At the Permissies tab:  
 	[Gebruikerbeheer] 'Uitvoeren operaties (op gebruikers)': add 'Incassomachtiging Beheer'.
 
+## Deployment Tasks for next release
+
+### Scripts
+
+1. Type: Library
+- Name: utils Library
+- Run with all permissions: Yes
+- Script code: paste the contents of scripts/utilsLibrary.groovy
+
+2. Type: Custom operation
+- Name: Bulk actie IBAN conventies
+- Run with all permissions: Yes
+- Included libraries: utils Library
+- Script code: paste the contents of scripts/bulkIbanConventions.groovy.
+
+3. Type: Extension point
+- Name: ensure IBAN Conventions
+- Run with all permissions: Yes
+- Included libraries: utils Library
+- Script code executed when the data is saved: paste the contents of scripts/changeUserCheckIbanPattern.groovy.
+
+### Custom operations
+
+1. Bulk IBAN conventions
+- Name: Bulk actie IBAN conventies
+- Enabled for channels: Main
+- Scope: Bulk action
+- Script: Bulk actie IBAN conventies
+
+### Bulk actions
+
+1. Run a bulk action on all Bedrijven and Particulieren users to ensure their iban complies to our conventions:
+- Go to Users > [Management] Bulk actions > Run new > 'Bulk actie IBAN conventies'. Filter the users:
+- Groups: select all Bedrijven and Particulieren Groups.
+- Status: select Active, Access blocked, Pending validation, Disabled.
+Click the 'Run over all xx users from search'. The number of affected users should be around 100.
+
+### Extension points
+
+1. IBAN conventions
+- Name: ensure IBAN conventions
+- Type: User
+- Groups: Select all Bedrijven, all Netwerkbouwers and all Particulieren groups.
+- Events: Select 'Create' and 'Update'.
+- Script: ensure IBAN Conventions
+
+### Profile fields
+
+1. Set the 'Unique' property on the IBAN user profile field:  
+- Go to System > [User configuration] 'Profile fields': 'IBAN' and set the 'Unique' property to Yes.
+
+### Workarounds
+
+Some existing users share the same IBAN. If this is legitimate and there is no possibility for them to use different IBANs, the financial admin could consider giving one of them a fake IBAN. They should use TEST as the bank code to clearly indicate that the IBAN is not a real IBAN. This way, the user will not be able to buy or swap circular euro's, but at least their user profile will be valid, so updating the user profile is possible without errors.
+
 ## Deployment Tasks for release 1.4.6
 
 ### Profile fields
