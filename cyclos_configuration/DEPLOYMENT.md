@@ -29,7 +29,6 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 
 1. Type: Library
 - Name: utils Library
-- Run with all permissions: Yes
 - Script code: paste the contents of scripts/utilsLibrary.groovy
 
 2. Type: Custom operation
@@ -55,8 +54,9 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 ### Bulk actions
 
 1. Run a bulk action on all Bedrijven and Particulieren users to ensure their iban complies to our conventions:
+- Add the permission to run the 'Bulk actie IBAN conventies' custom operation on other users to the Network admin Group.
 - Go to Users > [Management] Bulk actions > Run new > 'Bulk actie IBAN conventies'. Filter the users:
-- Groups: select all Bedrijven and Particulieren Groups.
+- Groups: select all C3NL community Groupsets.
 - Status: select Active, Access blocked, Pending validation, Disabled.
 Click the 'Run over all xx users from search'. The number of affected users should be around 100.
 
