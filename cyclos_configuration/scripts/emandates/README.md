@@ -78,6 +78,10 @@ Signer name
 - Internal name: signerName
 - Data type: Single line text
 
+Validation reference
+- Internal name: validationReference
+- Data type: Single line text
+
 Withdrawn by user
 - Internal name: isWithdrawn
 - Data type: Boolean

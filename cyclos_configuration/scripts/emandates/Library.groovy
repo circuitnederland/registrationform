@@ -400,6 +400,7 @@ class EMandates {
 			fields.iban = acceptance.debtorIBAN
 			fields.accountName = acceptance.debtorAccountName
 			fields.signerName = acceptance.debtorSignerName
+			fields.validationReference = acceptance.validationReference
 		}
 		if (resp.statusDateTimestamp) {
 			fields.statusDate = resp.statusDateTimestamp.toGregorianCalendar().time

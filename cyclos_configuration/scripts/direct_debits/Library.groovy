@@ -202,9 +202,7 @@ class PAIN_008 {
         trx.iban = eMandateFields.iban
         trx.description = "${transaction.description} d.d. ${transactionDate}"
         trx.bic = eMandateFields.bankId
-        trx.signature = 'TODO'
-        // @todo: parse eMandateFields.rawMessage to retrieve the electronic signature (probably <MndtAccptncRpt><GrpHdr><Authstn><Prtry>).
-        // OR: if this is the only reason we should parse the rawMessage XML, we could add this value as a field in the eMandate record instead.
+        trx.signature = eMandateFields.validationReference
         trx.signerName = eMandateFields.signerName
         this.trxs.add(trx)
 
