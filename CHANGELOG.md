@@ -1,4 +1,10 @@
 # Changelog
+## 1.4.7 (2022-12-09)
+### Improved
+<ul>
+	<li>IBAN profile field is now unique and corrected if not complying to our conventions for spaces and uppercase letters.</li>
+</ul>
+
 ## 1.4.6 (2022-10-04)
 ### Improved
 <ul>
