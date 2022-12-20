@@ -74,24 +74,24 @@ Batch ID
 - Required: Yes
 - Show in results: Yes
 
+Nr of transactions
+- Name: Aantal transacties
+- Internal name: nrOfTrxs
+- Data type: Integer
+- Show in results: Yes
+
+Total amount
+- Name: Totaalbedrag
+- Internal name: totalAmount
+- Data type: Decimal
+- Show in results: Yes
+
 XML
 - Name: XML
 - Internal name: xml
 - Data type: Multiple line text
 - Required: Yes
 - Ignore value sanitization: Yes
-
-Nr of transactions
-- Name: Nr of transactions
-- Internal name: nrOfTrxs
-- Data type: Integer
-- Show in results: Yes
-
-Total amount
-- Name: Total amount
-- Internal name: totalAmount
-- Data type: Decimal
-- Show in results: Yes
 
 # Scripts
 
@@ -103,15 +103,8 @@ Total amount
 
 ## Custom operation script
 
-- Name: directDebit List PAIN.008
-- Included libraries: directDebit Library
-- Script code: `Operation_ListPAIN_008.groovy`
-
-## Custom operation script
-
 - Name: directDebit Download PAIN.008
-- Included libraries: directDebit Library
-- Script code: `Operation_InternalDownloadPAIN_008.groovy`
+- Script code: `Operation_RecordDownloadPAIN_008.groovy`
 
 ## Scheduled task script
 
@@ -129,29 +122,12 @@ Total amount
 ## Download PAIN.008
 
 - Name: Download PAIN.008 incassobestand (can be changed)
-- Internal name: download_pain_008
+- Label: Download PAIN.008 bestand (XML)
 - Enabled for channels: Main
-- Scope: Internal
+- Scope: Record
+- Record type: Incassobestand
 - Script: directDebit Download PAIN.008
 - Result type: File download
-
-After saving, add a Form field:
-- Display name: record ID
-- Internal name: recordId
-- Required: Yes
-
-## List PAIN.008
-
-- Name: PAIN.008 incassobestanden (can be changed)
-- Internal name: list_pain_008
-- Enabled for channels: Main
-- Scope: System
-- Script: directDebit List PAIN.008
-- Result type: Result page
-- Search automatically on page load: Yes
-- Action when clicking a row: Run an internal custom operation
-- Custom operation: Download PAIN.008 incassobestand
-- Parameters to be passed (comma-separated names): recordId
 
 # Scheduled tasks
 
@@ -182,5 +158,5 @@ Extension point to create a new directDebit user record for each topup transacti
 ## Administrator
 
 - [System] System records: Set the new Incassobestand record to 'View'.
-- [System] Run system custom operations: Enable the 'PAIN.008 incassobestanden' custom operation.
+- [System] Run system custom operations: Enable the 'Download PAIN.008 incassobestand' custom operation.
 - [User data] User records: Set the new Incasso record to 'View' and only the fields 'Status' and 'Comment' to 'Edit'.

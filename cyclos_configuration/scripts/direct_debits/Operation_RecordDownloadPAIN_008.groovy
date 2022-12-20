@@ -1,11 +1,8 @@
-import org.cyclos.entities.users.SystemRecord
 import org.cyclos.model.utils.FileInfo
 import org.cyclos.server.utils.SerializableInputStream
 
 import java.nio.charset.StandardCharsets
 
-def recordId = formParameters.recordId
-def record = entityManagerHandler.find(SystemRecord.class, scriptHelper.unmaskId(recordId))
 def fields = scriptHelper.wrap(record)
 def batchId = fields.batchId
 def xml = fields.xml
