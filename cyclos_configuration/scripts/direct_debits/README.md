@@ -17,11 +17,11 @@ Create a new 'Payment transfer type' in the Account type 'Debiet rekening':
 
 Create a new 'Payment transfer type' in the Account type 'Handelsrekening':
 
-- Name: Terugboeken opwaardering bij mislukte incasso
+- Name: Terugboeken opwaardering
 - Internal name: revoke_topup
 - From: Handelsrekening
 - To: Debiet rekening
-- Value for empty description: 
+- Value for empty description: Teruggeboekte opwaardering (#transactienummer#) ivm mislukte incasso
 - Channels: Main, Mobile app
 
 # User record types
