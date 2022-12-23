@@ -1,44 +1,152 @@
+import static groovy.transform.TypeCheckingMode.SKIP
+
+import org.cyclos.entities.banking.Account
+import org.cyclos.entities.banking.PaymentTransferType
 import org.cyclos.entities.banking.Transaction
 import org.cyclos.entities.system.CustomFieldPossibleValue
 import org.cyclos.entities.users.SystemRecord
 import org.cyclos.entities.users.User
 import org.cyclos.entities.users.UserRecord
 import org.cyclos.impl.system.ScriptHelper
+import org.cyclos.impl.banking.AccountServiceLocal
+import org.cyclos.impl.banking.PaymentServiceLocal
 import org.cyclos.impl.users.RecordServiceLocal
 import org.cyclos.impl.utils.persistence.EntityManagerHandler
+import org.cyclos.model.banking.accounts.SystemAccountOwner
+import org.cyclos.model.banking.transactions.PaymentVO
+import org.cyclos.model.banking.transactions.PerformPaymentDTO
+import org.cyclos.model.banking.transfertypes.TransferTypeVO
+import org.cyclos.model.system.fields.CustomFieldPossibleValueVO
+import org.cyclos.model.system.fields.CustomFieldValueForSearchDTO
+import org.cyclos.model.system.fields.CustomFieldVO
+import org.cyclos.model.system.fields.LinkedEntityVO
 import org.cyclos.model.users.records.RecordDataParams
 import org.cyclos.model.users.records.RecordVO
 import org.cyclos.model.users.records.SystemRecordQuery
 import org.cyclos.model.users.records.UserRecordQuery
 import org.cyclos.model.users.recordtypes.RecordTypeVO
-import org.cyclos.model.system.fields.CustomFieldPossibleValueVO
-import org.cyclos.model.system.fields.CustomFieldVO
-import org.cyclos.model.system.fields.CustomFieldValueForSearchDTO
-import org.cyclos.model.system.fields.LinkedEntityVO
+import org.cyclos.model.users.users.UserLocatorVO
 import org.cyclos.model.utils.TimeField
 import org.cyclos.server.utils.DateHelper
+import org.cyclos.server.utils.MessageProcessingHelper
 import org.cyclos.utils.Page
 
+import groovy.transform.TypeChecked
 import groovy.xml.StreamingMarkupBuilder
 import groovy.xml.XmlUtil
-import groovy.transform.TypeChecked
 
 import java.text.SimpleDateFormat
 
 @TypeChecked
 class DirectDebits {
 
+    Binding binding
 	ScriptHelper scriptHelper
+    Map<String, String> scriptParameters
     EntityManagerHandler entityManagerHandler
+	AccountServiceLocal accountService
+	PaymentServiceLocal paymentService
 	RecordServiceLocal recordService
     PAIN_008 pain_008
 
     DirectDebits(Binding binding) {
+        binding = binding
         def vars = binding.variables
         scriptHelper = vars.scriptHelper as ScriptHelper
+        scriptParameters = vars.scriptParameters as Map<String, String>
         entityManagerHandler = vars.entityManagerHandler as EntityManagerHandler
+		accountService = vars.accountService as AccountServiceLocal
+		paymentService = vars.paymentService as PaymentServiceLocal
 		recordService = vars.recordService as RecordServiceLocal
         pain_008 = new PAIN_008(binding)
+    }
+
+    /**
+     * Updates the given directDebit record according to the given action.
+     */
+    void updateDirectDebit(UserRecord record, String action, Map<String, Object> settlement) {
+        def recordDTO = recordService.load(record.id)
+        def fields = scriptHelper.wrap(recordDTO)
+        def curStatus = (fields.status as CustomFieldPossibleValue).internalName
+        def newStatus = curStatus
+
+        switch(action) {
+            case 'cancel':
+                newStatus = 'cancelled'
+                break
+            case 'fail':
+                newStatus = (curStatus == 'submitted') ? 'failed' : 'permanently_failed'
+                break
+            case 'retry':
+                newStatus = 'retry'
+                break
+            case 'settle_paid':
+                newStatus = (curStatus == 'cancelled') ? 'settled_cancelled' : 'settled_failed'
+                fields.settlement = 'paid'
+                fields.settlement_iban = new Utils(binding).ibanByConvention(settlement.iban as String)
+                break
+            case 'settle_revoked':
+                newStatus = (curStatus == 'cancelled') ? 'settled_cancelled' : 'settled_failed'
+                fields.settlement = 'revoked'
+                fields.settlement_transaction = this._revokeTopup(record.user.id, fields.transaction as Transaction)
+                break
+        }
+        fields.status = newStatus
+        fields.comments = settlement?.comments
+        recordService.save(recordDTO)
+    }
+
+    /**
+     * Returns whether the given action is available for financial admins on the given directDebit user record.
+     * Financial admins can only execute certain actions on directDebit records depending on the status of the record.
+     */
+    boolean isActionAvailable(UserRecord record, String action) {
+        def fields = scriptHelper.wrap(record)
+        def curStatus = (fields.status as CustomFieldPossibleValue).internalName
+
+        switch(action) {
+            case 'cancel':
+                return curStatus == 'open'
+                break
+            case 'fail':
+                return curStatus == 'submitted' || curStatus == 'resubmitted'
+                break
+            case 'retry':
+                return curStatus == 'failed'
+                break
+            case 'settle_paid':
+            case 'settle_revoked':
+                return curStatus == 'cancelled' || curStatus == 'failed' || curStatus == 'permanently_failed'
+                break
+        }
+
+        return false
+    }
+
+    /**
+     * Creates a transaction from the given user to the debiet system account, revoking the topup
+     * that was done earlier. The topup has to be revoked because the accompanying direct debit (incasso)
+     * has failed.
+     */
+    private PaymentVO _revokeTopup(Long userId, Transaction topupTransaction){
+        PaymentTransferType type = entityManagerHandler.find(PaymentTransferType, scriptParameters['revokeTopup.transferType'])
+        String description = MessageProcessingHelper.processVariables(
+            type.valueForEmptyDescription,
+            [
+                "transactienummer": topupTransaction.transactionNumber
+            ]
+        )
+        return paymentService.perform(
+            new PerformPaymentDTO(
+                [
+                    from: new UserLocatorVO(id: userId),
+                    to: SystemAccountOwner.instance(),
+                    type: new TransferTypeVO(type.id),
+                    amount: topupTransaction.amount,
+                    description: description
+                ]
+            )
+        )
     }
 
     /**

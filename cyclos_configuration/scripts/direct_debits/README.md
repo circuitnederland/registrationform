@@ -7,10 +7,21 @@ Direct debits
 
 Create a new 'Payment transfer type' in the Account type 'Debiet rekening':
 
-- Name: Opwaarderen
+- Name: Opwaarderen met incasso
 - Internal name: topup
 - From: Debiet rekening
 - To: Handelsrekening
+- Channels: Main, Mobile app
+
+## Revoke topup
+
+Create a new 'Payment transfer type' in the Account type 'Handelsrekening':
+
+- Name: Terugboeken opwaardering bij mislukte incasso
+- Internal name: revoke_topup
+- From: Handelsrekening
+- To: Debiet rekening
+- Value for empty description: 
 - Channels: Main, Mobile app
 
 # User record types
@@ -20,9 +31,15 @@ Create a new 'Payment transfer type' in the Account type 'Debiet rekening':
 - Name: Incasso
 - Internal name: directDebit
 - Plural name: Incasso's
-- General search: Yes (this results in a submenu for admins that have view permission, we may remove this if we use a custom operation for admins)
+- General search: Yes
 
 Fields:
+
+Batch ID
+- Name: Batch ID
+- Internal name: batchId
+- Data type: Single line text
+- Show in results: Yes
 
 Status
 - Name: Status
@@ -33,28 +50,48 @@ Status
 - Include as search filter: Yes
 - Possible values (including the internal name):
     - Open (open) - Set as Default
-    - Cancel (cancel)
-    - Submitted (submitted)
-    - Retry (retry)
-    - Resubmitted (resubmitted)
+    - Geannuleerd (cancelled)
+    - Ingediend (submitted)
+    - Mislukt (failed)
+    - Open (2e poging) (retry)
+    - Ingediend (2e poging) (resubmitted)
+    - Definitief mislukt (permanently_failed)
+    - Gecorrigeerd (incasso geannuleerd) (settled_cancelled)
+    - Gecorrigeerd (incasso mislukt) (settled_failed)
+
+Transaction
+- Name: Transactie opwaardering
+- Internal name: transaction
+- Data type: Linked Entity
+- Linked entity type: Transaction
+- Required: Yes
+- Include as search filter: Yes
+
+Settlement
+- Name: Correctie
+- Internal name: settlement
+- Data type: Single selection
+- Include as search filter: Yes
+- Possible values (including the internal name):
+    - Alsnog betaald via bank (paid)
+    - Opwaardering teruggeboekt (revoked)
+
+IBAN
+- Name: IBAN
+- Internal name: settlement_iban
+- Data type: Single line text
+- Validation script: check IBAN
+
+Settlement Transaction
+- Name: Transactie terugboeking
+- Internal name: settlement_transaction
+- Data type: Linked entity
+- Linked entity type: Transaction
 
 Comment
 - Name: Commentaar
 - Internal name: comments
 - Data type: Multiple line text
-
-Transaction
-- Name: Transactie
-- Internal name: transaction
-- Data type: Linked Entity
-- Linked entity type: Transaction
-- Required: Yes
-
-Batch ID
-- Name: Batch ID
-- Internal name: batchId
-- Data type: Single line text
-- Show in results: Yes
 
 # System record types
 
@@ -98,13 +135,21 @@ XML
 ## Library script
 
 - Name: directDebit Library
-- Script code: `direct_debits\Library.groovy`
+- Included libraries: utils Library
 - Parameters: `Library.properties` (adjust the values to the real values)
+- Script code: `direct_debits\Library.groovy`
 
 ## Custom operation script
 
 - Name: directDebit Download PAIN.008
 - Script code: `Operation_RecordDownloadPAIN_008.groovy`
+
+## Custom operation script
+
+- Name: directDebit Manager
+- Included libraries: directDebit Library
+- Script code when operation is executed: `Operation_UserRecordManager.groovy`
+- Script code to determine whether operation is available: `Operation_UserRecordManagerVisibility.groovy`
 
 ## Scheduled task script
 
@@ -128,6 +173,106 @@ XML
 - Record type: Incassobestand
 - Script: directDebit Download PAIN.008
 - Result type: File download
+
+## Cancel directDebit
+
+- Name: Incasso annuleren (can be changed)
+- Enabled for channels: Main
+- Scope: Record
+- Record type: Incasso
+- Script: directDebit Manager
+- Script parameters: action=cancel
+- Show form: Always
+- Result type: Notification
+
+Form fields:
+
+Comments
+- Name: Commentaar
+- Internal name: comments
+- Data type: Multiple line text
+
+## Mark directDebit as failed
+
+- Name: Incasso markeren als mislukt (can be changed)
+- Enabled for channels: Main
+- Scope: Record
+- Record type: Incasso
+- Script: directDebit Manager
+- Script parameters: action=fail
+- Show form: Always
+- Result type: Notification
+
+Form fields:
+
+Comments
+- Name: Commentaar
+- Internal name: comments
+- Data type: Multiple line text
+
+## Retry directDebit
+
+- Name: Incasso opnieuw indienen (can be changed)
+- Enabled for channels: Main
+- Scope: Record
+- Record type: Incasso
+- Script: directDebit Manager
+- Script parameters: action=retry
+- Show form: Always
+- Result type: Notification
+
+Form fields:
+
+Comments
+- Name: Commentaar
+- Internal name: comments
+- Data type: Multiple line text
+
+## Settle directDebit via bank payment
+
+- Name: Mislukte incasso afhandelen (bank) (can be changed)
+- Label: Mislukte incasso afhandelen door bankoverschrijving in te voeren (can be changed)
+- Enabled for channels: Main
+- Scope: Record
+- Record type: Incasso
+- Script: directDebit Manager
+- Script parameters: action=settle_paid
+- Show form: Always
+- Result type: Notification
+
+Form fields:
+
+IBAN
+- Name: IBAN
+- Internal name: iban
+- Data type: Single line text
+- Required: Yes
+
+Note: the Validation script 'check IBAN' is already set on the IBAN field of the directDebit user record, so there is no need to set it on the IBAN field of the operation as well.
+
+Comments
+- Name: Commentaar
+- Internal name: comments
+- Data type: Multiple line text
+
+## Settle directDebit by revoking the topup
+
+- Name: Mislukte incasso afhandelen (terugboeking) (can be changed)
+- Label: Mislukte incasso afhandelen door opwaardering te laten intrekken (can be changed)
+- Enabled for channels: Main
+- Scope: Record
+- Record type: Incasso
+- Script: directDebit Manager
+- Script parameters: action=settle_revoked
+- Show form: Always
+- Result type: Notification
+
+Form fields:
+
+Comments
+- Name: Commentaar
+- Internal name: comments
+- Data type: Multiple line text
 
 # Scheduled tasks
 
@@ -154,9 +299,17 @@ Extension point to create a new directDebit user record for each topup transacti
 ## Member Product
 
 - [General] Records: Set the new Incasso record to 'Enable'.
+- [General] Custom operations: Enable the five new Record operations for managing directDebit user records.
 
-## Administrator
+## Network Administrators Group
 
 - [System] System records: Set the new Incassobestand record to 'View'.
 - [System] Run system custom operations: Enable the 'Download PAIN.008 incassobestand' custom operation.
-- [User data] User records: Set the new Incasso record to 'View' and only the fields 'Status' and 'Comment' to 'Edit'.
+- [User data] User records: Set the new Incasso record to 'View'.
+
+## Financial Administrators Group
+
+- [System] System records: Set the new Incassobestand record to 'View'.
+- [System] Run system custom operations: Enable the 'Download PAIN.008 incassobestand' custom operation.
+- [User management] Run custom operations over users: Enable the five new Record operations for managing directDebit user records.
+- [User data] User records: Set the new Incasso record to 'View'.
