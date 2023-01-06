@@ -104,19 +104,20 @@ class DirectDebits {
         def fields = scriptHelper.wrap(record)
         def curStatus = (fields.status as CustomFieldPossibleValue).internalName
 
-        switch(action) {
-            case 'cancel':
-                return curStatus == 'open'
+        switch(curStatus) {
+            case 'open':
+                return action == 'cancel'
                 break
-            case 'fail':
-                return curStatus == 'submitted' || curStatus == 'resubmitted'
+            case 'submitted':
+            case 'resubmitted':
+                return action == 'fail'
                 break
-            case 'retry':
-                return curStatus == 'failed'
+            case 'failed':
+                return action == 'retry' || action == 'settle_paid' || action == 'settle_revoked'
                 break
-            case 'settle_paid':
-            case 'settle_revoked':
-                return curStatus == 'cancelled' || curStatus == 'failed' || curStatus == 'permanently_failed'
+            case 'cancelled':
+            case 'permanently_failed':
+                return action == 'settle_paid' || action == 'settle_revoked'
                 break
         }
 
