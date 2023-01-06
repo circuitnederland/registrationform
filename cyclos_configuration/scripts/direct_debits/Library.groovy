@@ -201,16 +201,9 @@ class DirectDebits {
     }
 
     /**
-     * Returns a Page of PAIN.008 system records.
+     * Returns a list of directDebit records with status open or retry. These are the records that should be 
+     * included in the next PAIN.008 batch.
      */
-    Page<RecordVO> listPAIN_008(Integer currentPage, Integer pageSize) {
-        def query = new SystemRecordQuery()
-        query.type = new RecordTypeVO(internalName: 'pain_008')
-		query.currentPage = currentPage
-		query.pageSize = pageSize
-        return recordService.search(query)
-    }
-
     private List<RecordVO> _getDirectDebitRecords() {
 		def query = new UserRecordQuery()
 		query.type = new RecordTypeVO(internalName: 'directDebit')
