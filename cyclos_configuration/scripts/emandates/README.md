@@ -89,6 +89,8 @@ Withdrawn by user
 Raw message
 - Internal name: rawMessage
 - Data type: Multi line text
+- Maximum size for words: empty
+- Ignore value sanitization: Yes
 
 Enter the Dutch translation for the recordtype. Go to Content > [Content management] Data translation > Circuit Nederland > [Records] Record types. Enter the following translations:
 - eMandate: Digitale machtiging
@@ -305,9 +307,17 @@ Displays the current eMandate status for a user.
 - Name: Incassomachtiging (can be changed)
 - Internal name: eMandate
 - Enabled for channels: Main
-- Scope: User
+- Scope: Internal
 - Script: eMandates Main
 - Result type: Rich text
+
+Form fields:
+
+User
+- internal name: user
+- Data type: Linked entity
+- Linked entity type: User
+- Required: Yes
 
 Actions:
 - Incassomachtiging afgeven (User parameter checked)
@@ -353,7 +363,6 @@ Actions:
 During the test phase we will use a separate Product so we can give the eMandates functionality to a selected number of users. Later on, we will move the permissions to a Product that is active for all users.
 
 - In 'My profile fields' set the field 'Incassomachtiging vergrendeling' to Enabled.
-- In 'Custom operations' enable and allow the eMandate ('Incassomachtiging') operation to 'Run self'.
 - In 'Custom operations' enable the eMandate manager ('Incassomachtiging Beheer') operation.
 
 ## Administrator

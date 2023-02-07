@@ -26,6 +26,7 @@ import org.cyclos.model.users.records.SystemRecordQuery
 import org.cyclos.model.users.records.UserRecordQuery
 import org.cyclos.model.users.recordtypes.RecordTypeVO
 import org.cyclos.model.users.users.UserLocatorVO
+import org.cyclos.model.users.users.UserVO
 import org.cyclos.model.utils.TimeField
 import org.cyclos.server.utils.DateHelper
 import org.cyclos.server.utils.MessageProcessingHelper
@@ -122,6 +123,24 @@ class DirectDebits {
         }
 
         return false
+    }
+
+    /**
+    * Creates a topup transaction from the debiet system account to the given user.
+    */
+    PaymentVO transferTopupUnits(User user, BigDecimal amount){
+        PaymentTransferType type = entityManagerHandler.find(PaymentTransferType, scriptParameters['topup.transferType'])
+        return paymentService.perform(
+            new PerformPaymentDTO(
+                [
+                    from: SystemAccountOwner.instance(),
+                    to: new UserLocatorVO(id: user.id),
+                    type: new TransferTypeVO(type.id),
+                    amount: amount,
+                    description: scriptParameters['topup.description']
+                ]
+            )
+        )
     }
 
     /**
@@ -248,6 +267,19 @@ class DirectDebits {
 		return results.isEmpty() ? null : entityManagerHandler.find(SystemRecord, results[0].id)
 	}
 	
+    /**
+     * Returns a list of all direct debit user records of the given user.
+     */
+    List<UserRecord> getDirectDebits(User user) {
+        def query = new UserRecordQuery()
+        query.type = new RecordTypeVO(internalName: 'directDebit')
+        query.user = new UserVO(user.id)
+        query.setSkipTotalCount(true)
+        query.setUnlimited()
+        def results = recordService.search(query).pageItems
+        // The query returns a list of RecordVO objects, we convert each one to a UserRecord object.
+        return results.collect{ entityManagerHandler.find(UserRecord.class, it.id) }
+    }
 }
 
 // Note: don't typeCheck this class because the builder methods are unknown by the compiler.

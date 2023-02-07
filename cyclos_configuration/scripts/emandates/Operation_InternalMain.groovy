@@ -6,9 +6,9 @@ import org.cyclos.impl.system.ScriptHelper
 // Read the binding variables
 ScriptHelper scriptHelper = binding.scriptHelper
 Map<String, String> scriptParameters = binding.scriptParameters
-User user = binding.user
 
 // Get the current user and eMandates status
+User user = formParameters.user
 def emandates = new EMandates(binding)
 def record = emandates.current(user)
 

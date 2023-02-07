@@ -139,17 +139,28 @@ XML
 - Parameters: `Library.properties` (adjust the values to the real values)
 - Script code: `direct_debits\Library.groovy`
 
+## Custom field validation script
+
+- Name: directDebit Check Topup amount
+- Script code executed when the custom operation is executed: `direct_debits\FieldValidation_TopupAmount.groovy`
+
+## Custom operation script
+
+- Name: directDebit Topup
+- Included libraries: directDebit Library
+- Script code executed when the custom operation is executed: `direct_debits\Operation_InternalTopup.groovy`
+
 ## Custom operation script
 
 - Name: directDebit Download PAIN.008
-- Script code: `Operation_RecordDownloadPAIN_008.groovy`
+- Script code: `direct_debits\Operation_RecordDownloadPAIN_008.groovy`
 
 ## Custom operation script
 
 - Name: directDebit Manager
 - Included libraries: directDebit Library
 - Script code when operation is executed: `Operation_UserRecordManager.groovy`
-- Script code to determine whether operation is available: `Operation_UserRecordManagerVisibility.groovy`
+- Script code to determine whether operation is available: `direct_debits\Operation_UserRecordManagerVisibility.groovy`
 
 ## Scheduled task script
 
@@ -163,6 +174,40 @@ XML
 - Script code executed when the data is saved: `direct_debits\ExtensionPoint_TopupCreateDirectDebit.groovy`
 
 # Custom operations
+
+## directDebit Topup
+
+- Name: Opwaarderen via incasso
+- Internal name: topupViaDirectDebit
+- Enabled for Channels: Main
+- Scope: Internal
+- Script: directDebit Topup
+- Result type: Notification
+- Show form: Always
+- Information text: {As decided by stakeholders}
+- Confirmation script execution message: {As decided by stakeholders}
+
+Form fields:
+
+Gewenst bedrag
+- Internal name: amount
+- Data type: Decimal
+- Default value: 50
+- Required: Yes
+- Validation script: directDebit Check Topup amount
+- Validation script parameters:
+minimum_amount_particulieren=10
+minimum_amount_bedrijven=50
+maximum_amount_particulieren=150
+maximum_amount_bedrijven=500
+
+User
+- Internal name: user
+- Data type: Linked entity
+- Linked entity type: User
+- Required: Yes
+
+After saving the Custom operation, change its order so it is just above the 'Incassomachtiging' internal Custom operation.
 
 ## Download PAIN.008
 

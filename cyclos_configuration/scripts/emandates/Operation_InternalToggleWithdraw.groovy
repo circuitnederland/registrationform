@@ -26,5 +26,6 @@ if (fields.isWithdrawn) {
 
 return [
     notification: result,
+    backTo: "buyCredits",
     reRun: true
 ]
