@@ -19,11 +19,15 @@ if ( ! user instanceof User ) {
     return
 }
 
-RecordDataParams params = new RecordDataParams(
-    user: new UserLocatorVO(id: user.id),
-    recordType: new RecordTypeVO(internalName: 'directDebit')
-)
-UserRecordDTO record = recordService.getDataForNew(params).dto
-def fields = scriptHelper.wrap(record)
-fields.transaction = transaction
-recordService.save(record)
+// Create the user record after the transaction is committed, to make sure the record is only created if the transaction is actually there.
+// Note: use addOnCommitTransactional instead of addOnCommit, because we need a new database transaction to save the user record.
+scriptHelper.addOnCommitTransactional {
+    RecordDataParams params = new RecordDataParams(
+        user: new UserLocatorVO(id: user.id),
+        recordType: new RecordTypeVO(internalName: 'directDebit')
+    )
+    UserRecordDTO record = recordService.getDataForNew(params).dto
+    def fields = scriptHelper.wrap(record)
+    fields.transaction = transaction
+    recordService.save(record)
+}
