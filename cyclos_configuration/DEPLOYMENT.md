@@ -54,7 +54,7 @@ After saving, look up the pageId, for example 6745336155065950096. Use this in t
 1. Buy via bank
 - Name: Aankopen via bankoverschrijving
 - Internal name: buyViaBank
-- Enabled for Channels: Main, Mobile
+- Enabled for Channels: Main, Mobile app
 - Scope: Internal
 - Script: Menupagina's als custom operatie
 - Script parameters:
@@ -66,7 +66,7 @@ After saving the Custom operation, change its order so it is just below the 'Opw
 2. Buy credits (BETA)
 - Name: Saldo opwaarderen (BETA)
 - Internal name: buyCredits
-- Enabled for Channels: Main, Mobile
+- Enabled for Channels: Main, Mobile app
 - Scope: User
 - Script: Saldo ophogen
 - Result type: Rich text

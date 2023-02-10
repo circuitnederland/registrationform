@@ -179,7 +179,7 @@ XML
 
 - Name: Opwaarderen via incasso
 - Internal name: topupViaDirectDebit
-- Enabled for Channels: Main
+- Enabled for Channels: Main, Mobile app
 - Scope: Internal
 - Script: directDebit Topup
 - Result type: Notification

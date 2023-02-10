@@ -240,7 +240,7 @@ Add the English translation in small caps as the internal name for the possible 
 
 - Name: Incassomachtiging afgeven (can be changed)
 - Internal name: createEMandate
-- Enabled for channels: Main
+- Enabled for channels: Main, Mobile app
 - Scope: Internal
 - Script: eMandates Create
 - Result type: External redirect
@@ -263,7 +263,7 @@ Debtor bank
 
 - Name: Incassomachtiging wijzigen (can be changed)
 - Internal name: amendEMandate
-- Enabled for channels: Main
+- Enabled for channels: Main, Mobile app
 - Scope: Internal
 - Script: eMandates Update
 - Result type: External redirect
@@ -287,7 +287,7 @@ Debtor bank
 - Name: Incassomachtiging intrekken of herstellen (can be changed)
 - Internal name: eMandateWithdrawingByUser
 - Label: Incassomachtiging intrekken
-- Enabled for channels: Main
+- Enabled for channels: Main, Mobile app
 - Scope: Internal
 - Script: eMandates Withdraw by user
 - Result type: Notification
@@ -306,7 +306,7 @@ Displays the current eMandate status for a user.
 
 - Name: Incassomachtiging (can be changed)
 - Internal name: eMandate
-- Enabled for channels: Main
+- Enabled for channels: Main, Mobile app
 - Scope: Internal
 - Script: eMandates Main
 - Result type: Rich text
