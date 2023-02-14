@@ -325,7 +325,8 @@ class PAIN_008 {
 
     public void addTrx(Transaction transaction, SystemRecord eMandate) {
         def eMandateFields = scriptHelper.wrap(eMandate)
-        def transactionDate = new SimpleDateFormat("d MMMM yyyy", new Locale(transaction.toUser.locale)).format(transaction.date)
+        def locale = 'nl' // Tried using transaction.toUser.locale, but this is null, so just hardcoded Dutch locale.
+        def transactionDate = new SimpleDateFormat("d MMMM yyyy", new Locale(locale)).format(transaction.date)
         // Make a new Map object with only the relevant information and add it to the trxs list.
         def trx = [:]
         trx.id = transaction.transactionNumber
