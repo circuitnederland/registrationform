@@ -162,7 +162,7 @@ XML
 - Script code when operation is executed: `Operation_UserRecordManager.groovy`
 - Script code to determine whether operation is available: `direct_debits\Operation_UserRecordManagerVisibility.groovy`
 
-## Scheduled task script
+## Recurring task script
 
 - Name: directDebit Generate PAIN.008
 - Included libraries: directDebit Library
@@ -227,8 +227,8 @@ After saving the Custom operation, change its order so it is just above the 'Inc
 - Record type: Incasso
 - Script: directDebit Manager
 - Script parameters: action=cancel
-- Show form: Always
 - Result type: Notification
+- Show form: Always
 
 Form fields:
 
@@ -245,8 +245,8 @@ Comments
 - Record type: Incasso
 - Script: directDebit Manager
 - Script parameters: action=fail
-- Show form: Always
 - Result type: Notification
+- Show form: Always
 
 Form fields:
 
@@ -263,8 +263,8 @@ Comments
 - Record type: Incasso
 - Script: directDebit Manager
 - Script parameters: action=retry
-- Show form: Always
 - Result type: Notification
+- Show form: Always
 
 Form fields:
 
@@ -282,8 +282,8 @@ Comments
 - Record type: Incasso
 - Script: directDebit Manager
 - Script parameters: action=settle_paid
-- Show form: Always
 - Result type: Notification
+- Show form: Always
 
 Form fields:
 
@@ -309,8 +309,8 @@ Comments
 - Record type: Incasso
 - Script: directDebit Manager
 - Script parameters: action=settle_revoked
-- Show form: Always
 - Result type: Notification
+- Show form: Always
 
 Form fields:
 
@@ -335,7 +335,7 @@ Extension point to create a new directDebit user record for each topup transacti
 
 - Type: Transaction
 - Name: Topup transaction
-- Transfer types: 'Debiet rekening - Opwaarderen'
+- Transfer types: 'Debiet rekening - Opwaarderen met incasso'
 - Events: Confirm
 - Script: directDebit Create record at topup
 

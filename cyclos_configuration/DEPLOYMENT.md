@@ -98,8 +98,7 @@ Permissions:
 2. Add permissions to admin groups:
 
 'Administrateurs - Netwerk' Group:
-- [System] System records: remove the Create, Edit and Remove permissions for the eMandate system record. Admins should only be allowed to see this record, not change it.
-- [System] System records: Set the new Incassobestand record to 'View'.
+- [System] System records: remove the Create, Edit and Remove permissions for the eMandate and Incassobestand system records.
 - [System] Run system custom operations: Enable the 'Download PAIN.008 incassobestand' custom operation.
 - [User management] Profile fields of other users: set 'Incassomachtiging vergrendeling' to Visible.
 - [User management] Add / remove individual products: set 'Incassomachtiging (eMandate)' to checked.

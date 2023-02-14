@@ -346,7 +346,7 @@ User
 
 Displays the current eMandate status for a user to financial admins.
 
-- Name: Incassomachtiging (can be changed)
+- Name: Incassomachtiging beheer (can be changed)
 - Internal name: eMandateManager
 - Enabled for channels: Main
 - Scope: User
