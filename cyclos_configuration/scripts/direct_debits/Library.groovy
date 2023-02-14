@@ -332,7 +332,7 @@ class PAIN_008 {
         trx.id = transaction.transactionNumber
         trx.amount = transaction.amount
         trx.mandateId = eMandate.id
-        trx.mandateDate = eMandateFields.statusDate
+        trx.mandateDate = new SimpleDateFormat("yyyy-MM-dd").format(eMandateFields.statusDate)
         trx.name = eMandateFields.accountName
         trx.iban = eMandateFields.iban
         trx.description = "${transaction.description} d.d. ${transactionDate}"
