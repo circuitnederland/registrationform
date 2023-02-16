@@ -105,8 +105,9 @@ Permissions:
 - [User data] User records: Set the new Incasso record to 'View'.
 
 'Administrateurs - Financieel' Group:
-- [System] System records: Set the new Incassobestand record to 'View'.
+- [System] System records: Set the new Incassobestand record to 'View', remove the 'View' checkbox for the 'XML' field.
 - [System] Run system custom operations: Enable the 'Download PAIN.008 incassobestand' custom operation.
+- [User management] Add / remove individual products: set 'Incassomachtiging (eMandate)' to checked.
 - [User management] Run custom operations over users: add 'Incassomachtiging Beheer'.
 - [User management] Run custom operations over users: Enable the five new Record operations for managing directDebit user records.
 - [User data] User records: Set the new Incasso record to 'View'.
