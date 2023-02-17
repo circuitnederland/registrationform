@@ -42,7 +42,7 @@ Batch ID
 - Show in results: Yes
 
 Status
-- Name: Status
+- Name: Status incasso
 - Internal name: status
 - Data type: Single selection
 - Required: Yes
