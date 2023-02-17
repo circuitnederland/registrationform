@@ -78,6 +78,10 @@ Signer name
 - Internal name: signerName
 - Data type: Single line text
 
+Validation reference
+- Internal name: validationReference
+- Data type: Single line text
+
 Withdrawn by user
 - Internal name: isWithdrawn
 - Data type: Boolean
@@ -85,6 +89,8 @@ Withdrawn by user
 Raw message
 - Internal name: rawMessage
 - Data type: Multi line text
+- Maximum size for words: empty
+- Ignore value sanitization: Yes
 
 Enter the Dutch translation for the recordtype. Go to Content > [Content management] Data translation > Circuit Nederland > [Records] Record types. Enter the following translations:
 - eMandate: Digitale machtiging
@@ -234,7 +240,7 @@ Add the English translation in small caps as the internal name for the possible 
 
 - Name: Incassomachtiging afgeven (can be changed)
 - Internal name: createEMandate
-- Enabled for channels: Main
+- Enabled for channels: Main, Mobile app
 - Scope: Internal
 - Script: eMandates Create
 - Result type: External redirect
@@ -257,7 +263,7 @@ Debtor bank
 
 - Name: Incassomachtiging wijzigen (can be changed)
 - Internal name: amendEMandate
-- Enabled for channels: Main
+- Enabled for channels: Main, Mobile app
 - Scope: Internal
 - Script: eMandates Update
 - Result type: External redirect
@@ -281,7 +287,7 @@ Debtor bank
 - Name: Incassomachtiging intrekken of herstellen (can be changed)
 - Internal name: eMandateWithdrawingByUser
 - Label: Incassomachtiging intrekken
-- Enabled for channels: Main
+- Enabled for channels: Main, Mobile app
 - Scope: Internal
 - Script: eMandates Withdraw by user
 - Result type: Notification
@@ -300,10 +306,18 @@ Displays the current eMandate status for a user.
 
 - Name: Incassomachtiging (can be changed)
 - Internal name: eMandate
-- Enabled for channels: Main
-- Scope: User
+- Enabled for channels: Main, Mobile app
+- Scope: Internal
 - Script: eMandates Main
 - Result type: Rich text
+
+Form fields:
+
+User
+- internal name: user
+- Data type: Linked entity
+- Linked entity type: User
+- Required: Yes
 
 Actions:
 - Incassomachtiging afgeven (User parameter checked)
@@ -332,7 +346,7 @@ User
 
 Displays the current eMandate status for a user to financial admins.
 
-- Name: Incassomachtiging (can be changed)
+- Name: Incassomachtiging beheer (can be changed)
 - Internal name: eMandateManager
 - Enabled for channels: Main
 - Scope: User
@@ -349,7 +363,6 @@ Actions:
 During the test phase we will use a separate Product so we can give the eMandates functionality to a selected number of users. Later on, we will move the permissions to a Product that is active for all users.
 
 - In 'My profile fields' set the field 'Incassomachtiging vergrendeling' to Enabled.
-- In 'Custom operations' enable and allow the eMandate ('Incassomachtiging') operation to 'Run self'.
 - In 'Custom operations' enable the eMandate manager ('Incassomachtiging Beheer') operation.
 
 ## Administrator

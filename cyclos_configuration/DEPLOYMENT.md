@@ -1,27 +1,116 @@
 # Deployment Tasks per release
 Things to do manually in the Cyclos production-environment when deploying a new release of the PHP registrationform to production.
 
-## Deployment Tasks for releasing eMandates on production
+## Deployment Tasks for releasing eMandates/directDebits LIVE
+
+1. Add eMandate/directDebit permissions to the Product 'Algemeen (handelsrekening)':
+- [General] My profile fields: check 'Enabled' for 'Incassomachtiging vergrendeling'.  
+- [General] Records: Set the new Incasso record to 'Enable'.
+- [General] Custom operations: check 'Enabled' for 'Incassomachtiging beheer'.
+- [General] Custom operations: check 'Enabled' for the five new Record operations for managing directDebit user records.
+
+2. Go to Content > [Content management] Menu and pages > Default for Nederland > Opwaarderen. Change the existing content text as decided by stakeholders, removing the text referring to the former iDEAL topup possibility.
+
+3. Change the Custom operation 'Aankopen via bankoverschrijving':
+- Script paramaters:
+pageId = 6745336155068047248
+
+(this pageId refers to the original 'Opwaarderen' Floating page menu we changed above.)
+
+4. Remove the Custom operation 'Saldo opwaarderen (BETA)', the 'Opwaarderen (BETA)' Floating menu page and the temporary Product 'Incassomachtiging (eMandate)'.
+
+5. Change the existing Custom operation 'Opwaarderen' (which is already enabled for all users in the Product 'Algemeen (handelsrekening)'):
+- Internal name: buyCredits
+- Custom submit label: empty (remove 'Opwaarderen'), since there will be no submit button.
+- Script: Saldo ophogen
+- Script parameters: empty
+
+Actions:
+- Opwaarderen via incasso (User parameter checked)
+- Aankopen via bankoverschrijving
+- Incassomachtiging (User parameter checked)
+
+## Deployment Tasks for releasing eMandates/directDebits BETA
+
+### Scripts
+
+1. Type: Custom operation
+- Name: Saldo ophogen
+- Included libraries: eMandates Library and directDebit Library
+- Script code: paste the contents of scripts/buyCredits.groovy.
+
+### Menu pages
+
+1. Go to Content > [Content management] Menu and pages > Default for Nederland > Add > Floating page.
+- Label: Opwaarderen (BETA)
+- Title: Opwaarderen (BETA)
+- Content layout: Card with regular padding
+- Content: {text as decided by stakeholders, explaining the way the user can have their balance upped by transferring money to the C3NL bank account.}
+
+After saving, look up the pageId, for example 6745336155065950096. Use this in the script parameter of the buyViaBank operation below.
+
+### Custom operations
+
+1. Buy via bank
+- Name: Aankopen via bankoverschrijving
+- Internal name: buyViaBank
+- Enabled for Channels: Main, Mobile app
+- Scope: Internal
+- Script: Menupagina's als custom operatie
+- Script parameters:
+pageId = {the pageId from the new Floating menu page 'Opwaarderen (BETA)', as created above.}
+- Result type: Rich text
+
+After saving the Custom operation, change its order so it is just below the 'Opwaarderen via incasso' internal Custom operation.
+
+2. Buy credits (BETA)
+- Name: Saldo opwaarderen (BETA)
+- Internal name: buyCredits
+- Enabled for Channels: Main, Mobile app
+- Scope: User
+- Script: Saldo ophogen
+- Result type: Rich text
+
+Actions:
+- Opwaarderen via incasso (User parameter checked)
+- Aankopen via bankoverschrijving
+- Incassomachtiging (User parameter checked)
+
+### Scheduled tasks
+
 1. Enable the scheduled tasks for the eMandates:
 
-	- Go to Systeem > [Operaties] Geplande taken. Open both tasks ('eMandates Check Pending' and 'eMandates Update Banklist') and set them to 'Ingeschakeld': Yes.
+- Go to Systeem > [Tools] Scheduled tasks. Open both tasks ('eMandates Check Pending' and 'eMandates Update Banklist') and set them to 'Enabled': Yes.
 
-2. Create and configure a new temporary Product to give eMandate functionality to specific users (later on we will move those permissions to all users):
+### Permissions
 
-	- Go to Systeem > [Gebruikers configuratie] Producten > Nieuw > Gebruiker. Fill in the form:  
-	Naam: Incassomachtiging (eMandate)  
-	Beschrijving: {copy-paste from testC3NL}.  
-	[Algemeen] 'Mijn profielvelden': check 'Ingeschakeld' for 'Incassomachtiging vergrendeling'.  
-	[Algemeen] 'Operaties': check 'Geactiveerd' and 'Uitvoeren op mezelf' for 'Incassomachtiging'.  
-	[Algemeen] 'Operaties': check 'Geactiveerd' for 'Incassomachtiging beheer'.
+1. Create and configure a new temporary Product to give eMandate/directDebit functionality to specific users (later on we will move those permissions to all users):
 
-3. Add permissions to admin groups:
-	- Go to Systeem > [Gebruikers configuratie] Groepen > 'Administrateurs - Netwerk'. At the Permissies tab:  
-	[Gebruikerbeheer] 'Profiel velden van andere gebruikers': set 'Incassomachtiging vergrendeling' to Visible.  
-	[Gebruikerbeheer] 'Toevoegen / verwijderen van afzonderlijke producten': set 'Incassomachtiging (eMandate)' to checked.  
+Go to System > [User management] Products > New > Member. Fill in the form:  
+- Name: Incassomachtiging (eMandate)  
+Permissions:
+- [General] My profile fields: check 'Enabled' for 'Incassomachtiging vergrendeling'.
+- [General] Records: Set the new Incasso record to 'Enable'.
+- [General] Custom operations: check 'Enabled' for 'Incassomachtiging beheer' under User.
+- [General] Custom operations: check 'Enabled' and 'Run self' for 'Saldo opwaarderen (BETA)' under User.
+- [General] Custom operations: check 'Enabled' for the five new Record operations for managing directDebit user records.
 
-	- Go to Systeem > [Gebruikers configuratie] Groepen > 'Administrateurs - Financieel'. At the Permissies tab:  
-	[Gebruikerbeheer] 'Uitvoeren operaties (op gebruikers)': add 'Incassomachtiging Beheer'.
+2. Add permissions to admin groups:
+
+'Administrateurs - Netwerk' Group:
+- [System] System records: remove the Create, Edit and Remove permissions for the eMandate and Incassobestand system records.
+- [System] Run system custom operations: Enable the 'Download PAIN.008 incassobestand' custom operation.
+- [User management] Profile fields of other users: set 'Incassomachtiging vergrendeling' to Visible.
+- [User management] Add / remove individual products: set 'Incassomachtiging (eMandate)' to checked.
+- [User data] User records: Set the new Incasso record to 'View'.
+
+'Administrateurs - Financieel' Group:
+- [System] System records: Set the new Incassobestand record to 'View', remove the 'View' checkbox for the 'XML' field.
+- [System] Run system custom operations: Enable the 'Download PAIN.008 incassobestand' custom operation.
+- [User management] Add / remove individual products: set 'Incassomachtiging (eMandate)' to checked.
+- [User management] Run custom operations over users: add 'Incassomachtiging Beheer'.
+- [User management] Run custom operations over users: Enable the five new Record operations for managing directDebit user records.
+- [User data] User records: Set the new Incasso record to 'View'.
 
 ## Deployment Tasks for release 1.4.7
 
