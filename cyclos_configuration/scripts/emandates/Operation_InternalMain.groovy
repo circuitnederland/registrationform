@@ -18,6 +18,17 @@ if (record) {
 	def fields = record ? scriptHelper.wrap(record) : null
 	RecordCustomFieldPossibleValue statusValue = fields?.status
 	status = statusValue?.internalName ?: 'none'
+    // If the redirect during the emandate creation failed (indicated by an empty statusDate field), try to get the status now.
+    if(status == 'open' && fields?.statusDate == null) {
+        fields = emandates.updateStatus(record)
+        statusValue = fields?.status
+	    status = statusValue?.internalName ?: 'none'
+        // If the status request lead to a new success status, let the user know.
+        if (status == 'success') {
+            html += "<div>${scriptParameters['result.success']}</div><br>"
+            html += "<div><strong>${scriptParameters['result.success.retry']}</strong></div><br>"
+        }
+    }
 	def statusMessage = scriptParameters["status.${status}"]
 	def usr = scriptHelper.wrap(user)
 	def locked = usr.emandates_lock?.internalName
