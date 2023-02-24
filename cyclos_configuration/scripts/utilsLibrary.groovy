@@ -1,4 +1,7 @@
+import static groovy.transform.TypeCheckingMode.SKIP
 import groovy.transform.TypeChecked
+import javax.mail.internet.InternetAddress
+import org.springframework.mail.javamail.MimeMessageHelper
 
 /**
  * Utils library class containing several helper methods for use in C3NL scripts.
@@ -7,9 +10,12 @@ import groovy.transform.TypeChecked
 @TypeChecked
 class Utils {
     private Binding binding
+	Map<String, String> scriptParameters
 
     public Utils(Binding binding) {
         this.binding = binding
+        def vars = binding.variables
+        scriptParameters = vars.scriptParameters as Map<String, String>
     }
 
     /**
@@ -57,5 +63,44 @@ class Utils {
      */
     Boolean isIbanConventionCompliant(String iban) {
         return iban ==~ /^([A-Z0-9]{4} )*[A-Z0-9]{1,4}$/
+    }
+
+	/**
+	 * Sends an e-mail to the admin with the given message and subject.
+	 */
+    public void sendMailToAdmin(String subject, String msg, Boolean isOnCommit = false) {
+        sendMail("Admin Circuit Nederland", scriptParameters.adminMail, subject, msg, isOnCommit)
+    }
+
+    /**
+     * Sends an e-mail to the tech team with the given message and subject.
+     */
+    public void sendMailToTechTeam(String subject, String msg, Boolean isOnCommit = false) {
+        sendMail("Tech Team Circuit Nederland", scriptParameters.techTeamMail, subject, msg, isOnCommit)
+    }
+
+    /**
+     * Sends an e-mail to the requested addressee with the given message and subject.
+     */
+    @TypeChecked(SKIP)
+    public void sendMail(String toName, String toMail, String subject, String msg, Boolean isOnCommit = false) {
+        def fromEmail = binding.sessionData.configuration.smtpConfiguration.fromAddress
+        String fromName = binding.sessionData.configuration.emailName
+        def sender = binding.mailHandler.mailSender
+        def message = sender.createMimeMessage()
+        def helper = new MimeMessageHelper(message)
+        helper.to = new InternetAddress(toMail, toName)
+        helper.from = new InternetAddress(fromEmail, fromName)
+        helper.subject = subject
+        helper.setText msg
+        if (isOnCommit) {
+            binding.scriptHelper.addOnCommit {
+                sender.send message
+            }
+        } else {
+            binding.scriptHelper.addOnRollback {
+                sender.send message
+            }
+        }
     }
 }

@@ -120,6 +120,7 @@ The following scripts will be used:
 
 The library holds most of the logic.
 
+- Included libraries: utils Library
 - Script: `Library.groovy`
 - Parameters: `Library.properties`
 
@@ -136,6 +137,13 @@ Custom scheduled task script which checks whether eMandates of status pending we
 
 - Included libraries: eMandates Library
 - Script: `ScheduledTask_CheckPending.groovy`
+
+## eMandates Check Open
+
+Custom scheduled task script which requests a new status for eMandates of status open.
+
+- Included libraries: eMandates Library
+- Script: `ScheduledTask_CheckOpen.groovy`
 
 ## eMandates Create
 
@@ -203,6 +211,10 @@ The documentation requires us to call this no more than once per week. So the pe
 ## eMandates Check Pending
 
 If an eMandate needs to be signed by multiple parties, the approval won't be online. Instead, the eMandate is returned in pending status and needs to be checked periodically. The documentation requires us to call this no more than once per day per eMandate. So the period should be set to 1 day.
+
+## eMandates Check Open
+
+When a user issues an eMandate we request the status of the eMandate when the user is redirected to Cyclos. In some unusual situations the redirect could not happen in which case we don't request the status. Or, in unusual situations the bank may not yet respond with a final status which leaves the status of the eMandate open. According to the rules, we have a 'Collection Duty', meaning we must request the status of open eMandates for some time until we receive a final status. This task does this every six hours.
 
 # Web services
 

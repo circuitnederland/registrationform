@@ -14,6 +14,7 @@ import org.cyclos.entities.users.RecordCustomFieldPossibleValue
 import org.cyclos.entities.users.SystemRecord
 import org.cyclos.entities.users.SystemRecordType
 import org.cyclos.entities.users.User
+import org.cyclos.entities.utils.DatePeriod
 import org.cyclos.impl.access.ConfigurationHandler
 import org.cyclos.impl.contentmanagement.DataTranslationHandler
 import org.cyclos.impl.InvocationContext
@@ -28,6 +29,7 @@ import org.cyclos.impl.system.EntityBackedParameterStorage
 import org.cyclos.impl.system.ScriptHelper
 import org.cyclos.impl.users.RecordServiceLocal
 import org.cyclos.impl.users.UserServiceLocal
+import org.cyclos.impl.utils.conversion.ConversionHandler
 import org.cyclos.impl.utils.LinkGeneratorHandler
 import org.cyclos.impl.utils.formatting.FormatterImpl
 import org.cyclos.impl.utils.persistence.EntityManagerHandler
@@ -42,7 +44,10 @@ import org.cyclos.model.system.fields.LinkedEntityVO
 import org.cyclos.model.users.records.RecordDataParams
 import org.cyclos.model.users.records.SystemRecordQuery
 import org.cyclos.model.users.recordtypes.RecordTypeVO
+import org.cyclos.model.utils.DatePeriodDTO
 import org.cyclos.model.utils.ResponseInfo
+import org.cyclos.model.utils.TimeField
+import org.cyclos.server.utils.DateHelper
 import org.cyclos.server.utils.ObjectParameterStorage
 import org.cyclos.utils.StringHelper
 import org.springframework.http.HttpStatus
@@ -67,6 +72,7 @@ class EMandates {
 	ScriptHelper scriptHelper
 	ConfigurationHandler configurationHandler
 	DataTranslationHandler dataTranslationHandler
+	ConversionHandler conversionHandler
 	FormatterImpl formatter
 	ServletContext servletContext
 	EntityManagerHandler entityManagerHandler
@@ -79,12 +85,14 @@ class EMandates {
 	UserServiceLocal userService
 	CoreCommunicator coreComm
 	Map<String, String> scriptParameters
+	Utils utils
 	
 	EMandates(Binding binding) {
 		def vars = binding.variables
 		scriptHelper = vars.scriptHelper as ScriptHelper
 		configurationHandler = vars.configurationHandler as ConfigurationHandler
 		dataTranslationHandler = vars.dataTranslationHandler as DataTranslationHandler
+		conversionHandler = vars.conversionHandler as ConversionHandler
 		formatter = vars.formatter as FormatterImpl
 		objectMapper = vars.objectMapper as ObjectMapper
 		entityManagerHandler = vars.entityManagerHandler as EntityManagerHandler
@@ -96,6 +104,7 @@ class EMandates {
 		recordService = vars.recordService as RecordServiceLocal
 		userService = vars.userService as UserServiceLocal
 		scriptParameters = vars.scriptParameters as Map<String, String>
+		utils = new Utils(binding)
 		
 		servletContext = scriptHelper.bean(ServletContext)
 		coreComm = servletContext.getAttribute(CORE_COMM) as CoreCommunicator
@@ -496,6 +505,59 @@ class EMandates {
 		return "A total of ${records.size()} eMandates were pending, of which " + 
 			"${nowSuccess} are now successful, ${nowExpired} are now expired " +
 			" and ${stillPending} are still pending"
+	}
+
+	/**
+	 * Checks open eMandates and updates their status. This will be called by a scheduled task running four times a day.
+	 */
+	String checkOpen() {
+		def maxNrOfDays = 14
+		def expirationPeriodInMinutes = 30
+		def lastAttemptInMinutes = 10
+		Date now = new Date()
+		Date twoWeeksAgo = DateHelper.subtract(now, TimeField.DAYS, maxNrOfDays)
+		Date expirationPeriodAgo = DateHelper.subtract(now, TimeField.MINUTES, expirationPeriodInMinutes)
+		Date minutesAgo = DateHelper.subtract(now, TimeField.MINUTES, lastAttemptInMinutes)
+
+		def query = new SystemRecordQuery()
+		query.type = new RecordTypeVO(internalName: 'eMandate')
+		query.customValues = [
+			new CustomFieldValueForSearchDTO(
+				field: new CustomFieldVO(internalName: 'eMandate.status'),
+				enumeratedValues: [
+					new CustomFieldPossibleValueVO(internalName: 'open')
+				]
+			)
+		] as Set
+		query.datePeriod = conversionHandler.convert(DatePeriodDTO, new DatePeriod(twoWeeksAgo, expirationPeriodAgo))
+		query.setSkipTotalCount(true)
+		query.setUnlimited()
+		def records = recordService.search(query).pageItems
+		// If there are no records, stop.
+		if (records.isEmpty()) {
+			return "No recent open eMandates found."
+		}
+		def msg = "There were ${records.size()} open eMandates newer than ${maxNrOfDays} days.\n"
+		for (item: records) {
+			def record = entityManagerHandler.find(SystemRecord.class, item.id)
+			def fields = scriptHelper.wrap(record)
+			msg += "Checking record created at ${formatter.format(record.creationDate)} for user ${(fields.owner as User)?.username} with statusDate '${formatter.format(fields.statusDate)}'.\n"
+			// Skip records for which we already got a status some minutes ago.
+			if (fields.statusDate != null && (fields.statusDate as Date).after(minutesAgo)) {
+				msg += "Skipping, because statusDate is too recent: ${formatter.format(fields.statusDate)}.\n"
+				continue
+			}
+			// Do a new status request for this record.
+			try {
+				fields = updateStatus(record)
+				msg += "After new status request the status is ${(fields.status as CustomFieldPossibleValue).internalName}.\n"
+			} catch(ValidationException vE) {
+				msg += "Validation exception: ${vE.message}\n"
+			}
+		}
+		// Send an email to techteam.
+		utils.sendMailToTechTeam("Open eMandates", msg, true)
+		return msg
 	}
 
 	/**
