@@ -102,6 +102,7 @@ Permissions:
 - [System] Run system custom operations: Enable the 'Download PAIN.008 incassobestand' custom operation.
 - [User management] Profile fields of other users: set 'Incassomachtiging vergrendeling' to Visible.
 - [User management] Add / remove individual products: set 'Incassomachtiging (eMandate)' to checked.
+- [User management] Run custom operations over users: add 'Incassomachtiging Beheer'.
 - [User data] User records: Set the new Incasso record to 'View'.
 
 'Administrateurs - Financieel' Group:
