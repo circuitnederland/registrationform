@@ -311,7 +311,7 @@ class PAIN_008 {
         def today = new Date()
         def date = new SimpleDateFormat("yyyyMMdd").format(today)
         def epoch = today.getTime()
-        this.batchId = "${date}_${epoch}"
+        this.batchId = "${date}-${epoch}"
         this.batchCreationDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(today)
 
         // Prepare the xml builder and bind the root tag to it. This will build up the xml hierarchy.
@@ -375,7 +375,7 @@ class PAIN_008 {
         def aWeekFromNow = DateHelper.add(new Date(), TimeField.DAYS, 7)
         def requestDate = new SimpleDateFormat("yyyy-MM-dd").format(aWeekFromNow)
         b.PmtInf() {
-            PmtInfId("${this.batchId}_PID-00001")
+            PmtInfId("${this.batchId}-PID-00001")
             PmtMtd("DD") // Fixed value of 'DD' for direct debits.
             NbOfTxs(this.trxs.size())
             CtrlSum(this.totalAmount)
@@ -424,7 +424,7 @@ class PAIN_008 {
     Closure transactionInformation = { b, trx ->
         b.DrctDbtTxInf() {
             PmtId() {
-                EndToEndId("${this.batchId}_${trx.id}")
+                EndToEndId("${this.batchId}-${trx.id}")
             }
             InstdAmt(Ccy: "EUR", trx.amount)
             DrctDbtTx() {
