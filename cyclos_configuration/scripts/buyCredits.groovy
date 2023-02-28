@@ -40,6 +40,11 @@ String topupSituation(User user) {
         return 'inactive'
     }
 
+    // Check if the iban of the user is the same as the iban of the emandate.
+    if (fields?.iban != usr.iban) {
+        return 'wrongIBAN'
+    }
+
     // Check if the user withdrew their emandate.
     def isWithdrawn = fields.isWithdrawn
     if (isWithdrawn) {
