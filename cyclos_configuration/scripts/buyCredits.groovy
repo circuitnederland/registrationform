@@ -41,7 +41,8 @@ String topupSituation(User user) {
     }
 
     // Check if the iban of the user is the same as the iban of the emandate.
-    if (fields?.iban != usr.iban) {
+    Utils utils = new Utils(binding)
+    if (!utils.isIbansEqual(fields.iban as String, usr.iban as String)) {
         return 'wrongIBAN'
     }
 

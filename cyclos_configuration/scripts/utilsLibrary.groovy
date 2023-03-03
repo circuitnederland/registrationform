@@ -1,6 +1,8 @@
 import static groovy.transform.TypeCheckingMode.SKIP
+
 import groovy.transform.TypeChecked
 import javax.mail.internet.InternetAddress
+import org.cyclos.server.utils.MessageProcessingHelper
 import org.springframework.mail.javamail.MimeMessageHelper
 
 /**
@@ -65,11 +67,18 @@ class Utils {
         return iban ==~ /^([A-Z0-9]{4} )*[A-Z0-9]{1,4}$/
     }
 
+    /**
+     * Checks whether two given IBANs are the same, ignoring upper-/lowercase and spaces.
+     */
+    public Boolean isIbansEqual(String ibanA, String ibanB){
+        return ibanA?.replace(" ","").equalsIgnoreCase(ibanB?.replace(" ", ""))
+    }
+
 	/**
 	 * Sends an e-mail to the admin with the given message and subject.
 	 */
     public void sendMailToAdmin(String subject, String msg, Boolean isOnCommit = false) {
-        sendMail("Admin Circuit Nederland", scriptParameters.adminMail, subject, msg, isOnCommit)
+        sendMail("Admin Circuit Nederland", scriptParameters.adminMail, subject, "Beste admin,\n\n${msg}", isOnCommit)
     }
 
     /**
@@ -102,5 +111,15 @@ class Utils {
                 sender.send message
             }
         }
+    }
+
+    /**
+     * Returns a message with any placeholders replaced by the dynamic texts in the given vars Map.
+     * The message is taken from the scriptParameters by the given errorCode, or is the errorCode itself
+     * if no scriptparameter with the given code exists.
+     */
+    String dynamicMessage(String errorCode, Map<String, Object> vars = null) {
+        def messageHolder = scriptParameters[errorCode] ?: errorCode
+        return MessageProcessingHelper.processVariables(messageHolder, vars)
     }
 }

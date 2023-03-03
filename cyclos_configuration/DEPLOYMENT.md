@@ -36,7 +36,7 @@ Actions:
 
 1. Type: Custom operation
 - Name: Saldo ophogen
-- Included libraries: eMandates Library and directDebit Library
+- Included libraries: eMandates Library, directDebit and utils Library
 - Script code: paste the contents of scripts/buyCredits.groovy.
 
 ### Menu pages

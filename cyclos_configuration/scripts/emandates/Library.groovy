@@ -48,7 +48,6 @@ import org.cyclos.model.utils.DatePeriodDTO
 import org.cyclos.model.utils.ResponseInfo
 import org.cyclos.model.utils.TimeField
 import org.cyclos.server.utils.DateHelper
-import org.cyclos.server.utils.MessageProcessingHelper
 import org.cyclos.server.utils.ObjectParameterStorage
 import org.cyclos.utils.StringHelper
 import org.springframework.http.HttpStatus
@@ -424,37 +423,41 @@ class EMandates {
 	}
 
 	/**
-	 * Store the iban from the eMandate in the user profile.
+	 * Store the IBAN from the eMandate in the user profile.
 	 */
 	void updateUserIBAN(Map fields) {
 		String status = (fields.status as CustomFieldPossibleValue).internalName
-		if ('success' == status && fields.owner instanceof User) {
-			def usrDTO = userService.load((fields.owner as User).id)
-			def usr = scriptHelper.wrap(usrDTO)
-			def orgIban = usr.iban
-			// If the iban in the eMandate record is different than the iban we have for this user, inform our financial admin by mail.
-			// Implement the new Utils library before using the next lines.
-			//	if ( ! utils.isIbansEqual(usr.iban, fields.iban) ) {
-			//		sendMailToAdmin("Incassomachtiging van afwijkend iban", utils.prepareMessage("eMandateDifferentBankAccount", ["user": usr.name]))
-			//	}
-			try{
-				usr.iban = fields.iban
-				userService.save(usrDTO)
-			} catch (ValidationException vE) {
-				// We could not update the user profile, maybe the iban from equens already exists on another user in our system.
-				// Put the original iban back and inform the finadmin.
-				// Don't use the userService to change the user profile field, because this may fail due to a validation problem.
-				usr = scriptHelper.wrap((fields.owner as User))
-				usr.iban = orgIban
-				String msg = MessageProcessingHelper.processVariables(
-					scriptParameters["errorSaveIBAN"],
-					[
-						"username": usr.username,
-						"error": vE.validation?.firstError
-					]
-				)
-				utils.sendMailToAdmin("Fout tijdens afgifte incassomachtiging", msg, true)
-			}
+		if ('success' != status || !fields.owner instanceof User) {
+			// The eMandate does not have a success status, or something is wrong with the user, don't try to update the IBAN and just return.
+			return
+		}
+
+		def usrDTO = userService.load((fields.owner as User).id)
+		def usr = scriptHelper.wrap(usrDTO)
+		def orgIban = usr.iban
+		if (utils.isIbansEqual(orgIban as String, fields.iban as String)) {
+			// The IBAN in the eMandate record is the same as the IBAN we already had for this user, there is nothing more to do.
+			return
+		}
+
+		// The IBAN in the eMandate is different than the IBAN we have in the user profile.
+
+		// First, inform our financial admin by mail.
+		def vars = ['username': usr.username, 'iban_emandate': fields.iban, 'org_iban': orgIban]
+		utils.sendMailToAdmin("Incassomachtiging van afwijkend iban", utils.dynamicMessage("differentIBAN", vars), true)
+
+		// Next, try to update the IBAN in the user profile.
+		try{
+			usr.iban = fields.iban
+			userService.save(usrDTO)
+		} catch (ValidationException vE) {
+			// We could not update the user profile, maybe the IBAN from equens already exists on another user in our system,
+			// or the user has an invalid profile (missing required field for example). Put the original IBAN back and inform the finadmin.
+			// Don't use the userService to change the user profile field, because this may fail due to the validation problem.
+			usr = scriptHelper.wrap((fields.owner as User))
+			usr.iban = orgIban
+			vars = ['username': usr.username, 'error': vE.validation?.firstError]
+			utils.sendMailToAdmin("Fout tijdens afgifte incassomachtiging", utils.dynamicMessage("errorSaveIBAN", vars), true)
 		}
 	}
 
