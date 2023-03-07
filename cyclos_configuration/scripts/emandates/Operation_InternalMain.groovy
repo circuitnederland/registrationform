@@ -13,7 +13,7 @@ def emandates = new EMandates(binding)
 def record = emandates.current(user)
 
 String html = ''
-def status = ''
+def status = 'none'
 def locked = null
 if (record) {
 	def fields = record ? scriptHelper.wrap(record) : null
