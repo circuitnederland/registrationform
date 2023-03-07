@@ -51,7 +51,7 @@ class DirectDebits {
     PAIN_008 pain_008
 
     DirectDebits(Binding binding) {
-        binding = binding
+        this.binding = binding
         def vars = binding.variables
         scriptHelper = vars.scriptHelper as ScriptHelper
         scriptParameters = vars.scriptParameters as Map<String, String>
@@ -174,6 +174,7 @@ class DirectDebits {
      * The status of the included direct debit user records is then set to submitted or resubmitted.
      * The batchId and the PAIN.008 xml are stored in a new pain_008 system record.
      */
+    @TypeChecked(SKIP)
     String generatePAIN_008() {
         def records = this._getDirectDebitRecords()
         if ( records.isEmpty() ) {
@@ -204,7 +205,7 @@ class DirectDebits {
 		batchFields.xml = xml
         batchFields.totalAmount = pain_008.totalAmount
         batchFields.nrOfTrxs = pain_008.trxs.size()
-		recordService.saveEntity(data.dto)
+		def painRecord = recordService.saveEntity(data.dto)
 
         // Update the status of the records that are succesfully added to the PAIN.008 string: change status open to submitted and retry to resubmitted.
         // Also store the batchId in the changed records.
@@ -215,6 +216,13 @@ class DirectDebits {
             record.status = (record.status as CustomFieldPossibleValue).internalName == 'open' ? 'submitted' : 'resubmitted'
             recordService.save(recordDTO)
         }
+
+        // Inform the admin that a new PAIN.008 file is ready for download.
+        String rootUrl = binding.sessionData.configuration.fullUrl
+        String recordUrl = "${rootUrl}/#users.records.system-search!recordTypeId=${scriptHelper.maskId(painRecord.type.id)}" +
+            "%7Cusers.records.details!id=${scriptHelper.maskId(painRecord.id)}"
+        Utils utils = new Utils(binding)
+        utils.sendMailToAdmin("Nieuw incassobestand", utils.dynamicMessage("pain008.generated.mail", ['direct_debit_url': recordUrl]), true, true)
 
         return "${records.size()} direct debits were processed succesfully in batch ${pain_008.batchId}."
     }

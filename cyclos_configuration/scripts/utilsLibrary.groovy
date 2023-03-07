@@ -77,8 +77,9 @@ class Utils {
 	/**
 	 * Sends an e-mail to the admin with the given message and subject.
 	 */
-    public void sendMailToAdmin(String subject, String msg, Boolean isOnCommit = false) {
-        sendMail("Admin Circuit Nederland", scriptParameters.adminMail, subject, "Beste admin,\n\n${msg}", isOnCommit)
+    public void sendMailToAdmin(String subject, String msg, Boolean isOnCommit = false, Boolean isHtml = false) {
+        msg = "${scriptParameters.salutationAdmin}\n\n${msg}\n\n${scriptParameters.closingAdmin}"
+        sendMail("Admin Circuit Nederland", scriptParameters.adminMail, subject, msg, isOnCommit, isHtml)
     }
 
     /**
@@ -92,16 +93,21 @@ class Utils {
      * Sends an e-mail to the requested addressee with the given message and subject.
      */
     @TypeChecked(SKIP)
-    public void sendMail(String toName, String toMail, String subject, String msg, Boolean isOnCommit = false) {
+    public void sendMail(String toName, String toMail, String subject, String msg, Boolean isOnCommit = false, Boolean isHtml = false) {
         def fromEmail = binding.sessionData.configuration.smtpConfiguration.fromAddress
         String fromName = binding.sessionData.configuration.emailName
         def sender = binding.mailHandler.mailSender
         def message = sender.createMimeMessage()
-        def helper = new MimeMessageHelper(message)
+        def helper = new MimeMessageHelper(message, true, "UTF-8")
         helper.to = new InternetAddress(toMail, toName)
         helper.from = new InternetAddress(fromEmail, fromName)
         helper.subject = subject
-        helper.setText msg
+        if (isHtml) {
+            msg = msg.replace("\r\n", "<br>").replace("\n", "<br>").replace("\r", "<br>")
+            helper.setText(msg, true)
+        } else {
+            helper.setText msg
+        }
         if (isOnCommit) {
             binding.scriptHelper.addOnCommit {
                 sender.send message
