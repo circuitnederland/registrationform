@@ -176,8 +176,8 @@ Custom operation script to let the user withdraw or re-activate their emandate.
 Custom operation script to let the user start a create or update.
 
 - Run with all permissions: Yes
-- Included libraries: eMandates Library
-- Script when operation is executed: `Operation_Main.groovy`
+- Included libraries: eMandates Library, utils Library
+- Script when operation is executed: `Operation_InternalMain.groovy`
 
 ## eMandates Block by admin
 

@@ -15,6 +15,7 @@ def record = emandates.current(user)
 String html = ''
 def status = 'none'
 def locked = null
+def usr = scriptHelper.wrap(user)
 if (record) {
 	def fields = record ? scriptHelper.wrap(record) : null
 	RecordCustomFieldPossibleValue statusValue = fields?.status
@@ -31,7 +32,6 @@ if (record) {
         }
     }
 	def statusMessage = scriptParameters["status.${status}"]
-	def usr = scriptHelper.wrap(user)
 	locked = usr.emandates_lock?.internalName
 	def withdrawn = fields.isWithdrawn
 	def cssClass = ( locked || withdrawn ) ? ' class="disabled"' : ''
@@ -47,7 +47,8 @@ if (record) {
 	html += emandates.emandateHtml(record, user)
 	html += "</div>"
 } else {
-	html += "<div>${scriptParameters['status.none']}</div>"
+    def msg = new Utils(binding).dynamicMessage('status.none', ['iban': usr.iban])
+	html += "<div>${msg}</div>"
 }
 
 return [
