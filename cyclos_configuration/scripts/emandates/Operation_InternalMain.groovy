@@ -14,6 +14,7 @@ def record = emandates.current(user)
 
 String html = ''
 def status = ''
+def locked = null
 if (record) {
 	def fields = record ? scriptHelper.wrap(record) : null
 	RecordCustomFieldPossibleValue statusValue = fields?.status
@@ -31,7 +32,7 @@ if (record) {
     }
 	def statusMessage = scriptParameters["status.${status}"]
 	def usr = scriptHelper.wrap(user)
-	def locked = usr.emandates_lock?.internalName
+	locked = usr.emandates_lock?.internalName
 	def withdrawn = fields.isWithdrawn
 	def cssClass = ( locked || withdrawn ) ? ' class="disabled"' : ''
 	def lockedMessage = locked ? scriptParameters["locked.${locked}"] : ''
@@ -56,19 +57,19 @@ return [
             parameters: [
                 user: user.id
             ],
-            enabled: status != 'success'
+            enabled: ['none', 'failure', 'expired', 'cancelled'].contains(status) && ! locked
         ],
         amendEMandate: [
             parameters: [
                 user: user.id
             ],
-            enabled: status == 'success'
+            enabled: ['open', 'pending', 'success'].contains(status) && ! locked
         ],
         eMandateWithdrawingByUser: [
             parameters: [
                 user: user.id
             ],
-            enabled: status == 'success'
+            enabled: status == 'success' && ! locked
         ]
     ]
 ]
