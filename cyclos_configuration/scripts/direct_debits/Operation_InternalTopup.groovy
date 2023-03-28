@@ -2,14 +2,14 @@
  * Custom operation script to let users topup their balance leading to a direct debit user record (incasso).
  */
 
-Map<String, String> scriptParameters = binding.scriptParameters
+Utils utils = new Utils(binding)
 BigDecimal amount = new BigDecimal(formParameters.amount)
 User user = formParameters.user
 
 new DirectDebits(binding).transferTopupUnits(user, amount)
 
 return [
-    notification: scriptParameters["topup.success"],
+    notification: utils.dynamicMessage("topupResultSuccess"),
     backTo: "buyCredits",
     reRun: true
 ]

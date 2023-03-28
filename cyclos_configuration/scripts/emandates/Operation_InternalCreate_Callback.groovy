@@ -15,4 +15,4 @@ def storage = new EntityBackedParameterStorage(objectMapper, execution)
 
 def fields = eMandates.callback(storage, transactionId)
 String status = (fields.status as CustomFieldPossibleValue).internalName
-return scriptParameters["result.${status}"]
+return new Utils(binding).dynamicMessage("emResult${status.capitalize()}")

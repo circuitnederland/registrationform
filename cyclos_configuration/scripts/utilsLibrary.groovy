@@ -2,6 +2,7 @@ import static groovy.transform.TypeCheckingMode.SKIP
 
 import groovy.transform.TypeChecked
 import javax.mail.internet.InternetAddress
+import org.cyclos.entities.users.SystemRecordType
 import org.cyclos.server.utils.MessageProcessingHelper
 import org.springframework.mail.javamail.MimeMessageHelper
 
@@ -12,12 +13,11 @@ import org.springframework.mail.javamail.MimeMessageHelper
 @TypeChecked
 class Utils {
     private Binding binding
-	Map<String, String> scriptParameters
+    private Map<String,Map> recordData
 
     public Utils(Binding binding) {
         this.binding = binding
-        def vars = binding.variables
-        scriptParameters = vars.scriptParameters as Map<String, String>
+        recordData = [:]
     }
 
     /**
@@ -78,15 +78,15 @@ class Utils {
 	 * Sends an e-mail to the admin with the given message and subject.
 	 */
     public void sendMailToAdmin(String subject, String msg, Boolean isOnCommit = false, Boolean isHtml = false) {
-        msg = "${scriptParameters.salutationAdmin}\n\n${msg}\n\n${scriptParameters.closingAdmin}"
-        sendMail("Admin Circuit Nederland", scriptParameters.adminMail, subject, msg, isOnCommit, isHtml)
+        msg = "${dynamicMessage('adminMailSalutation')}\n\n${msg}\n\n${dynamicMessage('adminMailClosing')}"
+        sendMail("Admin Circuit Nederland", techDetail('mailAdmin'), subject, msg, isOnCommit, isHtml)
     }
 
     /**
      * Sends an e-mail to the tech team with the given message and subject.
      */
     public void sendMailToTechTeam(String subject, String msg, Boolean isOnCommit = false) {
-        sendMail("Tech Team Circuit Nederland", scriptParameters.techTeamMail, subject, msg, isOnCommit)
+        sendMail("Tech Team Circuit Nederland", techDetail('mailTechTeam'), subject, msg, isOnCommit)
     }
 
     /**
@@ -120,12 +120,39 @@ class Utils {
     }
 
     /**
-     * Returns a message with any placeholders replaced by the dynamic texts in the given vars Map.
-     * The message is taken from the scriptParameters by the given errorCode, or is the errorCode itself
-     * if no scriptparameter with the given code exists.
+     * Returns the contents of the system record field with the given recordtype and code.
+     * If the field does not exist, returns the scriptParameter with the given code or the code itself.
      */
-    String dynamicMessage(String errorCode, Map<String, Object> vars = null) {
-        def messageHolder = scriptParameters[errorCode] ?: errorCode
+    @TypeChecked(SKIP)
+    private String _getRecordData(String recordTypeInternalName, String code) {
+        // Only look up the record data if we have not done that already.
+        if (!recordData[recordTypeInternalName]) {
+            def recordType = binding.entityManagerHandler.find(SystemRecordType, recordTypeInternalName)
+            def record = binding.recordService.getSingleFormRecord(recordType)
+            recordData[recordTypeInternalName] = binding.scriptHelper.wrap(record)
+        }
+        return recordData[recordTypeInternalName][code] ?: binding.scriptParameters[code] ?: code
+    }
+
+    /**
+     * Returns a text message with any placeholders replaced by the dynamic texts in the given vars Map.
+     * The text message is taken from either the textMessages system record or the scriptParameters.
+     * If neither exists, the code itself is returned.
+     */
+    String dynamicMessage(String code, Map<String, Object> vars = null) {
+        String messageHolder = _getRecordData('textMessages', code)
+        if (!vars) {
+            return messageHolder
+        }
+        messageHolder = messageHolder.replace('\\n', '\\\n')
         return MessageProcessingHelper.processVariables(messageHolder, vars)
+    }
+
+    /**
+     * Returns the technical detail with the given code, taken from the technical details system record or the scriptparameters.
+     * If neither exists, the code itself is returned.
+     */
+    String techDetail(String code) {
+        return _getRecordData('techDetails', code)
     }
 }

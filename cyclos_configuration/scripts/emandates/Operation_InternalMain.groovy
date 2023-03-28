@@ -3,9 +3,8 @@ import org.cyclos.entities.users.RecordCustomFieldPossibleValue
 import org.cyclos.entities.users.User
 import org.cyclos.impl.system.ScriptHelper
 
-// Read the binding variables
 ScriptHelper scriptHelper = binding.scriptHelper
-Map<String, String> scriptParameters = binding.scriptParameters
+Utils utils = new Utils(binding)
 
 // Get the current user and eMandates status
 User user = formParameters.user
@@ -27,27 +26,27 @@ if (record) {
 	    status = statusValue?.internalName ?: 'none'
         // If the status request lead to a new success status, let the user know.
         if (status == 'success') {
-            html += "<div>${scriptParameters['result.success']}</div><br>"
-            html += "<div><strong>${scriptParameters['result.success.retry']}</strong></div><br>"
+            html += "<div>${utils.dynamicMessage('emResultSuccess')}</div><br>"
+            html += "<div><strong>${utils.dynamicMessage('emResultSuccessRetry')}</strong></div><br>"
         }
     }
-	def statusMessage = scriptParameters["status.${status}"]
+	def statusMessage = utils.dynamicMessage("emStatus${status.capitalize()}")
 	locked = usr.emandates_lock?.internalName
 	def withdrawn = fields.isWithdrawn
 	def cssClass = ( locked || withdrawn ) ? ' class="disabled"' : ''
-	def lockedMessage = locked ? scriptParameters["locked.${locked}"] : ''
-	def withdrawnMessage = withdrawn ? scriptParameters["locked.withdrawn"] : ''
+	def lockedMessage = locked ? utils.dynamicMessage("emStatus${locked.capitalize()}") : ''
+	def withdrawnMessage = withdrawn ? utils.dynamicMessage("emStatusWithdrawn") : ''
 	CustomOperation lockingOperation = entityManagerHandler.find(CustomOperation, 'eMandateWithdrawingByUser')
-	lockingOperation?.label = withdrawn ? scriptParameters["lockingbutton.reset"] : scriptParameters["lockingbutton.withdraw"]
+	lockingOperation?.label = withdrawn ? utils.dynamicMessage("emButtonReset") : utils.dynamicMessage("emButtonWithdraw")
 
 	html += locked ? "<div>${lockedMessage}</div><br>" : ''
-	html += withdrawn ? "<div>${withdrawnMessage}</div><br>" : ''
+	html += withdrawn && !locked ? "<div>${withdrawnMessage}</div><br>" : ''
 	html += "<div${cssClass}><div>${statusMessage}</div>"
-    html += "<div>${scriptParameters['details']}</div>"
+    html += "<div>${utils.dynamicMessage('emDetails')}</div>"
 	html += emandates.emandateHtml(record, user)
 	html += "</div>"
 } else {
-    def msg = new Utils(binding).dynamicMessage('status.none', ['iban': usr.iban])
+    def msg = utils.dynamicMessage('emStatusNone', ['iban': usr.iban])
 	html += "<div>${msg}</div>"
 }
 

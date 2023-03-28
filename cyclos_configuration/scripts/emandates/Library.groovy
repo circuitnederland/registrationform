@@ -68,6 +68,7 @@ class EMandates {
 	static final String CONFIG_RESOURCE = "/emandates-config.xml"
 	static final String CORE_COMM = "emandates.coreComm"
 	
+	Binding binding
 	ObjectMapper objectMapper
 	ScriptHelper scriptHelper
 	ConfigurationHandler configurationHandler
@@ -84,10 +85,9 @@ class EMandates {
 	RecordServiceLocal recordService
 	UserServiceLocal userService
 	CoreCommunicator coreComm
-	Map<String, String> scriptParameters
-	Utils utils
 	
 	EMandates(Binding binding) {
+		this.binding = binding
 		def vars = binding.variables
 		scriptHelper = vars.scriptHelper as ScriptHelper
 		configurationHandler = vars.configurationHandler as ConfigurationHandler
@@ -103,8 +103,6 @@ class EMandates {
 		linkGeneratorHandler = vars.linkGeneratorHandler as LinkGeneratorHandler
 		recordService = vars.recordService as RecordServiceLocal
 		userService = vars.userService as UserServiceLocal
-		scriptParameters = vars.scriptParameters as Map<String, String>
-		utils = new Utils(binding)
 		
 		servletContext = scriptHelper.bean(ServletContext)
 		coreComm = servletContext.getAttribute(CORE_COMM) as CoreCommunicator
@@ -268,7 +266,7 @@ class EMandates {
 			'nl', // Language 
 			null, // Use the default duration 
 			record.id as String, // The eMandate id is the record id
-			scriptParameters["description"], 
+			new Utils(binding).dynamicMessage('emDescription'), 
 			debtorReference,
 			bankId, // The debtor bank id
 			record.id as String, // The purchase id is the record id
@@ -314,7 +312,7 @@ class EMandates {
 			'nl', // Language
 			null, // Use the default duration
 			newRecord.id as String, // The eMandate id is the new record id
-			scriptParameters["description"],
+			new Utils(binding).dynamicMessage('emDescription'), 
 			user.username as String, // The debtor reference is the username
 			bankId, // The new debtor bank id
 			newRecord.id as String, // The purchase id is the new record id
@@ -435,6 +433,7 @@ class EMandates {
 		def usrDTO = userService.load((fields.owner as User).id)
 		def usr = scriptHelper.wrap(usrDTO)
 		def orgIban = usr.iban
+		Utils utils = new Utils(binding)
 		if (utils.isIbansEqual(orgIban as String, fields.iban as String)) {
 			// The IBAN in the eMandate record is the same as the IBAN we already had for this user, there is nothing more to do.
 			return
@@ -444,7 +443,7 @@ class EMandates {
 
 		// First, inform our financial admin by mail.
 		def vars = ['username': usr.username, 'iban_emandate': fields.iban, 'org_iban': orgIban]
-		utils.sendMailToAdmin("Incassomachtiging van afwijkend iban", utils.dynamicMessage("differentIBAN", vars), true)
+		utils.sendMailToAdmin("Incassomachtiging van afwijkend iban", utils.dynamicMessage("emDifferentIBAN", vars), true)
 
 		// Next, try to update the IBAN in the user profile.
 		try{
@@ -457,7 +456,7 @@ class EMandates {
 			usr = scriptHelper.wrap((fields.owner as User))
 			usr.iban = orgIban
 			vars = ['username': usr.username, 'error': vE.validation?.firstError]
-			utils.sendMailToAdmin("Fout tijdens afgifte incassomachtiging", utils.dynamicMessage("errorSaveIBAN", vars), true)
+			utils.sendMailToAdmin("Fout tijdens afgifte incassomachtiging", utils.dynamicMessage("emErrorSaveIBAN", vars), true)
 		}
 	}
 
@@ -573,7 +572,7 @@ class EMandates {
 			}
 		}
 		// Send an email to techteam.
-		utils.sendMailToTechTeam("Open eMandates", msg, true)
+		new Utils(binding).sendMailToTechTeam("Open eMandates", msg, true)
 		return msg
 	}
 

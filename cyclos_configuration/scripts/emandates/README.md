@@ -122,7 +122,6 @@ The library holds most of the logic.
 
 - Included libraries: utils Library
 - Script: `Library.groovy`
-- Parameters: `Library.properties`
 
 ## eMandates Update Banklist
 
@@ -150,7 +149,7 @@ Custom scheduled task script which requests a new status for eMandates of status
 Custom operation script to create an eMandate.
 
 - Run with all permissions: Yes
-- Included libraries: eMandates Library
+- Included libraries: eMandates Library, utils Library
 - Script when operation is executed: `Operation_InternalCreate.groovy`
 - Script when the external site redirects: `Operation_InternalCreate_Callback.groovy`
 
@@ -159,7 +158,7 @@ Custom operation script to create an eMandate.
 Custom operation script to amend an eMandate.
 
 - Run with all permissions: Yes
-- Included libraries: eMandates Library
+- Included libraries: eMandates Library, utils Library
 - Script when operation is executed: `Operation_InternalUpdate.groovy`
 - Script when the external site redirects: `Operation_InternalUpdate_Callback.groovy`
 
@@ -168,7 +167,7 @@ Custom operation script to amend an eMandate.
 Custom operation script to let the user withdraw or re-activate their emandate.
 
 - Run with all permissions: Yes
-- Included libraries: eMandates Library
+- Included libraries: eMandates Library, utils Library
 - Script when operation is executed: `Operation_InternalToggleWithdraw.groovy`
 
 ## eMandates Main
@@ -184,7 +183,7 @@ Custom operation script to let the user start a create or update.
 Custom operation script to let financial admins block or deblock a user's emandate.
 
 - Run with all permissions: Yes
-- Included libraries: eMandates Library
+- Included libraries: eMandates Library, utils Library
 - Script when operation is executed: `Operation_InternalToggleBlock.groovy`
 
 ## eMandates Manager
@@ -192,7 +191,7 @@ Custom operation script to let financial admins block or deblock a user's emanda
 Custom operation script to let financial admins manage the emandate of a user.
 
 - Run with all permissions: Yes
-- Included libraries: eMandates Library
+- Included libraries: eMandates Library, utils Library
 - Script when operation is executed: `Operation_Manager.groovy`
 
 ## eMandates Generic Callback

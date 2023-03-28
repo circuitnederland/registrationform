@@ -11,6 +11,7 @@ Create a new 'Payment transfer type' in the Account type 'Debiet rekening':
 - Internal name: topup
 - From: Debiet rekening
 - To: Handelsrekening
+- Value for empty description: Opwaardering door deelnemer
 - Channels: Main, Mobile app
 
 ## Revoke topup
@@ -136,18 +137,18 @@ XML
 
 - Name: directDebit Library
 - Included libraries: utils Library
-- Parameters: `Library.properties` (adjust the values to the real values)
 - Script code: `direct_debits\Library.groovy`
 
 ## Custom field validation script
 
 - Name: directDebit Check Topup amount
+- Included libraries: utils Library
 - Script code executed when the custom operation is executed: `direct_debits\FieldValidation_TopupAmount.groovy`
 
 ## Custom operation script
 
 - Name: directDebit Topup
-- Included libraries: directDebit Library
+- Included libraries: directDebit Library, utils Library
 - Script code executed when the custom operation is executed: `direct_debits\Operation_InternalTopup.groovy`
 
 ## Custom operation script
@@ -177,7 +178,7 @@ XML
 
 ## directDebit Topup
 
-- Name: Opwaarderen via incasso
+- Name: Aankopen via incasso
 - Internal name: topupViaDirectDebit
 - Enabled for Channels: Main, Mobile app
 - Scope: Internal

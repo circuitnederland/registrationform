@@ -18,7 +18,7 @@ def max_amount = scriptParameters["maximum_amount_${userType}"] ?: 150
 DecimalRange decimalRange = new DecimalRange(new BigDecimal(min_amount), new BigDecimal(max_amount))
 
 if(! Range.includes(decimalRange, new BigDecimal(value)) ) {
-    return "Het bedrag dat u kunt opwaarderen moet tussen ${min_amount} euro en ${max_amount} euro liggen."
+    return new Utils(binding).dynamicMessage('topupResultWrongAmount', ['min_amount': min_amount, 'max_amount': max_amount])
 } else {
     return true
 }

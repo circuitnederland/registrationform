@@ -12,15 +12,15 @@ import org.cyclos.server.utils.DateHelper
  * The explanation text will be different for each situation, i.e. no emandate yet, a valid or invalid emandate, etc.
  */
 
-Map<String, String> scriptParameters = binding.scriptParameters
 User user = binding.user
+Utils utils = new Utils(binding)
 
 /**
  * Returns a string indicating whether the given user is allowed to do a new topup.
  * It checks whether the user has a valid eMandate and is not blocked by the financial admin.
  * And it checks the restrictions regarding previous topups the user may have done.
  */
-String topupSituation(User user) {
+String topupSituation(User user, Utils utils) {
     // Check if a financial admin has blocked this user for using emandates.
     def usr = scriptHelper.wrap(user)
     def isBlocked = ('blocked' == usr.emandates_lock?.internalName)
@@ -41,7 +41,6 @@ String topupSituation(User user) {
     }
 
     // Check if the iban of the user is the same as the iban of the emandate.
-    Utils utils = new Utils(binding)
     if (!utils.isIbansEqual(fields.iban as String, usr.iban as String)) {
         return 'wrongIBAN'
     }
@@ -83,15 +82,15 @@ String topupSituation(User user) {
     return 'success'
 }
 
-String topupSituation = topupSituation(user)
+String topupSituation = topupSituation(user, utils)
 String eMandateSituation = ('none' == topupSituation) ? 'issueEMandate' : 'manageEMandate'
 CustomOperation eMandateOperation = entityManagerHandler.find(CustomOperation, 'eMandate')
-eMandateOperation?.label = scriptParameters["buyCredits.${eMandateSituation}"]
-String topupExplanation = scriptParameters["buyCredits.topup.${topupSituation}"]
+eMandateOperation?.label = utils.dynamicMessage("bcButton${eMandateSituation.capitalize()}")
+String topupExplanation = utils.dynamicMessage("topupStatus${topupSituation.capitalize()}")
 
-String html = "<div>${scriptParameters["buyCredits.general"]}</div><br>"
+String html = ''
 html += "<div>${topupExplanation}</div><br>"
-html += "<div>${scriptParameters["buyCredits.buyViabank"]}</div><br>"
+html += "<div>${utils.dynamicMessage('bcBuyViaBank')}</div><br>"
 
 return [
     content: html,
