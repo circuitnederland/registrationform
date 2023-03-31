@@ -96,10 +96,13 @@ class BuyCredits {
         }
         // Use the creation date of the first record, which is the most recent, since the query result is sorted by creation date by default.
         Date creationDate = directDebits[0]?.creationDate
-        Date oneWeekAfter = DateHelper.shiftToBegin(DateHelper.add(creationDate, TimeField.DAYS, 7), null)
-        if (new Date().before(oneWeekAfter)) {
-            vars = ['weekafter': new SimpleDateFormat("d MMMM yyyy", new Locale('nl')).format(oneWeekAfter)]
-            return 'weeklimit'
+        // Note: creationDate may be null if the direct debit was filtered out above with a settled_cancelled status.
+        if (creationDate) {
+            Date oneWeekAfter = DateHelper.shiftToBegin(DateHelper.add(creationDate, TimeField.DAYS, 7), null)
+            if (new Date().before(oneWeekAfter)) {
+                vars = ['weekafter': new SimpleDateFormat("d MMMM yyyy", new Locale('nl')).format(oneWeekAfter)]
+                return 'weeklimit'
+            }
         }
 
         // Check if the user has a direct debit that failed and is not settled yet.
