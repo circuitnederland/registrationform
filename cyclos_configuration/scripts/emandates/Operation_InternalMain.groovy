@@ -13,8 +13,10 @@ def record = emandates.current(user)
 
 String html = ''
 def status = 'none'
-def locked = null
 def usr = scriptHelper.wrap(user)
+def locked = usr.emandates_lock?.internalName ?: ''
+def lockedMessage = locked ? utils.dynamicMessage("emStatusBlocked") : ''
+html += locked ? "<div>${lockedMessage}</div><br>" : ''
 if (record) {
 	def fields = record ? scriptHelper.wrap(record) : null
 	RecordCustomFieldPossibleValue statusValue = fields?.status
@@ -31,15 +33,12 @@ if (record) {
         }
     }
 	def statusMessage = utils.dynamicMessage("emStatus${status.capitalize()}")
-	locked = usr.emandates_lock?.internalName
 	def withdrawn = fields.isWithdrawn
 	def cssClass = ( locked || withdrawn ) ? ' class="disabled"' : ''
-	def lockedMessage = locked ? utils.dynamicMessage("emStatus${locked.capitalize()}") : ''
 	def withdrawnMessage = withdrawn ? utils.dynamicMessage("emStatusWithdrawn") : ''
 	CustomOperation lockingOperation = entityManagerHandler.find(CustomOperation, 'eMandateWithdrawingByUser')
 	lockingOperation?.label = withdrawn ? utils.dynamicMessage("emButtonReset") : utils.dynamicMessage("emButtonWithdraw")
 
-	html += locked ? "<div>${lockedMessage}</div><br>" : ''
 	html += withdrawn && !locked ? "<div>${withdrawnMessage}</div><br>" : ''
 	html += "<div${cssClass}><div>${statusMessage}</div>"
     html += "<div>${utils.dynamicMessage('emDetails')}</div>"
@@ -47,7 +46,7 @@ if (record) {
 	html += "</div>"
 } else {
     def msg = utils.dynamicMessage('emStatusNone', ['iban': usr.iban])
-	html += "<div>${msg}</div>"
+	html += !locked ? "<div>${msg}</div>" : ''
 }
 
 return [

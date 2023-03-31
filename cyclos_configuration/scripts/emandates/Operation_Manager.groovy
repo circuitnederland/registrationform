@@ -13,18 +13,18 @@ def record = emandates.current(user)
 
 String html = ''
 def status = ''
+def usr = scriptHelper.wrap(user)
+def locked = usr.emandates_lock?.internalName ?: ''
+def lockedMessage = locked ? utils.dynamicMessage("emManagerStatusBlocked") : ''
+html += locked ? "<div>${lockedMessage}</div><br>" : ''
+CustomOperation lockingOperation = entityManagerHandler.find(CustomOperation, 'eMandateBlockByAdmin')
+lockingOperation?.label = locked ? utils.dynamicMessage("emButtonDeblock") : utils.dynamicMessage("emButtonBlock")
 if (record) {
 	def fields = record ? scriptHelper.wrap(record) : null
-	def usr = scriptHelper.wrap(user)
-	def locked = usr.emandates_lock?.internalName ?: ''
 	def withdrawn = fields.isWithdrawn
 	def cssClass = ( locked || withdrawn ) ? ' class="disabled"' : ''
-	def lockedMessage = locked ? utils.dynamicMessage("emManagerStatus${locked.capitalize()}") : ''
 	def withdrawnMessage = withdrawn ? utils.dynamicMessage("emManagerStatusWithdrawn") : ''
-	CustomOperation lockingOperation = entityManagerHandler.find(CustomOperation, 'eMandateBlockByAdmin')
-	lockingOperation?.label = locked ? utils.dynamicMessage("emButtonDeblock") : utils.dynamicMessage("emButtonBlock")
 
-	html += locked ? "<div>${lockedMessage}</div><br>" : ''
 	html += withdrawn ? "<div>${withdrawnMessage}</div><br>" : ''
 	html += "<div${cssClass}>"
 	html += emandates.emandateHtml(record, user)
