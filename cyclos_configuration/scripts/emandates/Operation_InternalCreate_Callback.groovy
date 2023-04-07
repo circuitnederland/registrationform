@@ -13,10 +13,6 @@ def transactionId = request.getParameter('transactionId')
 def eMandates = new EMandates(binding)
 def storage = new EntityBackedParameterStorage(objectMapper, execution)
 
-try{
-    def fields = eMandates.callback(storage, transactionId)
-    String status = (fields.status as CustomFieldPossibleValue).internalName
-    return scriptParameters["result.${status}"]
-}catch (ValidationException vE) {
-    return vE.getMessage()
-}
+def fields = eMandates.callback(storage, transactionId)
+String status = (fields.status as CustomFieldPossibleValue).internalName
+return new Utils(binding).dynamicMessage("emResult${status.capitalize()}")

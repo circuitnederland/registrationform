@@ -14,6 +14,7 @@ import org.cyclos.entities.users.RecordCustomFieldPossibleValue
 import org.cyclos.entities.users.SystemRecord
 import org.cyclos.entities.users.SystemRecordType
 import org.cyclos.entities.users.User
+import org.cyclos.entities.utils.DatePeriod
 import org.cyclos.impl.access.ConfigurationHandler
 import org.cyclos.impl.contentmanagement.DataTranslationHandler
 import org.cyclos.impl.InvocationContext
@@ -28,6 +29,7 @@ import org.cyclos.impl.system.EntityBackedParameterStorage
 import org.cyclos.impl.system.ScriptHelper
 import org.cyclos.impl.users.RecordServiceLocal
 import org.cyclos.impl.users.UserServiceLocal
+import org.cyclos.impl.utils.conversion.ConversionHandler
 import org.cyclos.impl.utils.LinkGeneratorHandler
 import org.cyclos.impl.utils.formatting.FormatterImpl
 import org.cyclos.impl.utils.persistence.EntityManagerHandler
@@ -42,7 +44,10 @@ import org.cyclos.model.system.fields.LinkedEntityVO
 import org.cyclos.model.users.records.RecordDataParams
 import org.cyclos.model.users.records.SystemRecordQuery
 import org.cyclos.model.users.recordtypes.RecordTypeVO
+import org.cyclos.model.utils.DatePeriodDTO
 import org.cyclos.model.utils.ResponseInfo
+import org.cyclos.model.utils.TimeField
+import org.cyclos.server.utils.DateHelper
 import org.cyclos.server.utils.ObjectParameterStorage
 import org.cyclos.utils.StringHelper
 import org.springframework.http.HttpStatus
@@ -63,10 +68,12 @@ class EMandates {
 	static final String CONFIG_RESOURCE = "/emandates-config.xml"
 	static final String CORE_COMM = "emandates.coreComm"
 	
+	Binding binding
 	ObjectMapper objectMapper
 	ScriptHelper scriptHelper
 	ConfigurationHandler configurationHandler
 	DataTranslationHandler dataTranslationHandler
+	ConversionHandler conversionHandler
 	FormatterImpl formatter
 	ServletContext servletContext
 	EntityManagerHandler entityManagerHandler
@@ -78,13 +85,14 @@ class EMandates {
 	RecordServiceLocal recordService
 	UserServiceLocal userService
 	CoreCommunicator coreComm
-	Map<String, String> scriptParameters
 	
 	EMandates(Binding binding) {
+		this.binding = binding
 		def vars = binding.variables
 		scriptHelper = vars.scriptHelper as ScriptHelper
 		configurationHandler = vars.configurationHandler as ConfigurationHandler
 		dataTranslationHandler = vars.dataTranslationHandler as DataTranslationHandler
+		conversionHandler = vars.conversionHandler as ConversionHandler
 		formatter = vars.formatter as FormatterImpl
 		objectMapper = vars.objectMapper as ObjectMapper
 		entityManagerHandler = vars.entityManagerHandler as EntityManagerHandler
@@ -95,7 +103,6 @@ class EMandates {
 		linkGeneratorHandler = vars.linkGeneratorHandler as LinkGeneratorHandler
 		recordService = vars.recordService as RecordServiceLocal
 		userService = vars.userService as UserServiceLocal
-		scriptParameters = vars.scriptParameters as Map<String, String>
 		
 		servletContext = scriptHelper.bean(ServletContext)
 		coreComm = servletContext.getAttribute(CORE_COMM) as CoreCommunicator
@@ -259,7 +266,7 @@ class EMandates {
 			'nl', // Language 
 			null, // Use the default duration 
 			record.id as String, // The eMandate id is the record id
-			scriptParameters["description"], 
+			new Utils(binding).dynamicMessage('emDescription'), 
 			debtorReference,
 			bankId, // The debtor bank id
 			record.id as String, // The purchase id is the record id
@@ -305,7 +312,7 @@ class EMandates {
 			'nl', // Language
 			null, // Use the default duration
 			newRecord.id as String, // The eMandate id is the new record id
-			scriptParameters["description"],
+			new Utils(binding).dynamicMessage('emDescription'), 
 			user.username as String, // The debtor reference is the username
 			bankId, // The new debtor bank id
 			newRecord.id as String, // The purchase id is the new record id
@@ -414,24 +421,42 @@ class EMandates {
 	}
 
 	/**
-	 * Store the iban from the eMandate in the user profile.
+	 * Store the IBAN from the eMandate in the user profile.
 	 */
 	void updateUserIBAN(Map fields) {
 		String status = (fields.status as CustomFieldPossibleValue).internalName
-		if ('success' == status && fields.owner instanceof User) {
-			try{
-				def usrDTO = userService.load((fields.owner as User).id)
-				def usr = scriptHelper.wrap(usrDTO)
-				// If the iban in the eMandate record is different than the iban we have for this user, inform our financial admin by mail.
-				// Implement the new Utils library before using the next lines.
-				//	if ( ! utils.isIbansEqual(usr.iban, fields.iban) ) {
-				//		sendMailToAdmin("Incassomachtiging van afwijkend iban", utils.prepareMessage("eMandateDifferentBankAccount", ["user": usr.name]))
-				//	}
-				usr.iban = fields.iban
-				userService.save(usrDTO)
-			} catch (ValidationException vE) {
-				throw new ValidationException(scriptParameters["errorSaveIBAN"] + " '${vE.validation?.firstError}'.")
-			}
+		if ('success' != status || !fields.owner instanceof User) {
+			// The eMandate does not have a success status, or something is wrong with the user, don't try to update the IBAN and just return.
+			return
+		}
+
+		def usrDTO = userService.load((fields.owner as User).id)
+		def usr = scriptHelper.wrap(usrDTO)
+		def orgIban = usr.iban
+		Utils utils = new Utils(binding)
+		if (utils.isIbansEqual(orgIban as String, fields.iban as String)) {
+			// The IBAN in the eMandate record is the same as the IBAN we already had for this user, there is nothing more to do.
+			return
+		}
+
+		// The IBAN in the eMandate is different than the IBAN we have in the user profile.
+
+		// First, inform our financial admin by mail.
+		def vars = ['username': usr.username, 'iban_emandate': fields.iban, 'org_iban': orgIban]
+		utils.sendMailToAdmin("Incassomachtiging van afwijkend iban", utils.dynamicMessage("emDifferentIBAN", vars), true)
+
+		// Next, try to update the IBAN in the user profile.
+		try{
+			usr.iban = fields.iban
+			userService.save(usrDTO)
+		} catch (ValidationException vE) {
+			// We could not update the user profile, maybe the IBAN from equens already exists on another user in our system,
+			// or the user has an invalid profile (missing required field for example). Put the original IBAN back and inform the finadmin.
+			// Don't use the userService to change the user profile field, because this may fail due to the validation problem.
+			usr = scriptHelper.wrap((fields.owner as User))
+			usr.iban = orgIban
+			vars = ['username': usr.username, 'error': vE.validation?.firstError]
+			utils.sendMailToAdmin("Fout tijdens afgifte incassomachtiging", utils.dynamicMessage("emErrorSaveIBAN", vars), true)
 		}
 	}
 
@@ -496,6 +521,59 @@ class EMandates {
 		return "A total of ${records.size()} eMandates were pending, of which " + 
 			"${nowSuccess} are now successful, ${nowExpired} are now expired " +
 			" and ${stillPending} are still pending"
+	}
+
+	/**
+	 * Checks open eMandates and updates their status. This will be called by a scheduled task running four times a day.
+	 */
+	String checkOpen() {
+		def maxNrOfDays = 14
+		def expirationPeriodInMinutes = 30
+		def lastAttemptInMinutes = 10
+		Date now = new Date()
+		Date twoWeeksAgo = DateHelper.subtract(now, TimeField.DAYS, maxNrOfDays)
+		Date expirationPeriodAgo = DateHelper.subtract(now, TimeField.MINUTES, expirationPeriodInMinutes)
+		Date minutesAgo = DateHelper.subtract(now, TimeField.MINUTES, lastAttemptInMinutes)
+
+		def query = new SystemRecordQuery()
+		query.type = new RecordTypeVO(internalName: 'eMandate')
+		query.customValues = [
+			new CustomFieldValueForSearchDTO(
+				field: new CustomFieldVO(internalName: 'eMandate.status'),
+				enumeratedValues: [
+					new CustomFieldPossibleValueVO(internalName: 'open')
+				]
+			)
+		] as Set
+		query.datePeriod = conversionHandler.convert(DatePeriodDTO, new DatePeriod(twoWeeksAgo, expirationPeriodAgo))
+		query.setSkipTotalCount(true)
+		query.setUnlimited()
+		def records = recordService.search(query).pageItems
+		// If there are no records, stop.
+		if (records.isEmpty()) {
+			return "No recent open eMandates found."
+		}
+		def msg = "There were ${records.size()} open eMandates newer than ${maxNrOfDays} days.\n"
+		for (item: records) {
+			def record = entityManagerHandler.find(SystemRecord.class, item.id)
+			def fields = scriptHelper.wrap(record)
+			msg += "Checking record created at ${formatter.format(record.creationDate)} for user ${(fields.owner as User)?.username} with statusDate '${formatter.format(fields.statusDate)}'.\n"
+			// Skip records for which we already got a status some minutes ago.
+			if (fields.statusDate != null && (fields.statusDate as Date).after(minutesAgo)) {
+				msg += "Skipping, because statusDate is too recent: ${formatter.format(fields.statusDate)}.\n"
+				continue
+			}
+			// Do a new status request for this record.
+			try {
+				fields = updateStatus(record)
+				msg += "After new status request the status is ${(fields.status as CustomFieldPossibleValue).internalName}.\n"
+			} catch(ValidationException vE) {
+				msg += "Validation exception: ${vE.message}\n"
+			}
+		}
+		// Send an email to techteam.
+		new Utils(binding).sendMailToTechTeam("Open eMandates", msg, true)
+		return msg
 	}
 
 	/**

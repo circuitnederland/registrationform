@@ -120,8 +120,8 @@ The following scripts will be used:
 
 The library holds most of the logic.
 
+- Included libraries: utils Library
 - Script: `Library.groovy`
-- Parameters: `Library.properties`
 
 ## eMandates Update Banklist
 
@@ -137,12 +137,19 @@ Custom scheduled task script which checks whether eMandates of status pending we
 - Included libraries: eMandates Library
 - Script: `ScheduledTask_CheckPending.groovy`
 
+## eMandates Check Open
+
+Custom scheduled task script which requests a new status for eMandates of status open.
+
+- Included libraries: eMandates Library
+- Script: `ScheduledTask_CheckOpen.groovy`
+
 ## eMandates Create
 
 Custom operation script to create an eMandate.
 
 - Run with all permissions: Yes
-- Included libraries: eMandates Library
+- Included libraries: eMandates Library, utils Library
 - Script when operation is executed: `Operation_InternalCreate.groovy`
 - Script when the external site redirects: `Operation_InternalCreate_Callback.groovy`
 
@@ -151,7 +158,7 @@ Custom operation script to create an eMandate.
 Custom operation script to amend an eMandate.
 
 - Run with all permissions: Yes
-- Included libraries: eMandates Library
+- Included libraries: eMandates Library, utils Library
 - Script when operation is executed: `Operation_InternalUpdate.groovy`
 - Script when the external site redirects: `Operation_InternalUpdate_Callback.groovy`
 
@@ -160,7 +167,7 @@ Custom operation script to amend an eMandate.
 Custom operation script to let the user withdraw or re-activate their emandate.
 
 - Run with all permissions: Yes
-- Included libraries: eMandates Library
+- Included libraries: eMandates Library, utils Library
 - Script when operation is executed: `Operation_InternalToggleWithdraw.groovy`
 
 ## eMandates Main
@@ -168,15 +175,15 @@ Custom operation script to let the user withdraw or re-activate their emandate.
 Custom operation script to let the user start a create or update.
 
 - Run with all permissions: Yes
-- Included libraries: eMandates Library
-- Script when operation is executed: `Operation_Main.groovy`
+- Included libraries: eMandates Library, utils Library
+- Script when operation is executed: `Operation_InternalMain.groovy`
 
 ## eMandates Block by admin
 
 Custom operation script to let financial admins block or deblock a user's emandate.
 
 - Run with all permissions: Yes
-- Included libraries: eMandates Library
+- Included libraries: eMandates Library, utils Library
 - Script when operation is executed: `Operation_InternalToggleBlock.groovy`
 
 ## eMandates Manager
@@ -184,7 +191,7 @@ Custom operation script to let financial admins block or deblock a user's emanda
 Custom operation script to let financial admins manage the emandate of a user.
 
 - Run with all permissions: Yes
-- Included libraries: eMandates Library
+- Included libraries: eMandates Library, utils Library
 - Script when operation is executed: `Operation_Manager.groovy`
 
 ## eMandates Generic Callback
@@ -203,6 +210,10 @@ The documentation requires us to call this no more than once per week. So the pe
 ## eMandates Check Pending
 
 If an eMandate needs to be signed by multiple parties, the approval won't be online. Instead, the eMandate is returned in pending status and needs to be checked periodically. The documentation requires us to call this no more than once per day per eMandate. So the period should be set to 1 day.
+
+## eMandates Check Open
+
+When a user issues an eMandate we request the status of the eMandate when the user is redirected to Cyclos. In some unusual situations the redirect could not happen in which case we don't request the status. Or, in unusual situations the bank may not yet respond with a final status which leaves the status of the eMandate open. According to the rules, we have a 'Collection Duty', meaning we must request the status of open eMandates for some time until we receive a final status. This task does this every six hours.
 
 # Web services
 

@@ -43,7 +43,6 @@ class DirectDebits {
 
     Binding binding
 	ScriptHelper scriptHelper
-    Map<String, String> scriptParameters
     EntityManagerHandler entityManagerHandler
 	AccountServiceLocal accountService
 	PaymentServiceLocal paymentService
@@ -51,10 +50,9 @@ class DirectDebits {
     PAIN_008 pain_008
 
     DirectDebits(Binding binding) {
-        binding = binding
+        this.binding = binding
         def vars = binding.variables
         scriptHelper = vars.scriptHelper as ScriptHelper
-        scriptParameters = vars.scriptParameters as Map<String, String>
         entityManagerHandler = vars.entityManagerHandler as EntityManagerHandler
 		accountService = vars.accountService as AccountServiceLocal
 		paymentService = vars.paymentService as PaymentServiceLocal
@@ -129,7 +127,7 @@ class DirectDebits {
     * Creates a topup transaction from the debiet system account to the given user.
     */
     PaymentVO transferTopupUnits(User user, BigDecimal amount){
-        PaymentTransferType type = entityManagerHandler.find(PaymentTransferType, scriptParameters['topup.transferType'])
+        PaymentTransferType type = entityManagerHandler.find(PaymentTransferType, 'debietrekening.topup')
         return paymentService.perform(
             new PerformPaymentDTO(
                 [
@@ -137,7 +135,7 @@ class DirectDebits {
                     to: new UserLocatorVO(id: user.id),
                     type: new TransferTypeVO(type.id),
                     amount: amount,
-                    description: scriptParameters['topup.description']
+                    description: type.valueForEmptyDescription
                 ]
             )
         )
@@ -149,7 +147,7 @@ class DirectDebits {
      * has failed.
      */
     private PaymentVO _revokeTopup(Long userId, Transaction topupTransaction){
-        PaymentTransferType type = entityManagerHandler.find(PaymentTransferType, scriptParameters['revokeTopup.transferType'])
+        PaymentTransferType type = entityManagerHandler.find(PaymentTransferType, 'handelsrekening.revoke_topup')
         String description = MessageProcessingHelper.processVariables(
             type.valueForEmptyDescription,
             [
@@ -174,6 +172,7 @@ class DirectDebits {
      * The status of the included direct debit user records is then set to submitted or resubmitted.
      * The batchId and the PAIN.008 xml are stored in a new pain_008 system record.
      */
+    @TypeChecked(SKIP)
     String generatePAIN_008() {
         def records = this._getDirectDebitRecords()
         if ( records.isEmpty() ) {
@@ -204,7 +203,7 @@ class DirectDebits {
 		batchFields.xml = xml
         batchFields.totalAmount = pain_008.totalAmount
         batchFields.nrOfTrxs = pain_008.trxs.size()
-		recordService.saveEntity(data.dto)
+		def painRecord = recordService.saveEntity(data.dto)
 
         // Update the status of the records that are succesfully added to the PAIN.008 string: change status open to submitted and retry to resubmitted.
         // Also store the batchId in the changed records.
@@ -215,6 +214,13 @@ class DirectDebits {
             record.status = (record.status as CustomFieldPossibleValue).internalName == 'open' ? 'submitted' : 'resubmitted'
             recordService.save(recordDTO)
         }
+
+        // Inform the admin that a new PAIN.008 file is ready for download.
+        String rootUrl = binding.sessionData.configuration.fullUrl
+        String recordUrl = "${rootUrl}/#users.records.system-search!recordTypeId=${scriptHelper.maskId(painRecord.type.id)}" +
+            "%7Cusers.records.details!id=${scriptHelper.maskId(painRecord.id)}"
+        Utils utils = new Utils(binding)
+        utils.sendMailToAdmin("Nieuw incassobestand", utils.dynamicMessage("topupPAIN_008GeneratedMail", ['direct_debit_url': recordUrl]), true, true)
 
         return "${records.size()} direct debits were processed succesfully in batch ${pain_008.batchId}."
     }
@@ -286,7 +292,7 @@ class DirectDebits {
 class PAIN_008 {
 
 	private ScriptHelper scriptHelper
-    private Map<String, String> scriptParameters
+    private Utils utils
     private Writable xml
     private List trxs
     private BigDecimal totalAmount
@@ -296,7 +302,7 @@ class PAIN_008 {
     PAIN_008(Binding binding) {
         def vars = binding.variables
         scriptHelper = vars.scriptHelper as ScriptHelper
-        scriptParameters = vars.scriptParameters as Map<String, String>
+        utils = new Utils(binding)
         this.trxs = []
         this.totalAmount = 0
     }
@@ -311,7 +317,7 @@ class PAIN_008 {
         def today = new Date()
         def date = new SimpleDateFormat("yyyyMMdd").format(today)
         def epoch = today.getTime()
-        this.batchId = "${date}_${epoch}"
+        this.batchId = "${date}-${epoch}"
         this.batchCreationDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(today)
 
         // Prepare the xml builder and bind the root tag to it. This will build up the xml hierarchy.
@@ -366,7 +372,7 @@ class PAIN_008 {
             NbOfTxs(this.trxs.size())
             CtrlSum(this.totalAmount)
             InitgPty() {
-                Nm("${this.scriptParameters['creditor.name']}")
+                Nm("${this.utils.techDetail('ddCreditorName')}")
             }
         }
     }
@@ -375,7 +381,7 @@ class PAIN_008 {
         def aWeekFromNow = DateHelper.add(new Date(), TimeField.DAYS, 7)
         def requestDate = new SimpleDateFormat("yyyy-MM-dd").format(aWeekFromNow)
         b.PmtInf() {
-            PmtInfId("${this.batchId}_PID-00001")
+            PmtInfId("${this.batchId}-PID-00001")
             PmtMtd("DD") // Fixed value of 'DD' for direct debits.
             NbOfTxs(this.trxs.size())
             CtrlSum(this.totalAmount)
@@ -390,16 +396,16 @@ class PAIN_008 {
             }
             ReqdColltnDt(requestDate)
             Cdtr() {
-                Nm("${this.scriptParameters['creditor.name']}")
+                Nm("${this.utils.techDetail('ddCreditorName')}")
             }
             CdtrAcct() {
                 Id() {
-                    IBAN("${this.scriptParameters['creditor.iban']}")
+                    IBAN("${this.utils.techDetail('ddCreditorIBAN')}")
                 }
             }
             CdtrAgt() {
                 FinInstnId() {
-                    BIC("${this.scriptParameters['creditor.bic']}")
+                    BIC("${this.utils.techDetail('ddCreditorBIC')}")
                 }
             }
             ChrgBr('SLEV') // Fixed value of 'SLEV'.
@@ -407,7 +413,7 @@ class PAIN_008 {
                 Id() {
                     PrvtId() {
                         Othr() {
-                            Id("${this.scriptParameters['creditor.id']}")
+                            Id("${this.utils.techDetail('ddCreditorIncassantID')}")
                             SchmeNm() {
                                 Prtry('SEPA') // Fixed value of 'SEPA'.
                             }
@@ -424,7 +430,7 @@ class PAIN_008 {
     Closure transactionInformation = { b, trx ->
         b.DrctDbtTxInf() {
             PmtId() {
-                EndToEndId("${this.batchId}_${trx.id}")
+                EndToEndId("${this.batchId}-${trx.id}")
             }
             InstdAmt(Ccy: "EUR", trx.amount)
             DrctDbtTx() {

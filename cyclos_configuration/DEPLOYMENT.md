@@ -32,12 +32,56 @@ Actions:
 
 ## Deployment Tasks for releasing eMandates/directDebits BETA
 
+# System record types
+
+## Text Messages
+
+- Name: Text messages
+- Internal name: textMessages
+- Plural name: Text messages
+- Display style: Single form
+- Main menu: System
+
+Fields:
+
+Create a Multiple line text field (Single line for buttons) for each of the following and add to the corresponding Section after creating those as well. Set 'Ignore value sanitization' to Yes for each field:  
+- Without section (no prefix in the field internal names):  
+Admin mail salutation / Admin mail closing  
+- Section eMandates (use 'em' prefix in the field internal names):  
+Description / Details / Different IBAN mail / Error save IBAN mail  
+Result open / Result pending / Result success / Result failure / Result expired / Result cancelled / Result success retry  
+Status none / Status open / Status pending / Status success / Status failure / Status expired / Status cancelled  
+Status blocked / Status withdrawn / Result withdrawn / Result reset / Result blocked / Result unblocked / Result error  
+Button withdraw / Button reset / Button block / Button de-block  
+Manager status none / Manager status blocked / Manager status withdrawn  
+- Section Topup (use 'topup' prefix in the field internal names):  
+Topup result success / Topup result wrong amount / PAIN.008 generated mail  
+Topup status success / Topup status none / Topup status blocked / Topup status inactive / Topup status wrong IBAN / Topup status withdrawn / Topup status weeklimit / Topup status unsettled
+- Section Buy credits (use 'bc' prefix in the field internal names):  
+Buy via bank / Button issue eMandate / Button manage eMandate  
+
+## Technical details
+
+- Name: Technical details
+- Internal name: techDetails
+- Plural name: Technical details
+- Display style: Single form
+- Main menu: System
+
+Create Single line text fields for each of the following and add to the corresponding Section after creating those as well:  
+- Without section (no prefix in the field internal names):  
+Mail admin / Mail techTeam
+- Direct Debit (use 'dd' prefix in the field internal names):  
+Creditor name / Creditor IBAN / Creditor BIC / Creditor incassant ID
+
 ### Scripts
 
 1. Type: Custom operation
 - Name: Saldo ophogen
-- Included libraries: eMandates Library and directDebit Library
+- Included libraries: eMandates Library, directDebit and utils Library
 - Script code: paste the contents of scripts/buyCredits.groovy.
+
+2. Utils Library script: remove the script parameters (they have been moved to the new system records).
 
 ### Menu pages
 
@@ -64,7 +108,7 @@ pageId = {the pageId from the new Floating menu page 'Opwaarderen (BETA)', as cr
 After saving the Custom operation, change its order so it is just below the 'Opwaarderen via incasso' internal Custom operation.
 
 2. Buy credits (BETA)
-- Name: Saldo opwaarderen (BETA)
+- Name: Circulaire euro’s aankopen (BETA)
 - Internal name: buyCredits
 - Enabled for Channels: Main, Mobile app
 - Scope: User
@@ -72,7 +116,7 @@ After saving the Custom operation, change its order so it is just below the 'Opw
 - Result type: Rich text
 
 Actions:
-- Opwaarderen via incasso (User parameter checked)
+- Aankopen via incasso (User parameter checked)
 - Aankopen via bankoverschrijving
 - Incassomachtiging (User parameter checked)
 
@@ -102,6 +146,7 @@ Permissions:
 - [System] Run system custom operations: Enable the 'Download PAIN.008 incassobestand' custom operation.
 - [User management] Profile fields of other users: set 'Incassomachtiging vergrendeling' to Visible.
 - [User management] Add / remove individual products: set 'Incassomachtiging (eMandate)' to checked.
+- [User management] Run custom operations over users: add 'Incassomachtiging Beheer'.
 - [User data] User records: Set the new Incasso record to 'View'.
 
 'Administrateurs - Financieel' Group:

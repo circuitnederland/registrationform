@@ -1,4 +1,10 @@
+import static groovy.transform.TypeCheckingMode.SKIP
+
 import groovy.transform.TypeChecked
+import javax.mail.internet.InternetAddress
+import org.cyclos.entities.users.SystemRecordType
+import org.cyclos.server.utils.MessageProcessingHelper
+import org.springframework.mail.javamail.MimeMessageHelper
 
 /**
  * Utils library class containing several helper methods for use in C3NL scripts.
@@ -7,9 +13,11 @@ import groovy.transform.TypeChecked
 @TypeChecked
 class Utils {
     private Binding binding
+    private Map<String,Map> recordData
 
     public Utils(Binding binding) {
         this.binding = binding
+        recordData = [:]
     }
 
     /**
@@ -57,5 +65,94 @@ class Utils {
      */
     Boolean isIbanConventionCompliant(String iban) {
         return iban ==~ /^([A-Z0-9]{4} )*[A-Z0-9]{1,4}$/
+    }
+
+    /**
+     * Checks whether two given IBANs are the same, ignoring upper-/lowercase and spaces.
+     */
+    public Boolean isIbansEqual(String ibanA, String ibanB){
+        return ibanA?.replace(" ","").equalsIgnoreCase(ibanB?.replace(" ", ""))
+    }
+
+	/**
+	 * Sends an e-mail to the admin with the given message and subject.
+	 */
+    public void sendMailToAdmin(String subject, String msg, Boolean isOnCommit = false, Boolean isHtml = false) {
+        msg = "${dynamicMessage('adminMailSalutation')}\n\n${msg}\n\n${dynamicMessage('adminMailClosing')}"
+        sendMail("Admin Circuit Nederland", techDetail('mailAdmin'), subject, msg, isOnCommit, isHtml)
+    }
+
+    /**
+     * Sends an e-mail to the tech team with the given message and subject.
+     */
+    public void sendMailToTechTeam(String subject, String msg, Boolean isOnCommit = false) {
+        sendMail("Tech Team Circuit Nederland", techDetail('mailTechTeam'), subject, msg, isOnCommit)
+    }
+
+    /**
+     * Sends an e-mail to the requested addressee with the given message and subject.
+     */
+    @TypeChecked(SKIP)
+    public void sendMail(String toName, String toMail, String subject, String msg, Boolean isOnCommit = false, Boolean isHtml = false) {
+        def fromEmail = binding.sessionData.configuration.smtpConfiguration.fromAddress
+        String fromName = binding.sessionData.configuration.emailName
+        def sender = binding.mailHandler.mailSender
+        def message = sender.createMimeMessage()
+        def helper = new MimeMessageHelper(message, true, "UTF-8")
+        helper.to = new InternetAddress(toMail, toName)
+        helper.from = new InternetAddress(fromEmail, fromName)
+        helper.subject = subject
+        if (isHtml) {
+            msg = msg.replace("\r\n", "<br>").replace("\n", "<br>").replace("\r", "<br>")
+            helper.setText(msg, true)
+        } else {
+            helper.setText msg
+        }
+        if (isOnCommit) {
+            binding.scriptHelper.addOnCommit {
+                sender.send message
+            }
+        } else {
+            binding.scriptHelper.addOnRollback {
+                sender.send message
+            }
+        }
+    }
+
+    /**
+     * Returns the contents of the system record field with the given recordtype and code.
+     * If the field does not exist, returns the scriptParameter with the given code or the code itself.
+     */
+    @TypeChecked(SKIP)
+    private String _getRecordData(String recordTypeInternalName, String code) {
+        // Only look up the record data if we have not done that already.
+        if (!recordData[recordTypeInternalName]) {
+            def recordType = binding.entityManagerHandler.find(SystemRecordType, recordTypeInternalName)
+            def record = binding.recordService.getSingleFormRecord(recordType)
+            recordData[recordTypeInternalName] = binding.scriptHelper.wrap(record)
+        }
+        return recordData[recordTypeInternalName][code] ?: binding.scriptParameters[code] ?: code
+    }
+
+    /**
+     * Returns a text message with any placeholders replaced by the dynamic texts in the given vars Map.
+     * The text message is taken from either the textMessages system record or the scriptParameters.
+     * If neither exists, the code itself is returned.
+     */
+    String dynamicMessage(String code, Map<String, Object> vars = null) {
+        String messageHolder = _getRecordData('textMessages', code)
+        if (!vars) {
+            return messageHolder
+        }
+        messageHolder = messageHolder.replace('\\n', '\\\n')
+        return MessageProcessingHelper.processVariables(messageHolder, vars)
+    }
+
+    /**
+     * Returns the technical detail with the given code, taken from the technical details system record or the scriptparameters.
+     * If neither exists, the code itself is returned.
+     */
+    String techDetail(String code) {
+        return _getRecordData('techDetails', code)
     }
 }
