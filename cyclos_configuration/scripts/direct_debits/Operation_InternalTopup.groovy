@@ -7,9 +7,10 @@ BigDecimal amount = new BigDecimal(formParameters.amount)
 User user = formParameters.user
 
 new DirectDebits(binding).transferTopupUnits(user, amount)
+def usr = scriptHelper.wrap(user)
 
 return [
-    notification: utils.dynamicMessage("topupResultSuccess"),
+    notification: utils.dynamicMessage("topupResultSuccess", [topupAmount: amount, iban: usr.iban]),
     backTo: "buyCredits",
     reRun: true
 ]
