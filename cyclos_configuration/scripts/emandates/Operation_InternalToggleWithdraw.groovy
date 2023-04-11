@@ -5,7 +5,7 @@
 
 import org.cyclos.entities.users.SystemRecord
 
-Map<String, String> scriptParameters = binding.scriptParameters
+Utils utils = new Utils(binding)
 Map<String, Object> formParameters = binding.formParameters
 User user = formParameters.user
 
@@ -17,14 +17,15 @@ def result = ''
 if (fields.isWithdrawn) {
     // The emandate is withdrawn. Let the user re-activate it.
     fields.isWithdrawn = false
-    result = scriptParameters["locking.reset"]
+    result = utils.dynamicMessage("emResultReset")
 } else {
     // The emandate is active. Let the user withdraw it.
     fields.isWithdrawn = true
-    result = scriptParameters["locking.withdrawn"]
+    result = utils.dynamicMessage("emResultWithdrawn")
 }
 
 return [
     notification: result,
+    backTo: "buyCredits",
     reRun: true
 ]

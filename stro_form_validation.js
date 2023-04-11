@@ -45,10 +45,6 @@ $(function() {
     
     // check op geldigheid datum 
     $.validator.addMethod("dateNl", function (value) {
-    	if (!value || !value.length) {
-    		// always validate on empty, because it may not be required.
-    		return true;
-    	}
     	// test if pattern is valid
     	var patternOK = /^\d{2}-\d{2}-\d{4}$/.test(value);
     	if (!patternOK) {

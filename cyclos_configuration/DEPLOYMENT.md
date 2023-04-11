@@ -1,27 +1,223 @@
 # Deployment Tasks per release
 Things to do manually in the Cyclos production-environment when deploying a new release of the PHP registrationform to production.
 
-## Deployment Tasks for releasing eMandates on production
+## Deployment Tasks for releasing eMandates/directDebits LIVE
+
+1. Add eMandate/directDebit permissions to the Product 'Algemeen (handelsrekening)':
+- [General] My profile fields: check 'Enabled' for 'Incassomachtiging vergrendeling'.  
+- [General] Records: Set the new Incasso record to 'Enable'.
+- [General] Custom operations: check 'Enabled' for 'Incassomachtiging beheer'.
+- [General] Custom operations: check 'Enabled' for the five new Record operations for managing directDebit user records.
+
+2. Go to Content > [Content management] Menu and pages > Default for Nederland > Opwaarderen. Change the existing content text as decided by stakeholders, removing the text referring to the former iDEAL topup possibility.
+
+3. Change the Custom operation 'Aankopen via bankoverschrijving':
+- Script paramaters:
+pageId = 6745336155068047248
+
+(this pageId refers to the original 'Opwaarderen' Floating page menu we changed above.)
+
+4. Remove the Custom operation 'Saldo opwaarderen (BETA)', the 'Opwaarderen (BETA)' Floating menu page and the temporary Product 'Incassomachtiging (eMandate)'.
+
+5. Change the existing Custom operation 'Opwaarderen' (which is already enabled for all users in the Product 'Algemeen (handelsrekening)'):
+- Internal name: buyCredits
+- Custom submit label: empty (remove 'Opwaarderen'), since there will be no submit button.
+- Script: Saldo ophogen
+- Script parameters: empty
+
+Actions:
+- Opwaarderen via incasso (User parameter checked)
+- Aankopen via bankoverschrijving
+- Incassomachtiging (User parameter checked)
+
+## Deployment Tasks for releasing eMandates/directDebits BETA
+
+# System record types
+
+## Text Messages
+
+- Name: Text messages
+- Internal name: textMessages
+- Plural name: Text messages
+- Display style: Single form
+- Main menu: System
+
+Fields:
+
+Create a Multiple line text field (Single line for buttons) for each of the following and add to the corresponding Section after creating those as well. Set 'Ignore value sanitization' to Yes for each field:  
+- Without section (no prefix in the field internal names):  
+Admin mail salutation / Admin mail closing  
+- Section eMandates (use 'em' prefix in the field internal names):  
+Description / Details / Different IBAN mail / Error save IBAN mail  
+Result open / Result pending / Result success / Result failure / Result expired / Result cancelled / Result success retry  
+Status none / Status open / Status pending / Status success / Status failure / Status expired / Status cancelled  
+Status blocked / Status withdrawn / Result withdrawn / Result reset / Result blocked / Result unblocked / Result error  
+Button withdraw / Button reset / Button block / Button de-block  
+Manager status none / Manager status blocked / Manager status withdrawn  
+- Section Topup (use 'topup' prefix in the field internal names):  
+Topup result success / Topup result wrong amount / PAIN.008 generated mail  
+Topup status success / Topup status none / Topup status blocked / Topup status inactive / Topup status wrong IBAN / Topup status withdrawn / Topup status weeklimit / Topup status unsettled
+- Section Buy credits (use 'bc' prefix in the field internal names):  
+Buy via bank / Button issue eMandate / Button manage eMandate  
+
+## Technical details
+
+- Name: Technical details
+- Internal name: techDetails
+- Plural name: Technical details
+- Display style: Single form
+- Main menu: System
+
+Create Single line text fields for each of the following and add to the corresponding Section after creating those as well:  
+- Without section (no prefix in the field internal names):  
+Mail admin / Mail techTeam
+- Direct Debit (use 'dd' prefix in the field internal names):  
+Creditor name / Creditor IBAN / Creditor BIC / Creditor incassant ID
+
+### Scripts
+
+1. Type: Custom operation
+- Name: Saldo ophogen
+- Included libraries: eMandates Library, directDebit and utils Library
+- Script code: paste the contents of scripts/buyCredits.groovy.
+
+2. Utils Library script: remove the script parameters (they have been moved to the new system records).
+
+### Menu pages
+
+1. Go to Content > [Content management] Menu and pages > Default for Nederland > Add > Floating page.
+- Label: Opwaarderen (BETA)
+- Title: Opwaarderen (BETA)
+- Content layout: Card with regular padding
+- Content: {text as decided by stakeholders, explaining the way the user can have their balance upped by transferring money to the C3NL bank account.}
+
+After saving, look up the pageId, for example 6745336155065950096. Use this in the script parameter of the buyViaBank operation below.
+
+### Custom operations
+
+1. Buy via bank
+- Name: Aankopen via bankoverschrijving
+- Internal name: buyViaBank
+- Enabled for Channels: Main, Mobile app
+- Scope: Internal
+- Script: Menupagina's als custom operatie
+- Script parameters:
+pageId = {the pageId from the new Floating menu page 'Opwaarderen (BETA)', as created above.}
+- Result type: Rich text
+
+After saving the Custom operation, change its order so it is just below the 'Opwaarderen via incasso' internal Custom operation.
+
+2. Buy credits (BETA)
+- Name: Circulaire euro’s aankopen (BETA)
+- Internal name: buyCredits
+- Enabled for Channels: Main, Mobile app
+- Scope: User
+- Script: Saldo ophogen
+- Result type: Rich text
+
+Actions:
+- Aankopen via incasso (User parameter checked)
+- Aankopen via bankoverschrijving
+- Incassomachtiging (User parameter checked)
+
+### Scheduled tasks
+
 1. Enable the scheduled tasks for the eMandates:
 
-	- Go to Systeem > [Operaties] Geplande taken. Open both tasks ('eMandates Check Pending' and 'eMandates Update Banklist') and set them to 'Ingeschakeld': Yes.
+- Go to Systeem > [Tools] Scheduled tasks. Open both tasks ('eMandates Check Pending' and 'eMandates Update Banklist') and set them to 'Enabled': Yes.
 
-2. Create and configure a new temporary Product to give eMandate functionality to specific users (later on we will move those permissions to all users):
+### Permissions
 
-	- Go to Systeem > [Gebruikers configuratie] Producten > Nieuw > Gebruiker. Fill in the form:  
-	Naam: Incassomachtiging (eMandate)  
-	Beschrijving: {copy-paste from testC3NL}.  
-	[Algemeen] 'Mijn profielvelden': check 'Ingeschakeld' for 'Incassomachtiging vergrendeling'.  
-	[Algemeen] 'Operaties': check 'Geactiveerd' and 'Uitvoeren op mezelf' for 'Incassomachtiging'.  
-	[Algemeen] 'Operaties': check 'Geactiveerd' for 'Incassomachtiging beheer'.
+1. Create and configure a new temporary Product to give eMandate/directDebit functionality to specific users (later on we will move those permissions to all users):
 
-3. Add permissions to admin groups:
-	- Go to Systeem > [Gebruikers configuratie] Groepen > 'Administrateurs - Netwerk'. At the Permissies tab:  
-	[Gebruikerbeheer] 'Profiel velden van andere gebruikers': set 'Incassomachtiging vergrendeling' to Visible.  
-	[Gebruikerbeheer] 'Toevoegen / verwijderen van afzonderlijke producten': set 'Incassomachtiging (eMandate)' to checked.  
+Go to System > [User management] Products > New > Member. Fill in the form:  
+- Name: Incassomachtiging (eMandate)  
+Permissions:
+- [General] My profile fields: check 'Enabled' for 'Incassomachtiging vergrendeling'.
+- [General] Records: Set the new Incasso record to 'Enable'.
+- [General] Custom operations: check 'Enabled' for 'Incassomachtiging beheer' under User.
+- [General] Custom operations: check 'Enabled' and 'Run self' for 'Saldo opwaarderen (BETA)' under User.
+- [General] Custom operations: check 'Enabled' for the five new Record operations for managing directDebit user records.
 
-	- Go to Systeem > [Gebruikers configuratie] Groepen > 'Administrateurs - Financieel'. At the Permissies tab:  
-	[Gebruikerbeheer] 'Uitvoeren operaties (op gebruikers)': add 'Incassomachtiging Beheer'.
+2. Add permissions to admin groups:
+
+'Administrateurs - Netwerk' Group:
+- [System] System records: remove the Create, Edit and Remove permissions for the eMandate and Incassobestand system records.
+- [System] Run system custom operations: Enable the 'Download PAIN.008 incassobestand' custom operation.
+- [User management] Profile fields of other users: set 'Incassomachtiging vergrendeling' to Visible.
+- [User management] Add / remove individual products: set 'Incassomachtiging (eMandate)' to checked.
+- [User management] Run custom operations over users: add 'Incassomachtiging Beheer'.
+- [User data] User records: Set the new Incasso record to 'View'.
+
+'Administrateurs - Financieel' Group:
+- [System] System records: Set the new Incassobestand record to 'View', remove the 'View' checkbox for the 'XML' field.
+- [System] Run system custom operations: Enable the 'Download PAIN.008 incassobestand' custom operation.
+- [User management] Add / remove individual products: set 'Incassomachtiging (eMandate)' to checked.
+- [User management] Run custom operations over users: add 'Incassomachtiging Beheer'.
+- [User management] Run custom operations over users: Enable the five new Record operations for managing directDebit user records.
+- [User data] User records: Set the new Incasso record to 'View'.
+
+## Deployment Tasks for release 1.4.7
+
+### Scripts
+
+1. Type: Library
+- Name: utils Library
+- Script code: paste the contents of scripts/utilsLibrary.groovy
+
+2. Type: Custom operation
+- Name: Bulk actie IBAN conventies
+- Run with all permissions: Yes
+- Included libraries: utils Library
+- Script code: paste the contents of scripts/bulkIbanConventions.groovy.
+
+3. Type: Extension point
+- Name: ensure IBAN Conventions
+- Run with all permissions: Yes
+- Included libraries: utils Library
+- Script code executed when the data is saved: paste the contents of scripts/changeUserCheckIbanPattern.groovy.
+
+### Custom operations
+
+1. Bulk IBAN conventions
+- Name: Bulk actie IBAN conventies
+- Enabled for channels: Main
+- Scope: Bulk action
+- Script: Bulk actie IBAN conventies
+
+### Bulk actions
+
+1. Run a bulk action on all Bedrijven and Particulieren users to ensure their iban complies to our conventions:
+- Add the permission to run the 'Bulk actie IBAN conventies' custom operation on other users to the Network admin Group.
+- Go to Users > [Management] Bulk actions > Run new > 'Bulk actie IBAN conventies'. Filter the users:
+- Groups: select all C3NL community Groupsets.
+- Status: select Active, Access blocked, Pending validation, Disabled.
+Click the 'Run over all xx users from search'. The number of affected users should be around 100.
+
+### Extension points
+
+1. IBAN conventions
+- Name: ensure IBAN conventions
+- Type: User
+- Groups: Select all Bedrijven, all Netwerkbouwers and all Particulieren groups.
+- Events: Select 'Create' and 'Update'.
+- Script: ensure IBAN Conventions
+
+### Profile fields
+
+1. Set the 'Unique' property on the IBAN user profile field:  
+- Go to System > [User configuration] 'Profile fields': 'IBAN' and set the 'Unique' property to Yes.
+
+### Workarounds
+
+Some existing users share the same IBAN. If this is legitimate and there is no possibility for them to use different IBANs, the financial admin could consider giving one of them a fake IBAN. They should use TEST as the bank code to clearly indicate that the IBAN is not a real IBAN. This way, the user will not be able to buy or swap circular euro's, but at least their user profile will be valid, so updating the user profile is possible without errors.
+
+## Deployment Tasks for release 1.4.6
+
+### Profile fields
+
+1. Remove the required property for the Date of Birth user profile field:  
+- Go to System > [User configuration] 'Profile fields': 'Geboortedatum' and uncheck the 'Required' property.
 
 ## Deployment Tasks for release 1.4.5
 

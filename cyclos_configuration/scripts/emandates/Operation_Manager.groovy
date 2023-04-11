@@ -4,7 +4,7 @@ import org.cyclos.impl.system.ScriptHelper
 
 // Read the binding variables
 ScriptHelper scriptHelper = binding.scriptHelper
-Map<String, String> scriptParameters = binding.scriptParameters
+Utils utils = new Utils(binding)
 User user = binding.user
 
 // Get the current user and eMandates status
@@ -13,24 +13,24 @@ def record = emandates.current(user)
 
 String html = ''
 def status = ''
+def usr = scriptHelper.wrap(user)
+def locked = usr.emandates_lock?.internalName ?: ''
+def lockedMessage = locked ? utils.dynamicMessage("emManagerStatusBlocked") : ''
+html += locked ? "<div>${lockedMessage}</div><br>" : ''
+CustomOperation lockingOperation = entityManagerHandler.find(CustomOperation, 'eMandateBlockByAdmin')
+lockingOperation?.label = locked ? utils.dynamicMessage("emButtonDeblock") : utils.dynamicMessage("emButtonBlock")
 if (record) {
 	def fields = record ? scriptHelper.wrap(record) : null
-	def usr = scriptHelper.wrap(user)
-	def locked = usr.emandates_lock?.internalName ?: ''
 	def withdrawn = fields.isWithdrawn
 	def cssClass = ( locked || withdrawn ) ? ' class="disabled"' : ''
-	def lockedMessage = locked ? scriptParameters["manager.${locked}"] : ''
-	def withdrawnMessage = withdrawn ? scriptParameters["manager.withdrawn"] : ''
-	CustomOperation lockingOperation = entityManagerHandler.find(CustomOperation, 'eMandateBlockByAdmin')
-	lockingOperation?.label = locked ? scriptParameters["lockingbutton.deblock"] : scriptParameters["lockingbutton.block"]
+	def withdrawnMessage = withdrawn ? utils.dynamicMessage("emManagerStatusWithdrawn") : ''
 
-	html += locked ? "<div>${lockedMessage}</div><br>" : ''
 	html += withdrawn ? "<div>${withdrawnMessage}</div><br>" : ''
 	html += "<div${cssClass}>"
 	html += emandates.emandateHtml(record, user)
 	html += "</div>"
 } else {
-	html += "<div>${scriptParameters['manager.none']}</div>"
+	html += "<div>${utils.dynamicMessage('emManagerStatusNone')}</div>"
 }
 
 return [

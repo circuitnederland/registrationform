@@ -413,6 +413,8 @@ function fillFieldsArray($forNewResponse) {
 			);
 		}
 	}
+	// Always make the date of birth field required.
+	$fields['geboortedatum']['required'] = true;
 	foreach ($forNewResponse['passwordTypes'] as $passwordType) {
 		$fields[$passwordType['internalName']] = array(
 				'name' => $passwordType['name'],

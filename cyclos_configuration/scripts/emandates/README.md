@@ -78,6 +78,10 @@ Signer name
 - Internal name: signerName
 - Data type: Single line text
 
+Validation reference
+- Internal name: validationReference
+- Data type: Single line text
+
 Withdrawn by user
 - Internal name: isWithdrawn
 - Data type: Boolean
@@ -85,6 +89,8 @@ Withdrawn by user
 Raw message
 - Internal name: rawMessage
 - Data type: Multi line text
+- Maximum size for words: empty
+- Ignore value sanitization: Yes
 
 Enter the Dutch translation for the recordtype. Go to Content > [Content management] Data translation > Circuit Nederland > [Records] Record types. Enter the following translations:
 - eMandate: Digitale machtiging
@@ -114,8 +120,8 @@ The following scripts will be used:
 
 The library holds most of the logic.
 
+- Included libraries: utils Library
 - Script: `Library.groovy`
-- Parameters: `Library.properties`
 
 ## eMandates Update Banklist
 
@@ -131,12 +137,19 @@ Custom scheduled task script which checks whether eMandates of status pending we
 - Included libraries: eMandates Library
 - Script: `ScheduledTask_CheckPending.groovy`
 
+## eMandates Check Open
+
+Custom scheduled task script which requests a new status for eMandates of status open.
+
+- Included libraries: eMandates Library
+- Script: `ScheduledTask_CheckOpen.groovy`
+
 ## eMandates Create
 
 Custom operation script to create an eMandate.
 
 - Run with all permissions: Yes
-- Included libraries: eMandates Library
+- Included libraries: eMandates Library, utils Library
 - Script when operation is executed: `Operation_InternalCreate.groovy`
 - Script when the external site redirects: `Operation_InternalCreate_Callback.groovy`
 
@@ -145,7 +158,7 @@ Custom operation script to create an eMandate.
 Custom operation script to amend an eMandate.
 
 - Run with all permissions: Yes
-- Included libraries: eMandates Library
+- Included libraries: eMandates Library, utils Library
 - Script when operation is executed: `Operation_InternalUpdate.groovy`
 - Script when the external site redirects: `Operation_InternalUpdate_Callback.groovy`
 
@@ -154,7 +167,7 @@ Custom operation script to amend an eMandate.
 Custom operation script to let the user withdraw or re-activate their emandate.
 
 - Run with all permissions: Yes
-- Included libraries: eMandates Library
+- Included libraries: eMandates Library, utils Library
 - Script when operation is executed: `Operation_InternalToggleWithdraw.groovy`
 
 ## eMandates Main
@@ -162,15 +175,15 @@ Custom operation script to let the user withdraw or re-activate their emandate.
 Custom operation script to let the user start a create or update.
 
 - Run with all permissions: Yes
-- Included libraries: eMandates Library
-- Script when operation is executed: `Operation_Main.groovy`
+- Included libraries: eMandates Library, utils Library
+- Script when operation is executed: `Operation_InternalMain.groovy`
 
 ## eMandates Block by admin
 
 Custom operation script to let financial admins block or deblock a user's emandate.
 
 - Run with all permissions: Yes
-- Included libraries: eMandates Library
+- Included libraries: eMandates Library, utils Library
 - Script when operation is executed: `Operation_InternalToggleBlock.groovy`
 
 ## eMandates Manager
@@ -178,7 +191,7 @@ Custom operation script to let financial admins block or deblock a user's emanda
 Custom operation script to let financial admins manage the emandate of a user.
 
 - Run with all permissions: Yes
-- Included libraries: eMandates Library
+- Included libraries: eMandates Library, utils Library
 - Script when operation is executed: `Operation_Manager.groovy`
 
 ## eMandates Generic Callback
@@ -197,6 +210,10 @@ The documentation requires us to call this no more than once per week. So the pe
 ## eMandates Check Pending
 
 If an eMandate needs to be signed by multiple parties, the approval won't be online. Instead, the eMandate is returned in pending status and needs to be checked periodically. The documentation requires us to call this no more than once per day per eMandate. So the period should be set to 1 day.
+
+## eMandates Check Open
+
+When a user issues an eMandate we request the status of the eMandate when the user is redirected to Cyclos. In some unusual situations the redirect could not happen in which case we don't request the status. Or, in unusual situations the bank may not yet respond with a final status which leaves the status of the eMandate open. According to the rules, we have a 'Collection Duty', meaning we must request the status of open eMandates for some time until we receive a final status. This task does this every six hours.
 
 # Web services
 
@@ -234,7 +251,7 @@ Add the English translation in small caps as the internal name for the possible 
 
 - Name: Incassomachtiging afgeven (can be changed)
 - Internal name: createEMandate
-- Enabled for channels: Main
+- Enabled for channels: Main, Mobile app
 - Scope: Internal
 - Script: eMandates Create
 - Result type: External redirect
@@ -257,7 +274,7 @@ Debtor bank
 
 - Name: Incassomachtiging wijzigen (can be changed)
 - Internal name: amendEMandate
-- Enabled for channels: Main
+- Enabled for channels: Main, Mobile app
 - Scope: Internal
 - Script: eMandates Update
 - Result type: External redirect
@@ -281,7 +298,7 @@ Debtor bank
 - Name: Incassomachtiging intrekken of herstellen (can be changed)
 - Internal name: eMandateWithdrawingByUser
 - Label: Incassomachtiging intrekken
-- Enabled for channels: Main
+- Enabled for channels: Main, Mobile app
 - Scope: Internal
 - Script: eMandates Withdraw by user
 - Result type: Notification
@@ -300,10 +317,18 @@ Displays the current eMandate status for a user.
 
 - Name: Incassomachtiging (can be changed)
 - Internal name: eMandate
-- Enabled for channels: Main
-- Scope: User
+- Enabled for channels: Main, Mobile app
+- Scope: Internal
 - Script: eMandates Main
 - Result type: Rich text
+
+Form fields:
+
+User
+- internal name: user
+- Data type: Linked entity
+- Linked entity type: User
+- Required: Yes
 
 Actions:
 - Incassomachtiging afgeven (User parameter checked)
@@ -332,7 +357,7 @@ User
 
 Displays the current eMandate status for a user to financial admins.
 
-- Name: Incassomachtiging (can be changed)
+- Name: Incassomachtiging beheer (can be changed)
 - Internal name: eMandateManager
 - Enabled for channels: Main
 - Scope: User
@@ -349,7 +374,6 @@ Actions:
 During the test phase we will use a separate Product so we can give the eMandates functionality to a selected number of users. Later on, we will move the permissions to a Product that is active for all users.
 
 - In 'My profile fields' set the field 'Incassomachtiging vergrendeling' to Enabled.
-- In 'Custom operations' enable and allow the eMandate ('Incassomachtiging') operation to 'Run self'.
 - In 'Custom operations' enable the eMandate manager ('Incassomachtiging Beheer') operation.
 
 ## Administrator
