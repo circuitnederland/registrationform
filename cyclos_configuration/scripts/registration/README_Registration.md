@@ -24,6 +24,24 @@ We use the Cyclos wizard functionality for the Circuit Nederland (C3NL) registra
 - Run with all permissions: No
 - Script code that returns the possible values when either creating or editing an entity: paste the contents of LoadCustomFieldValues_WizardType.groovy.
 
+5. Type: Custom field validation
+- Name: check DateOfBirth
+- Run with all permissions: No
+- Included libraries: utils Library
+- Script code: paste the contents of FieldValidation_DateOfBirth.groovy.
+
+# Text messages
+
+Add a new field to the system record 'Text messages':
+- Display name: Registration Too Young
+- Internal name: regTooYoung
+- Data type: Multiple line text
+- Ignore value sanitization: Yes
+
+Add a new Section to the system record 'Text messages': 'Registration' and add the new regTooYoung field to it.
+
+After this, go to System > Text messages and fill in the desired text message in the new regTooYoung field, using #minimumAge# as a dynamic variable.
+
 # Profile fields
 
 Change the Information text of profile fields to use formal instead of informal Dutch:
@@ -174,6 +192,14 @@ After saving the Type field, add Possible values 'Bedrijf' (internal name 'bedri
 - Data type: Single line text (= default)
 - Required: Yes
 
+8. Date of Birth:
+- Display name: Geboortedatum
+- Internal name: date_of_birth
+- Data type: Date
+- Required: Yes
+- Validation script: check DateOfBirth
+- Validation parameters: minimumAge = 18
+
 ## Steps
 
 Create the following steps (use a surrounding `<div class="wizardstep"></div>` in each Information text):
@@ -260,12 +286,14 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 
 9. Type: Form fields
 - Name: Profile fields Companies
+- Internal name: profilefields_companies
 - Description: Profile fields for companies.
 - Title: Registratiegegevens
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Bedrijven groups)
 - Show profile fields: Show specific profile fields
-- Profile fields to show: Contactpersoon Bedrijf, Geboortedatum, K.v.K. nummer
+- Profile fields to show: Contactpersoon Bedrijf, K.v.K. nummer
+- Show wizard fields: Geboortedatum
 
 10. Type: Form fields
 - Name: Contact fields Companies
@@ -280,15 +308,16 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 
 11. Type: Form fields
 - Name: Contact fields Consumers
+- Internal name: contactfields_consumers
 - Description: Contact fields for consumers.
 - Title: Contactgegevens
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Particulieren groups)
 - Show profile fields: Show specific profile fields
-- Profile fields to show: Phone, Address, Geboortedatum
+- Profile fields to show: Phone, Address
 - Phone numbers to show: Both mobile and land-line phones
 - Show privacy control for fields: Yes
-- Show wizard fields: Profielfoto
+- Show wizard fields: Profielfoto, Geboortedatum
 
 12. Type: Form fields
 - Name: Company profile

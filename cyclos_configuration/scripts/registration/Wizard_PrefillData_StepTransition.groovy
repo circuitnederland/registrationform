@@ -36,3 +36,13 @@ if ('eMandate_companies' == previousStep.internalName) {
     storage.registration = registration
     return null
 }
+
+// Fill the date of birth profile field.
+// We need to do this via a wizard field, because we want it to be required during registration.
+// Making the profile field itself required is problematic for existing users, because this would mean they can not change their profile anymore.
+if ('profilefields_companies' == previousStep.internalName || 'contactfields_consumers' == previousStep.internalName) {
+    def usr = scriptHelper.wrap(registration)
+    usr.geboortedatum = customValues.date_of_birth
+    storage.registration = registration
+    return null
+}
