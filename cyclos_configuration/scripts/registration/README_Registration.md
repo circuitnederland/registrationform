@@ -7,8 +7,11 @@ We use the Cyclos wizard functionality for the Circuit Nederland (C3NL) registra
 
 1. Type: Wizard
 - Name: registration Wizard
+- Included libraries: eMandates Library, utils Library
 - 'Script code executed when the wizard finishes': add // because this code block is required but we don't need it to do anything.
 - 'Script code executed on transitions between steps': paste the contents of Wizard_PrefillData_StepTransition.groovy.
+- 'Script code executed before the user is redirected to an external site': paste the contents of Wizard_ExternalRedirect.groovy.
+- 'Script code executed when the external site redirects the user back to Cyclos': paste the contents of Wizard_Callback.groovy.
 
 2. Type: Custom web service
 - Name: registration Wizard Preparation
@@ -271,6 +274,7 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Profile fields to show: Lidmaatschapsbijdrage, Actiecode, Aankoop saldo
 - Show wizard fields: Bank, Tekeningsbevoegde
 - Show agreement: Yes
+- This step performs an external redirect: Yes
 
 8. Type: Form fields
 - Name: eMandate Consumers
@@ -283,6 +287,7 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Profile fields to show: Lidmaatschapsbijdrage, Actiecode, Aankoop saldo
 - Show wizard fields: Bank
 - Show agreement: Yes
+- This step performs an external redirect: Yes
 
 9. Type: Form fields
 - Name: Profile fields Companies
