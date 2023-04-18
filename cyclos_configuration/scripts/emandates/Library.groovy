@@ -413,9 +413,6 @@ class EMandates {
 			fields.statusDate = resp.statusDateTimestamp.toGregorianCalendar().time
 		}
 		fields.rawMessage = resp.rawMessage
-
-		// Update the user profile
-		updateUserIBAN(fields)
 		
 		return fields
 	}
