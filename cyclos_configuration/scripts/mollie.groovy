@@ -32,6 +32,7 @@ import org.cyclos.model.banking.transactions.PerformPaymentDTO
 import org.cyclos.model.banking.transfertypes.TransferTypeVO
 import org.cyclos.model.system.entitylogs.EntityPropertyLogQuery
 import org.cyclos.model.system.entitylogs.EntityLogType
+import org.cyclos.model.system.entitylogs.EntityLogTypeFilter
 import org.cyclos.model.system.entitylogs.EntityPropertyLogVO
 
 /**
@@ -454,6 +455,7 @@ class Utils{
         EntityPropertyLogQuery q = new EntityPropertyLogQuery()
         q.type = EntityLogType.USER
         q.entityId = usr.id
+        q.typeFilters = [ EntityLogTypeFilter.USER_CUSTOM_FIELD ]
         q.keywords = fieldName
         q.setUnlimited()
         def logEntriesFound = binding.entityLogService.search(q)
