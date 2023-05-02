@@ -15,6 +15,7 @@ import org.cyclos.entities.users.SystemRecord
 import org.cyclos.entities.users.SystemRecordType
 import org.cyclos.entities.users.User
 import org.cyclos.entities.utils.DatePeriod
+import org.cyclos.entities.utils.EntityBackedParameterStorage
 import org.cyclos.impl.access.ConfigurationHandler
 import org.cyclos.impl.contentmanagement.DataTranslationHandler
 import org.cyclos.impl.InvocationContext
@@ -25,7 +26,6 @@ import org.cyclos.impl.system.CustomOperationFieldPossibleValueCategoryServiceLo
 import org.cyclos.impl.system.CustomOperationFieldPossibleValueServiceLocal
 import org.cyclos.impl.system.CustomWizardFieldPossibleValueCategoryServiceLocal
 import org.cyclos.impl.system.CustomWizardFieldPossibleValueServiceLocal
-import org.cyclos.impl.system.EntityBackedParameterStorage
 import org.cyclos.impl.system.ScriptHelper
 import org.cyclos.impl.users.RecordServiceLocal
 import org.cyclos.impl.users.UserServiceLocal
