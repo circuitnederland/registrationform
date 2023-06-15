@@ -30,6 +30,39 @@ Actions:
 - Aankopen via bankoverschrijving
 - Incassomachtiging (User parameter checked)
 
+## Deployment Tasks for changes to profile fields (i84)
+
+# Remove profile fields
+
+Remove profile fields we no longer wish to use:
+
+- 'Lid van een broodfonds'
+- 'Klant bij Triodos'
+- 'Bedrijf'
+
+First, go to System > [User configuration] Products. Adjust the following permissions:
+
+- Product 'Algemeen voor bedrijven (behalve UE)':
+    - 'Description': Remove the above fields from the list.
+    - 'My profile fields': Set 'Enabled' to 'No' for the above fields (this also sets all other columns to No).
+
+- Product 'Algemeen voor iedereen (behalve UE)':
+    - 'Profile fields of other users': Set the above fields to Visible 'No' (this also sets all other columns to No).
+
+- Product 'Algemeen United Economy':
+    - 'Profile fields of other users': Set the above fields to Visible 'No' (this also sets all other columns to No).
+    - 'My profile fields': Set 'Enabled' to 'No' for the above fields (this also sets all other columns to No).
+
+Next, go to System > [User configuration] Groups. Adjust the permissions for the following groups:
+
+- 'Administrateurs C3-Nederland (Netwerk)'
+- 'Administrateurs financieel - Circuit Nederland'
+- 'All United - Content beheerders'
+    - 'Profile fields of other users': Set 'Enabled' to 'No' for the above fields (this also sets all other columns to No).
+    - 'Profile fields in simple users search': uncheck 'Bedrijf'.
+
+Finally, go to System > [User configuration] Profile fields. Click the trash icon for each of the above profile fields to remove it.
+
 ## Deployment Tasks for releasing eMandates/directDebits BETA
 
 # System record types
