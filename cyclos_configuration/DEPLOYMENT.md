@@ -70,6 +70,18 @@ Next, go to System > [User configuration] Groups. Adjust the permissions for the
 
 Finally, go to System > [User configuration] Profile fields. Click the trash icon for each of the above profile fields to remove it.
 
+# Remove address fields
+
+Disable address fields we no longer wish to use:
+
+- Provincie
+- Land
+Go to System > [Systeem configuration] Configurations > 'Circuit Nederland' and 'Eurijn'. Click the reset icon near 'Define address fields' to stop customizing this value.
+
+Go to System > [Systeem configuration] Configurations > 'Default for Nederland'.
+- Change the 'Enabled address fields': de-select 'Region or state' and 'Country'.
+- Check the lock icon to lock this value so it can no longer be edited by lower level configurations.
+
 # Change permissions
 
 Remove the permission to edit the own profile field for the 'K.v.K. nummer' profile field in the Products 'Algemeen voor bedrijven (behalve UE)' and 'Algemeen United Economy'.
