@@ -74,6 +74,13 @@ Finally, go to System > [User configuration] Profile fields. Click the trash ico
 
 Remove the permission to edit the own profile field for the 'K.v.K. nummer' profile field in the Products 'Algemeen voor bedrijven (behalve UE)' and 'Algemeen United Economy'.
 
+# Informal to formal Dutch
+
+Change the Information text of profile fields to use formal instead of informal Dutch:
+- Website
+- K.v.K. nummer
+- Diensten/producten
+
 # Add new profile fields
 
 Add a new profile field for authorized signatories: System > [User configuration] 'Profile fields' > New.
