@@ -67,6 +67,20 @@ Finally, go to System > [User configuration] Profile fields. Click the trash ico
 
 Remove the permission to edit the own profile field for the 'K.v.K. nummer' profile field in the Products 'Algemeen voor bedrijven (behalve UE)' and 'Algemeen United Economy'.
 
+# Add new profile fields
+
+Add a new profile field for authorized signatories: System > [User configuration] 'Profile fields' > New.
+- Display name: Tekeningsbevoegde
+- Internal name: authorized_signatory
+
+After saving the new profile field, use the arrows to move the field up, just above the 'Contactpersoon bedrijf' field.
+
+Add permissions for the new profile field for authorized signatories:
+- Group 'Administrateurs C3-Nederland (Netwerk)' > 'Profile fields of other users': Add Visible for 'Tekeningsbevoegde'.
+- Group 'Administrateurs financieel - Circuit Nederland' > 'Profile fields of other users': Add Visible and Editable for 'Tekeningsbevoegde'.
+- Product 'Algemeen voor bedrijven (behalve UE)' > 'My profile fields': Add Enabled, At registration and Visible for 'Tekeningsbevoegde'.
+- Product 'Algemeen United Economy' > 'My profile fields': Add Enabled, At registration and Visible for 'Tekeningsbevoegde'.
+
 ## Deployment Tasks for releasing eMandates/directDebits BETA
 
 # System record types
