@@ -63,6 +63,10 @@ Next, go to System > [User configuration] Groups. Adjust the permissions for the
 
 Finally, go to System > [User configuration] Profile fields. Click the trash icon for each of the above profile fields to remove it.
 
+# Change permissions
+
+Remove the permission to edit the own profile field for the 'K.v.K. nummer' profile field in the Products 'Algemeen voor bedrijven (behalve UE)' and 'Algemeen United Economy'.
+
 ## Deployment Tasks for releasing eMandates/directDebits BETA
 
 # System record types
