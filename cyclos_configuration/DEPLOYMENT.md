@@ -86,6 +86,8 @@ Go to System > [Systeem configuration] Configurations > 'Default for Nederland'.
 
 Remove the permission to edit the own profile field for the 'K.v.K. nummer' profile field in the Products 'Algemeen voor bedrijven (behalve UE)' and 'Algemeen United Economy'.
 
+Add the permission to filter on the accepts circulair payments profilefield in the Product 'Algemeen United Economy': 'Profile fields of other users' > check the 'User filter' column for the 'Circulaire betalingen' field.
+
 # Informal to formal Dutch
 
 Change the Information text of profile fields to use formal instead of informal Dutch:
