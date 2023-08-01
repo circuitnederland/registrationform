@@ -128,7 +128,6 @@ Add permissions for the new contribution profile field:
 - Group 'Administrateurs C3-Nederland (Netwerk)' > 'Profile fields of other users': Add Visible, Editable and User filter for 'Lidmaatschapsbijdrage'.
 - Group 'Administrateurs financieel - Circuit Nederland' > 'Profile fields of other users': Add Visible, Editable and User filter for 'Lidmaatschapsbijdrage'.
 - Product 'Algemeen voor iedereen (behalve UE)' > 'My profile fields': Add Enabled, At registration, Visible and Editable for 'Lidmaatschapsbijdrage'.
-- Product 'Algemeen United Economy' > 'My profile fields': Add Enabled, At registration, Visible and Editable for 'Lidmaatschapsbijdrage'.
 
 Migrate the chosen contribution values from the old profile fields to the new profile field via a set of bulk actions*: Users > [Management] Bulk actions > Run new > 'Change custom field value'. Leave the 'Group' filter to the default member groups, set the 'Status' filter to all statusses. Run several bulk actions like this, each with different options:
 - Filter 'Lidmaatschapsbijdrage bedrijven' on '50 - bedrijven met minder dan 10 werknemers' > Set Custom field 'Lidmaatschapsbijdrage' to '50 - bedrijven < 10 werknemers'.
@@ -139,15 +138,9 @@ Migrate the chosen contribution values from the old profile fields to the new pr
 - Filter 'Lidmaatschapsbijdrage particulieren' on '70' > Set Custom field 'Lidmaatschapsbijdrage' to '70 - met deze optie steunt u ons heel erg'.
 - Filter 'Lidmaatschapsbijdrage particulieren' on '100' > Set Custom field 'Lidmaatschapsbijdrage' to '100 - u bent een kanjer'.
 
-Finally, run a bulk action to set the new Lidmaatschapsbijdrage profile field for all United Economy users to their specific value (500): Users > [Management] Bulk actions > Run new > 'Change custom field value':
-- Group: 'United Economy' Group set
-- Status: All statusses
-Set 'Lidmaatschapsbijdrage' to '500 - United Economy bedrijven'.
-
 * Note: The bulk actions to set the new profilefield only work when I temporarily remove the 'Load values script' ('contribution scales) from the profile field and put it back afterwards.
 
 Some users have been moved from a consumer group to a companies group or vice versa. To find them, create a new Bulk action and filter on all 'Bedrijven' groups AND all values for 'Lidmaatschapsbijdrage particulieren'. If you find users, set the Lidmaatschapsbijdrage field so it reflects what they choose in the old field. And do the same vice versa filtering users on all 'Particulieren' groups AND all values for 'Lidmaatschapsbijdrage bedrijven'. On test this resulted in 2 users, for which I set the new Lidmaatschapsbijdrage to the default 40.
-And finally, there is one user in United Economy Particulieren. Fix his Lidmaatschapsbijdrage value to 40.
 Don't forget to set the Load values script back on the Lidmaatschapsbijdrage profile field after you have run all bulk actions.
 
 Remove the permissions for the two old contribution fields that were specific for companies and consumers:
