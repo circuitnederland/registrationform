@@ -64,7 +64,7 @@ Next, go to System > [User configuration] Groups. Adjust the permissions for the
 
 - 'Administrateurs C3-Nederland (Netwerk)'
 - 'Administrateurs financieel - Circuit Nederland'
-- 'All United - Content beheerders'
+- 'All United - Operationeel beheerders'
     - 'Profile fields of other users': Set 'Enabled' to 'No' for the above fields (this also sets all other columns to No).
     - 'Profile fields in simple users search': uncheck 'Bedrijf'.
 
@@ -158,7 +158,7 @@ Next, go to System > [User configuration] Groups. Adjust the permissions for the
 
 - 'Administrateurs C3-Nederland (Netwerk)'
 - 'Administrateurs financieel - Circuit Nederland'
-- 'All United - Content beheerders'
+- 'All United - Operationeel beheerders'
     - 'Profile fields of other users': Set 'Enabled' to 'No' for the above fields (this also sets all other columns to No).
     - 'Profile fields in simple users search': uncheck 'Bedrijf'.
 
