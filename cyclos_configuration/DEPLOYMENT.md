@@ -91,9 +91,12 @@ Add the permission to filter on the accepts circulair payments profilefield in t
 # Informal to formal Dutch
 
 Change the Information text of profile fields to use formal instead of informal Dutch:
+- IBAN
 - Website
 - K.v.K. nummer
 - Diensten/producten
+
+Go to the Global configuration > System > [User configuration] Password types > 'Login password'. Change the 'Public description' so it uses formal instead of informal Dutch.
 
 # Add new profile fields
 
