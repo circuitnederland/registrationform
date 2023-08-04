@@ -120,9 +120,9 @@ Add a new profile field for the contribution: System > [User configuration] 'Pro
 - Display name: Lidmaatschapsbijdrage
 - Internal name: lidmaatschapsbijdrage
 - Data type: Single selection
+- Information text: {as decided by stakeholders}
 - Required: Yes
-- Include in account history print (PDF): No
-- Hidden by default: Yes
+- Default visibility: Hidden for other users
 
 After saving the new profile field, add the Possible values for the default company and consumer contribution scales:
 - Value: {Use the texts as requested by the business, making sure the amount is the first number in the string}
@@ -131,11 +131,11 @@ After saving the new profile field, add the Possible values for the default comp
 After creating the new profile field, use the arrows to move the field up, just above the 'Actiecode' field.
 
 Add permissions for the new contribution profile field:
-- Group 'Administrateurs C3-Nederland (Netwerk)' > 'Profile fields of other users': Add Visible, Editable and User filter for 'Lidmaatschapsbijdrage'.
-- Group 'Administrateurs financieel - Circuit Nederland' > 'Profile fields of other users': Add Visible, Editable and User filter for 'Lidmaatschapsbijdrage'.
+- Group 'Administrateurs C3-Nederland (Netwerk)' > 'Profile fields of other users': Add Visible, Editable and User filter for 'Lidmaatschapsbijdrage'. And 'Profile fields in simple users search': check the 'Lidmaatschapsbijdrage' field.
+- Group 'Administrateurs financieel - Circuit Nederland' > 'Profile fields of other users': Add Visible, Editable and User filter for 'Lidmaatschapsbijdrage'. And 'Profile fields in simple users search': check the 'Lidmaatschapsbijdrage' field.
 - Product 'Algemeen voor iedereen (behalve UE)' > 'My profile fields': Add Enabled for 'Lidmaatschapsbijdrage'.
 
-Migrate the chosen contribution values from the old profile fields to the new profile field via a set of bulk actions*: Users > [Management] Bulk actions > Run new > 'Change custom field value'. Leave the 'Group' filter to the default member groups, set the 'Status' filter to all statusses. Run several bulk actions like this, each with different options:
+Migrate the chosen contribution values from the old profile fields to the new profile field via a set of bulk actions: Users > [Management] Bulk actions > Run new > 'Change custom field value'. Leave the 'Group' filter to the default member groups, set the 'Status' filter to all statusses. Run several bulk actions like this, each with different options:
 - Filter 'Lidmaatschapsbijdrage bedrijven' on '50 - bedrijven met minder dan 10 werknemers' > Set Custom field 'Lidmaatschapsbijdrage' to '50 - bedrijven < 10 werknemers'.
 - Filter 'Lidmaatschapsbijdrage bedrijven' on '150 - bedrijven met minder dan 50 werknemers' > Set Custom field 'Lidmaatschapsbijdrage' to '150 - bedrijven < 50 werknemers'.
 - Filter 'Lidmaatschapsbijdrage bedrijven' on '300 - bedrijven met 50 of meer werknemers' > Set Custom field 'Lidmaatschapsbijdrage' to '300 - bedrijven > 50 werknemers'.
@@ -144,7 +144,7 @@ Migrate the chosen contribution values from the old profile fields to the new pr
 - Filter 'Lidmaatschapsbijdrage particulieren' on '70' > Set Custom field 'Lidmaatschapsbijdrage' to '70 - met deze optie steunt u ons heel erg'.
 - Filter 'Lidmaatschapsbijdrage particulieren' on '100' > Set Custom field 'Lidmaatschapsbijdrage' to '100 - u bent een kanjer'.
 
-Some users have been moved from a consumer group to a companies group or vice versa. To find them, create a new Bulk action and filter on all 'Bedrijven' groups AND all values for 'Lidmaatschapsbijdrage particulieren'. If you find users, set the Lidmaatschapsbijdrage field so it reflects what they choose in the old field. And do the same vice versa filtering users on all 'Particulieren' groups AND all values for 'Lidmaatschapsbijdrage bedrijven'. On test this resulted in 2 users, for which I set the new Lidmaatschapsbijdrage to the default 40.
+Some users have been moved from a consumer group to a companies group or vice versa. To find them, filter the users on all 'Bedrijven' groups AND all values for 'Lidmaatschapsbijdrage particulieren'. If you find users, set the Lidmaatschapsbijdrage field so it reflects what they choose in the old field. And do the same vice versa filtering users on all 'Particulieren' groups AND all values for 'Lidmaatschapsbijdrage bedrijven'. On test this resulted in 2 users, for which I set the new Lidmaatschapsbijdrage to the default 40.
 
 After running all bulk actions, set the Load values script 'contribution scales' on the Lidmaatschapsbijdrage profile field.
 
@@ -162,8 +162,8 @@ Next, go to System > [User configuration] Groups. Adjust the permissions for the
 - 'Administrateurs C3-Nederland (Netwerk)'
 - 'Administrateurs financieel - Circuit Nederland'
 - 'All United - Operationeel beheerders'
+    - 'Profile fields in simple users search': uncheck 'lidmaatschapsbijdrage Bedrijven' and 'Lidmaatschapsbijdrage Particulieren'.
     - 'Profile fields of other users': Set 'Enabled' to 'No' for the above fields (this also sets all other columns to No).
-    - 'Profile fields in simple users search': uncheck 'Bedrijf'.
 
 Finally, go to System > [User configuration] Profile fields. Click the trash icon for each of the above profile fields to remove it.
 
