@@ -393,13 +393,10 @@ class Utils{
 	 * Determines and returns the contribution amount for the given user.
 	 */
 	public BigDecimal getLidmaatschapsbijdrage(usr) {
- 		if (usr.lidmaatschapparticulieren) {
-			return new BigDecimal(usr.lidmaatschapparticulieren.value)
-		}
-		// For bedrijven the lidmaatschap value contains a string like "150 - bedrijven met minder dan 50 werknemers",
-		// so we take the first part to determine the contribution amount.
-		String contrib = usr.lidmaatschapbedrijven.value
-		String amount = contrib.substring(0, contrib.indexOf(" - "))
+		// The contribution value contains a string like "€ 50 - bedrijven < 10 werknemers",
+		// so take the part between the euro sign and the dash (-) to determine the contribution amount.
+		String contrib = usr.lidmaatschapsbijdrage.value
+		String amount = contrib.substring(2, contrib.indexOf(" - "))
 		return new BigDecimal(amount)
 	}
 
