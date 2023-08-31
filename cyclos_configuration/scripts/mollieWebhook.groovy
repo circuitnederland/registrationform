@@ -110,15 +110,12 @@ def handleTopupPayment(User user, String paymentId, def paymentResponse, Utils u
 	recordServiceSecurity.save(userRecordDTO)
 }
 
-String ipAddress
+String ipAddress = "(niet meer gebruikt)"
 String userId = "onbekend"
 String paymentIdFromMollie = "onbekend"
 String source = "onbekend"
 
 try {
-	// Get the ip address of the server triggering this webhook. Can be helpful in case of strange calls.
-	ipAddress = request.requestData.remoteAddress
-	
     // Get the payment from Mollie with the posted payment id.
 	paymentIdFromMollie = request.getParameter("id")
 	def paymentResponse = mollie.getPayment(paymentIdFromMollie)

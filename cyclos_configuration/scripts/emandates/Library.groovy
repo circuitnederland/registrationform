@@ -15,6 +15,7 @@ import org.cyclos.entities.users.SystemRecord
 import org.cyclos.entities.users.SystemRecordType
 import org.cyclos.entities.users.User
 import org.cyclos.entities.utils.DatePeriod
+import org.cyclos.entities.utils.EntityBackedParameterStorage
 import org.cyclos.impl.access.ConfigurationHandler
 import org.cyclos.impl.contentmanagement.DataTranslationHandler
 import org.cyclos.impl.InvocationContext
@@ -23,9 +24,9 @@ import org.cyclos.impl.system.BaseCustomFieldPossibleValueServiceLocal
 import org.cyclos.impl.system.ConfigurationAccessor
 import org.cyclos.impl.system.CustomOperationFieldPossibleValueCategoryServiceLocal
 import org.cyclos.impl.system.CustomOperationFieldPossibleValueServiceLocal
+import org.cyclos.impl.system.CustomWizardExecutionStorage
 import org.cyclos.impl.system.CustomWizardFieldPossibleValueCategoryServiceLocal
 import org.cyclos.impl.system.CustomWizardFieldPossibleValueServiceLocal
-import org.cyclos.impl.system.EntityBackedParameterStorage
 import org.cyclos.impl.system.ScriptHelper
 import org.cyclos.impl.users.RecordServiceLocal
 import org.cyclos.impl.users.UserServiceLocal
@@ -354,7 +355,8 @@ class EMandates {
 		} else if (entranceCode.startsWith("wizard")) {
 			def id = Long.valueOf(StringHelper.removeStart(entranceCode, "wizard"))
 			def execution = entityManagerHandler.find(CustomWizardExecution, id)
-			url = linkGeneratorHandler.customWizardExternalRedirect(execution, execution.storage)
+			def executionStorage = conversionHandler.convert(CustomWizardExecutionStorage, execution.storage)
+			url = linkGeneratorHandler.customWizardExternalRedirect(execution, executionStorage)
 		} else {
 			throw new IllegalStateException("Unhandled entranceCode: ${entranceCode}")
 		}

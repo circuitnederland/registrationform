@@ -1,6 +1,6 @@
 import org.cyclos.entities.system.ExternalRedirectExecution
 import org.cyclos.entities.users.User
-import org.cyclos.impl.system.EntityBackedParameterStorage
+import org.cyclos.entities.utils.EntityBackedParameterStorage
 
 ExternalRedirectExecution execution = binding.execution
 Map<String, Object> formParameters = binding.formParameters
