@@ -30,7 +30,7 @@ Actions:
 - Aankopen via bankoverschrijving
 - Incassomachtiging (User parameter checked)
 
-## Deployment Tasks for releasing eMandates/directDebits BETA
+## Deployment Tasks for release 1.5.0 (eMandates/directDebits BETA)
 
 # System record types
 

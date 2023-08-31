@@ -1,4 +1,15 @@
 # Changelog
+## 1.5.0 (2023-08-31)
+### Added
+<ul>
+	<li>Added BETA phase of emandates functionality, so designated users with a special Product can issue an emandate and topup their balance, leading to a direct debit from their bank account.</li>
+</ul>
+
+### Improved
+<ul>
+	<li>Comply with Cyclos 4.16 scripting API which contains changes that are not backwards compatible.</li>
+</ul>
+
 ## 1.4.7 (2022-12-09)
 ### Improved
 <ul>

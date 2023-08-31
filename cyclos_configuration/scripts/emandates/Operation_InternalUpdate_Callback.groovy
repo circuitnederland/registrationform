@@ -1,6 +1,6 @@
 import org.cyclos.entities.system.CustomFieldPossibleValue
 import org.cyclos.entities.system.ExternalRedirectExecution
-import org.cyclos.impl.system.EntityBackedParameterStorage
+import org.cyclos.entities.utils.EntityBackedParameterStorage
 import org.cyclos.model.ValidationException
 import org.cyclos.model.utils.RequestInfo
 
