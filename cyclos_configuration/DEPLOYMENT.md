@@ -167,7 +167,7 @@ Next, go to System > [User configuration] Groups. Adjust the permissions for the
 
 Finally, go to System > [User configuration] Profile fields. Click the trash icon for each of the above profile fields to remove it.
 
-## Deployment Tasks for releasing eMandates/directDebits BETA
+## Deployment Tasks for release 1.5.0 (eMandates/directDebits BETA)
 
 # System record types
 

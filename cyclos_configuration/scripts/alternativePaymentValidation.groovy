@@ -32,7 +32,7 @@ usr.betaald = "betaald"
 userService.save(usrDTO)
 
 // Call userService to validate the user.
-userValidationService.manuallyValidateRegistration(new UserLocatorVO(user.id))
+basicUserService.manuallyValidateRegistration(new UserLocatorVO(user.id))
 
 // Accept all personal agreements if the admin confirmed the user has done this.
 if (formParameters.agreements_accepted) {
