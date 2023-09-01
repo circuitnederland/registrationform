@@ -98,6 +98,8 @@ Change the Information text of profile fields to use formal instead of informal 
 
 Go to the Global configuration > System > [User configuration] Password types > 'Login password'. Change the 'Public description' so it uses formal instead of informal Dutch.
 
+Go to Reports > [System records] Molly configuration (keep safe). Change all texts containing informal Dutch to use formal Dutch.
+
 # Change explanation texts of fields
 
 - The information text of the profile field K.v.K. nummer: Change " neem dan contact op met Circuit Nederland" into: " neem dan contact met ons op".
