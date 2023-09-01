@@ -98,6 +98,11 @@ Change the Information text of profile fields to use formal instead of informal 
 
 Go to the Global configuration > System > [User configuration] Password types > 'Login password'. Change the 'Public description' so it uses formal instead of informal Dutch.
 
+# Change explanation texts of fields
+
+- The information text of the profile field K.v.K. nummer: Change " neem dan contact op met Circuit Nederland" into: " neem dan contact met ons op".
+- Go to the Global administration > System > [User configuration] Password types > Login password. Change the 'Public description': remove the line " Dit wachtwoord gebruikt u bij het inloggen op uw online rekening.".
+
 # Add new profile fields
 
 ## Authorized signatory (Tekeningsbevoegde)
