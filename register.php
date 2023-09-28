@@ -420,6 +420,13 @@ include 'show_errors.php';
 				case "geboortedatum":
 					showCustomField($customField, $fieldsBedrijven, $fieldsParticulieren, "dateNl", "", 10, "placeholder='DD-MM-JJJJ'");
 					break;
+
+				case "lidmaatschapsbijdrage":
+					echo "<hr>";
+					echo "<h2>Lidmaatschapsbijdrage</h2>";
+					showLidmaatschapStaffels($customField, $fieldsParticulieren, 'particulieren');
+					showLidmaatschapStaffels($customField, $fieldsBedrijven, 'bedrijven');
+					break;
 					
 				case "lidmaatschapparticulieren":
 					if ($lidmaatschapHeadingShown === False) {
