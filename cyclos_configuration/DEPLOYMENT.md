@@ -30,7 +30,7 @@ Actions:
 - Aankopen via bankoverschrijving
 - Incassomachtiging (User parameter checked)
 
-## Deployment Tasks for changes to profile fields (i84)
+## Deployment Tasks for release 1.6.0 (changes to profile fields (i84))
 
 # Scripts
 
