@@ -30,6 +30,150 @@ Actions:
 - Aankopen via bankoverschrijving
 - Incassomachtiging (User parameter checked)
 
+## Deployment Tasks for release 1.6.0 (changes to profile fields (i84))
+
+# Scripts
+
+1. Type: Load custom field values
+- Name: contribution scales
+- Run with all permissions: No
+- Script code that returns the possible values when either creating or editing an entity: paste the contents of scripts/loadCustomFieldValues_ContributionScales.groovy.
+
+# Remove profile fields
+
+Remove profile fields we no longer wish to use:
+
+- 'Lid van een broodfonds'
+- 'Klant bij Triodos'
+- 'Bedrijf'
+
+First, go to System > [User configuration] Products. Adjust the following permissions:
+
+- Product 'Algemeen voor bedrijven (behalve UE)':
+    - 'Description': Remove the above fields from the list.
+    - 'My profile fields': Set 'Enabled' to 'No' for the above fields (this also sets all other columns to No).
+
+- Product 'Algemeen voor iedereen (behalve UE)':
+    - 'Profile fields of other users': Set the above fields to Visible 'No' (this also sets all other columns to No).
+
+- Product 'Algemeen United Economy':
+    - 'Profile fields of other users': Set the above fields to Visible 'No' (this also sets all other columns to No).
+    - 'My profile fields': Set 'Enabled' to 'No' for the above fields (this also sets all other columns to No).
+
+Next, go to System > [User configuration] Groups. Adjust the permissions for the following groups:
+
+- 'Administrateurs C3-Nederland (Netwerk)'
+- 'Administrateurs financieel - Circuit Nederland'
+- 'All United - Operationeel beheerders'
+    - 'Profile fields of other users': Set 'Enabled' to 'No' for the above fields (this also sets all other columns to No).
+    - 'Profile fields in simple users search': uncheck 'Bedrijf'.
+
+Finally, go to System > [User configuration] Profile fields. Click the trash icon for each of the above profile fields to remove it.
+
+# Remove address fields
+
+Disable address fields we no longer wish to use:
+
+- Provincie
+- Land
+Go to System > [Systeem configuration] Configurations > 'Circuit Nederland' and 'Eurijn'. Click the reset icon near 'Define address fields' to stop customizing this value.
+
+Go to System > [Systeem configuration] Configurations > 'Default for Nederland'.
+- Change the 'Enabled address fields': de-select 'Region or state' and 'Country'.
+- Check the lock icon to lock this value so it can no longer be edited by lower level configurations.
+
+# Change permissions
+
+Remove the permission to edit the own profile field for the 'K.v.K. nummer' profile field in the Products 'Algemeen voor bedrijven (behalve UE)' and 'Algemeen United Economy'.
+
+Add the permission to filter on the accepts circulair payments profilefield in the Product 'Algemeen United Economy': 'Profile fields of other users' > check the 'User filter' column for the 'Circulaire betalingen' field.
+
+# Informal to formal Dutch
+
+Change the Information text of profile fields to use formal instead of informal Dutch:
+- IBAN
+- Website
+- K.v.K. nummer
+- Diensten/producten
+
+Go to the Global configuration > System > [User configuration] Password types > 'Login password'. Change the 'Public description' so it uses formal instead of informal Dutch.
+
+Go to Reports > [System records] Molly configuration (keep safe). Change all texts containing informal Dutch to use formal Dutch.
+
+# Change explanation texts of fields
+
+- The information text of the profile field K.v.K. nummer: Change " neem dan contact op met Circuit Nederland" into: " neem dan contact met ons op".
+- Go to the Global administration > System > [User configuration] Password types > Login password. Change the 'Public description': remove the line " Dit wachtwoord gebruikt u bij het inloggen op uw online rekening.".
+
+# Add new profile fields
+
+## Authorized signatory (Tekeningsbevoegde)
+Add a new profile field for authorized signatories: System > [User configuration] 'Profile fields' > New.
+- Display name: Tekeningsbevoegde
+- Internal name: authorized_signatory
+
+After saving the new profile field, use the arrows to move the field up, just above the 'Contactpersoon bedrijf' field.
+
+Add permissions for the new profile field for authorized signatories:
+- Group 'Administrateurs C3-Nederland (Netwerk)' > 'Profile fields of other users': Add Visible for 'Tekeningsbevoegde'.
+- Group 'Administrateurs financieel - Circuit Nederland' > 'Profile fields of other users': Add Visible and Editable for 'Tekeningsbevoegde'.
+- Product 'Algemeen voor bedrijven (behalve UE)' > 'My profile fields': Add Enabled, At registration and Visible for 'Tekeningsbevoegde'.
+- Product 'Algemeen United Economy' > 'My profile fields': Add Enabled, At registration and Visible for 'Tekeningsbevoegde'.
+
+## Contribution (Lidmaatschapsbijdrage)
+First, deploy the PHP files to make sure the registration form is ready to handle the new contribution profile field.
+
+Add a new profile field for the contribution: System > [User configuration] 'Profile fields' > New.
+- Display name: Lidmaatschapsbijdrage
+- Internal name: lidmaatschapsbijdrage
+- Data type: Single selection
+- Information text: {as decided by stakeholders}
+- Required: Yes
+- Default visibility: Hidden for other users
+
+After saving the new profile field, add the Possible values for the default company and consumer contribution scales:
+- Value: {Use the texts as requested by the business, making sure the amount is the first number in the string}
+- Internal name: standaard_bedrijven_1 / standaard_bedrijven_2 etc or standaard_particulieren_1 / standaard_particulieren_2 etc
+
+After creating the new profile field, use the arrows to move the field up, just above the 'Actiecode' field.
+
+Add permissions for the new contribution profile field:
+- Group 'Administrateurs C3-Nederland (Netwerk)' > 'Profile fields of other users': Add Visible, Editable and User filter for 'Lidmaatschapsbijdrage'. And 'Profile fields in simple users search': check the 'Lidmaatschapsbijdrage' field.
+- Group 'Administrateurs financieel - Circuit Nederland' > 'Profile fields of other users': Add Visible, Editable and User filter for 'Lidmaatschapsbijdrage'. And 'Profile fields in simple users search': check the 'Lidmaatschapsbijdrage' field.
+- Product 'Algemeen voor iedereen (behalve UE)' > 'My profile fields': Add Enabled for 'Lidmaatschapsbijdrage'.
+
+Migrate the chosen contribution values from the old profile fields to the new profile field via a set of bulk actions: Users > [Management] Bulk actions > Run new > 'Change custom field value'. Leave the 'Group' filter to the default member groups, set the 'Status' filter to all statusses. Run several bulk actions like this, each with different options:
+- Filter 'Lidmaatschapsbijdrage bedrijven' on '50 - bedrijven met minder dan 10 werknemers' > Set Custom field 'Lidmaatschapsbijdrage' to '50 - bedrijven < 10 werknemers'.
+- Filter 'Lidmaatschapsbijdrage bedrijven' on '150 - bedrijven met minder dan 50 werknemers' > Set Custom field 'Lidmaatschapsbijdrage' to '150 - bedrijven < 50 werknemers'.
+- Filter 'Lidmaatschapsbijdrage bedrijven' on '300 - bedrijven met 50 of meer werknemers' > Set Custom field 'Lidmaatschapsbijdrage' to '300 - bedrijven > 50 werknemers'.
+- Filter 'Lidmaatschapsbijdrage particulieren' on '15' > Set Custom field 'Lidmaatschapsbijdrage' to '15 - minimale bijdrage om de kosten te dekken'.
+- Filter 'Lidmaatschapsbijdrage particulieren' on '40' > Set Custom field 'Lidmaatschapsbijdrage' to '40 - met deze optie steunt u ons'.
+- Filter 'Lidmaatschapsbijdrage particulieren' on '70' > Set Custom field 'Lidmaatschapsbijdrage' to '70 - met deze optie steunt u ons heel erg'.
+- Filter 'Lidmaatschapsbijdrage particulieren' on '100' > Set Custom field 'Lidmaatschapsbijdrage' to '100 - u bent een kanjer'.
+
+Some users have been moved from a consumer group to a companies group or vice versa. To find them, filter the users on all 'Bedrijven' groups AND all values for 'Lidmaatschapsbijdrage particulieren'. If you find users, set the Lidmaatschapsbijdrage field so it reflects what they choose in the old field. And do the same vice versa filtering users on all 'Particulieren' groups AND all values for 'Lidmaatschapsbijdrage bedrijven'. On test this resulted in 2 users, for which I set the new Lidmaatschapsbijdrage to the default 40.
+
+After running all bulk actions, set the Load values script 'contribution scales' on the Lidmaatschapsbijdrage profile field.
+
+Add permissions for the new profile field so members can fill in the field at registration and see/change it in their profile.
+- Product 'Algemeen voor iedereen (behalve UE)' > 'My profile fields': Add At registration, Visible and Editable for 'Lidmaatschapsbijdrage'.
+
+Make sure no new users were made between running the bulk actions and adding the field to the 'Algemeen voor iedereen (behalve UE)' Product. If there are, manually fill in the new contribution field for those users, based on the chosen option in the old contribution field.
+
+Remove the permissions for the two old contribution fields that were specific for companies and consumers:
+- Product 'Algemeen (voor particulieren)' > 'My profile fields': Remove all permissions for 'Lidmaatschapsbijdrage particulieren'.
+- Product 'Algemeen voor bedrijven (behalve UE)' > 'My profile fields': Remove all permissions for 'Lidmaatschapsbijdrage bedrijven'.
+
+Next, go to System > [User configuration] Groups. Adjust the permissions for the following groups:
+
+- 'Administrateurs C3-Nederland (Netwerk)'
+- 'Administrateurs financieel - Circuit Nederland'
+- 'All United - Operationeel beheerders'
+    - 'Profile fields in simple users search': uncheck 'lidmaatschapsbijdrage Bedrijven' and 'Lidmaatschapsbijdrage Particulieren'.
+    - 'Profile fields of other users': Set 'Enabled' to 'No' for the above fields (this also sets all other columns to No).
+
+Finally, go to System > [User configuration] Profile fields. Click the trash icon for each of the above profile fields to remove it.
+
 ## Deployment Tasks for release 1.5.0 (eMandates/directDebits BETA)
 
 # System record types

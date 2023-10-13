@@ -16,7 +16,7 @@ def customList = field.possibleValues.stream()
     .filter(x -> x.internalName.startsWith(groupName))
     .findAll()
 
-// If filtering on the group gives a list values, return that.
+// If filtering on the group gives a list of values, return that.
 if (customList) {
     return customList
 }

@@ -1062,6 +1062,61 @@ Commented by Roder and Andre because this caused a double validation. In case fo
 }
 
 /**
+ * shows the new lidmaatschap field.
+ * @param unknown $key a string with the internal name of the field, either lidmaatschapparticulieren or lidmaatschapbedrijven
+ * @param unknown $fields either $fieldsParticulieren or $fieldsBedrijven.
+ * @param $bedragen an associative array with the custom field values for the field.
+ * @param $defaultValue the default value for the fiekd  
+ */
+function showLidmaatschapStaffels($key, $fields, $type) {
+	$style = $type == 'particulieren' ? "retail-only" : "organisation-only";
+	showInformationText($key, $fields, $style);
+	echo "<div class='formRow $key $style'>";
+	echo "   <div class='label above bijdrage'>";
+	echo $fields[$key]['name']; 
+	showRequired($key, $fields);
+	echo "</div>";
+	$bedragen = array();
+	$defaultValue = '';
+	$groupId = $_SESSION['groupIds'][$type];
+	$forNewResponse = getForNewResponse($groupId);
+	foreach ($forNewResponse['customFields'] as $customField) {
+		switch ($customField['internalName']) {
+			case $key:
+				foreach ($customField['possibleValues'] as $possibleValue) {
+					$bedragen[$possibleValue['internalName']] = $possibleValue['value'];
+				}
+				$defaultValue = $customField['defaultValue'] ?? '';
+				break;
+		}
+	}
+	echo "		<div class='value radio above' >";
+	/**
+	 * run over all possible values for lidmaatschap en place a radio button for each of them. 
+	 */
+	$counter = 1;
+	foreach ($bedragen as $bedragName => $bedragValue) {
+		echo "<input id='" . $bedragName . "' type='radio' name='" . $key . "' value='" . $bedragName . "'";
+		if (isset($_SESSION[$key])) {
+			if ($_SESSION[$key] == $bedragName) {
+				echo " checked"; // if selected previously, select it again
+			}
+		} else if (!empty($defaultValue)) {
+			if ($defaultValue == $bedragName) {
+				echo " checked"; //check default if nothing selected
+			}
+		} else if ($counter == 2) {
+			echo " checked"; //if none is selected and no default known, select second item.
+		};
+		echo ">";
+		echo "<label for='" . $bedragName . "'>" . $bedragValue . "</label>";
+		$counter++;
+	}
+	echo "	</div>";
+	echo "</div>";
+}
+
+/**
  * shows the lidmaatschap edits, either for particulieren or bedrijven. 
  * @param unknown $key a string with the internal name of the field, either lidmaatschapparticulieren or lidmaatschapbedrijven
  * @param unknown $fields either $fieldsParticulieren or $fieldsBedrijven.

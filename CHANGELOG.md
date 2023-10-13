@@ -1,4 +1,10 @@
 # Changelog
+## 1.6.0 (2023-09-28)
+### Improved
+<ul>
+	<li>Changes to profile fields.</li>
+</ul>
+
 ## 1.5.0 (2023-08-31)
 ### Added
 <ul>

@@ -99,7 +99,7 @@ label.error  {
 }
 
 /* Radio buttons */
-#optie1, #optie2, #optie3, #optie4 {
+#optie1, #optie2, #optie3, #optie4, .lidmaatschapsbijdrage input[type=radio] {
 	float: left;
 }
 
@@ -108,7 +108,7 @@ label.error  {
 	margin: 5px 0 0 0;
 }
 
-label[for=optie1], label[for=optie2], label[for=optie3], label[for=optie4]{
+label[for=optie1], label[for=optie2], label[for=optie3], label[for=optie4], .lidmaatschapsbijdrage label{
 	display: block;
 	margin: 0px 0px 10px 20px;
 	text-align: left;
