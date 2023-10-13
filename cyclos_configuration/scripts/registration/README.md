@@ -8,7 +8,7 @@ We use the Cyclos wizard functionality for the Circuit Nederland (C3NL) registra
 1. Type: Wizard
 - Name: registration Wizard
 - Included libraries: eMandates Library, utils Library
-- 'Script code executed when the wizard finishes': add // because this code block is required but we don't need it to do anything.
+- 'Script code executed when the wizard finishes': paste the contents of Wizard_Finish.groovy.
 - 'Script code executed on transitions between steps': paste the contents of Wizard_PrefillData_StepTransition.groovy.
 - 'Script code executed before the user is redirected to an external site': paste the contents of Wizard_ExternalRedirect.groovy.
 - 'Script code executed when the external site redirects the user back to Cyclos': paste the contents of Wizard_Callback.groovy.
