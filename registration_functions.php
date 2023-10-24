@@ -782,7 +782,7 @@ function showPasswordType($fieldName, $fieldsBedrijven, $fieldsParticulieren) {
 	}
 	
 	if ($fieldName == "login") {
-		echo "<h2>Inlogwachtwoord</h2>";
+		echo "<h2>Wachtwoord</h2>";
 	} else {
 		echo "<h2>" . $fieldName . "</h2>";
 	}

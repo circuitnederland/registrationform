@@ -201,7 +201,7 @@ include 'show_errors.php';
 						echo " checked";
 					}
 					echo ">";
-					echo "<label for='bedrijf'>bedrijf</label>";
+					echo "<label for='bedrijf'>zakelijk</label>";
 				}
 				if (!$noParticulieren) {
 					echo "<input id='particulier' type='radio' name='customerType' value='particulier'";
@@ -423,7 +423,7 @@ include 'show_errors.php';
 
 				case "lidmaatschapsbijdrage":
 					echo "<hr>";
-					echo "<h2>Lidmaatschapsbijdrage</h2>";
+					echo "<h2>Bijdrage</h2>";
 					showLidmaatschapStaffels($customField, $fieldsParticulieren, 'particulieren');
 					showLidmaatschapStaffels($customField, $fieldsBedrijven, 'bedrijven');
 					break;
@@ -432,7 +432,7 @@ include 'show_errors.php';
 					if ($lidmaatschapHeadingShown === False) {
 						$lidmaatschapHeadingShown = True;
 						echo "<hr>";
-						echo "<h2>Lidmaatschapsbijdrage</h2>";
+						echo "<h2>Bijdrage</h2>";
 					}
 					showLidmaatschap($customField, $fieldsParticulieren, $lidmaatschapsBedragenParticulier, $lidmaatschapsBedragenParticulierDefaultValue);
 					break;
@@ -441,7 +441,7 @@ include 'show_errors.php';
 					if ($lidmaatschapHeadingShown === False) {
 						$lidmaatschapHeadingShown = True;
 						echo "<hr>";
-						echo "<h2>Lidmaatschapsbijdrage</h2>";
+						echo "<h2>Bijdrage</h2>";
 					}
 					showLidmaatschap($customField, $fieldsBedrijven, $lidmaatschapsBedragenBedrijf, $lidmaatschapsBedragenBedrijfDefaultValue);
 					break;
@@ -492,19 +492,6 @@ include 'show_errors.php';
 				$linkAsText = "<a href='https://www.circuitnederland.nl/algemene-voorwaarden/' onclick='" . $onClickText . "'>" . lang('click.here') . "</a>";
 				echo sprintf(lang('field.agree'), $linkAsText);
 			?></label>
-		</div>	
-	</div>
-	
-	<div class="formRow checkbox">
-		<div class="value incasso">
-			<input id="checkincasso" type="checkbox" name="checkincasso" value="checkincasso" required
-				<?php 
-					if (isset($_SESSION["checkincasso"])) {
-						echo " checked"; 
-					}; 
-				?>
-			>
-			<label id="checkincassolabel" for="checkincasso"><?php echo lang('field.incasso')?></label>
 		</div>	
 	</div>
 	
