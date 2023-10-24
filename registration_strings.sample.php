@@ -105,7 +105,7 @@ function lang($phrase){
 			'title' 				=> "Inschrijfformulier",
 			'title.intro' 				=> "Inschrijfformulier United Economy",
 			'title.section1.title'	=> "Uw community kiezen",
-			'title.section1.text'	=> "Binnen United Economy kennen we verschillende communities (klik <a href='https://www.unitedeconomy.nl/lokale-communities/' target='blank'>hier</a> voor een beschrijving van de communities). Selecteer hieronder de community waar u lid van wilt worden. Als er nog geen community in uw regio actief is, selecteer dan 'United Economy'. Klik vervolgens op de blauwe knop onderaan deze pagina.",
+			'title.section1.text'	=> "Binnen United Economy kennen we verschillende communities (klik <a href='https://www.circuitnederland.nl/community/' target='blank'>hier</a> voor een beschrijving van de communities). Selecteer hieronder de community waar u lid van wilt worden. Als er nog geen community in uw regio actief is, selecteer dan 'United Economy'. Klik vervolgens op de blauwe knop onderaan deze pagina.",
 			'title.section2.title'	=> "Gegevens invullen",
 			'title.section2.text'	=> "Ga verder met de inschrijving door uw gegevens in te vullen.",
 			'title.section3.title'	=> "Inschrijfkosten betalen",
