@@ -1105,8 +1105,6 @@ function showLidmaatschapStaffels($key, $fields, $type) {
 			if ($defaultValue == $bedragName) {
 				echo " checked"; //check default if nothing selected
 			}
-		} else if ($counter == 2) {
-			echo " checked"; //if none is selected and no default known, select second item.
 		};
 		echo ">";
 		echo "<label for='" . $bedragName . "'>" . $bedragValue . "</label>";
