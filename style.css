@@ -99,8 +99,9 @@ label.error  {
 }
 
 /* Radio buttons */
-#optie1, #optie2, #optie3, #optie4, .lidmaatschapsbijdrage input[type=radio] {
+#optie1, #optie2, #optie3, #optie4, .lidmaatschapsbijdrage input[type=radio], .circ_payments input[type=radio] {
 	float: left;
+	margin-top: 2px;
 }
 
 /* Radio buttons */
@@ -108,7 +109,7 @@ label.error  {
 	margin: 5px 0 0 0;
 }
 
-label[for=optie1], label[for=optie2], label[for=optie3], label[for=optie4], .lidmaatschapsbijdrage label{
+label[for=optie1], label[for=optie2], label[for=optie3], label[for=optie4], .lidmaatschapsbijdrage label, .circ_payments label{
 	display: block;
 	margin: 0px 0px 10px 20px;
 	text-align: left;

@@ -421,6 +421,10 @@ include 'show_errors.php';
 					showCustomField($customField, $fieldsBedrijven, $fieldsParticulieren, "dateNl", "", 10, "placeholder='DD-MM-JJJJ'");
 					break;
 
+				case "circ_payments":
+					showAcceptPayments($customField, $fieldsBedrijven, 'bedrijven');
+					break;
+					
 				case "lidmaatschapsbijdrage":
 					echo "<hr>";
 					echo "<h2>Bijdrage</h2>";
