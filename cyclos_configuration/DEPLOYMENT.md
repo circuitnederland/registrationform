@@ -30,6 +30,15 @@ Actions:
 - Aankopen via bankoverschrijving
 - Incassomachtiging (User parameter checked)
 
+## Deployment Tasks for changes to registration form / migration to UnEc (i88)
+
+# Change fields
+
+- The display name of the profile field Lidmaatschapsbijdrage: change into 'Bijdrage'.
+- The information text of the profile fields Lidmaatschapsbijdrage, Website, Circulaire betalingen and K.v.K. nummer: {text as decided by stakeholders}.
+- Go to the Global administration > System > [User configuration] Password types > Login password. Change the 'Public description': {text as decided by stakeholders}.
+- In the Product 'Algemeen voor bedrijven (behalve UE)' change the permission 'My profile fields': set 'At registration' to yes for the 'Circulaire betalingen' field.
+
 ## Deployment Tasks for release 1.6.0 (changes to profile fields (i84))
 
 # Scripts

@@ -547,7 +547,7 @@ class Utils{
         idealRecord.create(user, consName, iban, bic, paymentId, method, null, totalAmount, paid, source)
         def usr = binding.scriptHelper.wrap(user)
         if (!isIbansEqual(usr.iban, iban)){
-            sendMailToAdmin("Circuit Nederland: different bank account", prepareMessage("differentBankAccount", ["user": usr.name]), true)
+            sendMailToAdmin("United Economy: different bank account", prepareMessage("differentBankAccount", ["user": usr.name]), true)
         }
     }
 
@@ -568,14 +568,14 @@ class Utils{
 	 * Sends an e-mail to the admin with the given message and subject.
 	 */
     public void sendMailToAdmin(String subject, String msg, Boolean isOnCommit = false) {
-        sendMail("Admin Circuit Nederland", auth.adminMailAddress, subject, msg, isOnCommit)
+        sendMail("Admin United Economy", auth.adminMailAddress, subject, msg, isOnCommit)
     }
 
     /**
      * Sends an e-mail to the tech team with the given message and subject.
      */
     public void sendMailToTechTeam(String subject, String msg, Boolean isOnCommit = false) {
-        sendMail("Tech Team Circuit Nederland", binding.scriptParameters.techTeamMail, subject, msg, isOnCommit)
+        sendMail("Tech Team United Economy", binding.scriptParameters.techTeamMail, subject, msg, isOnCommit)
     }
 
     /**
