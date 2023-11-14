@@ -21,7 +21,7 @@ $_SESSION['backURL'] = $_SERVER['REQUEST_URI'];
  * ways: 
  * 1) First, the form expects community specification via the url. In this way each 
  * community can make their own link to the registration form:
- * E.g.: https://circuitnederland.nl/register.php?community=Utrecht
+ * E.g.: https://unitedeconomy.nl/registreren/register.php?community=Utrecht
  * 
  * 2) If no community is specified via the url, then the form expects that it is directed
  * to here from index.php. It tries to read the posted data from 
@@ -492,8 +492,8 @@ include 'show_errors.php';
 				?>
 			>
 			<label id="checkincassolabel" for="checkVoorwaarde"><?php
-				$onClickText = 'return popitup("https://www.circuitnederland.nl/algemene-voorwaarden/", "Voorwaarden")';
-				$linkAsText = "<a href='https://www.circuitnederland.nl/algemene-voorwaarden/' onclick='" . $onClickText . "'>" . lang('click.here') . "</a>";
+				$onClickText = 'return popitup("https://www.unitedeconomy.nl/downloads/", "Voorwaarden")';
+				$linkAsText = "<a href='https://www.unitedeconomy.nl/downloads/' onclick='" . $onClickText . "'>" . lang('click.here') . "</a>";
 				echo sprintf(lang('field.agree'), $linkAsText);
 			?></label>
 		</div>	
