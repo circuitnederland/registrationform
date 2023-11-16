@@ -30,6 +30,20 @@ Actions:
 - Aankopen via bankoverschrijving
 - Incassomachtiging (User parameter checked)
 
+## Deployment Tasks for changes to registration form / migration to UnEc - Round 3 (i88)
+
+# Change mail addresses from xx@circuitnederland.nl to xx@unitedeconomy.nl
+- Mollie system record: Reports > [System records] 'Molly configuration (keep safe)': change the 'Email adres weer te geven in foutmelding', 'Schermmelding aan bezoeker bij openen link activatiemail zonder betaling' and 'Tekst voor het geval Mollie onbereikbaar is'.
+- EMandate: System > [System records] Technical details: change the 'Mail admin' and the 'Mail techTeam'.
+
+# Add ip of UnEc server to ip whitelist
+- System > [System configuration] Configuration > Default for NL > Tab Channels > Web services: Add the ip-address of the UnEc server to the 'IP address whitelist'.
+
+# Change the location of the registration form
+- Move the registration form files (php/css/js) to the UnEc server (test or prd).
+- Add a redirect from the old C3NL location to the new UnEc location.
+- Mollie system record: Reports > [System records] 'Molly configuration (keep safe)': change the 'BasisURL van het registratieformulier' to the new location.
+
 ## Deployment Tasks for changes to registration form / migration to UnEc (i88)
 
 # Change fields
