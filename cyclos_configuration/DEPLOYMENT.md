@@ -30,7 +30,7 @@ Actions:
 - Aankopen via bankoverschrijving
 - Incassomachtiging (User parameter checked)
 
-## Deployment Tasks for changes to registration form / migration to UnEc - Round 3 (i88)
+## Deployment Tasks for changes to registration form / migration to UnEc - Round 3 (i88) part of release 1.7.0
 
 # Change mail addresses from xx@circuitnederland.nl to xx@unitedeconomy.nl
 - Mollie system record: Reports > [System records] 'Molly configuration (keep safe)': change the 'Email adres weer te geven in foutmelding', 'Schermmelding aan bezoeker bij openen link activatiemail zonder betaling' and 'Tekst voor het geval Mollie onbereikbaar is'.
@@ -44,7 +44,7 @@ Actions:
 - Add a redirect from the old C3NL location to the new UnEc location.
 - Mollie system record: Reports > [System records] 'Molly configuration (keep safe)': change the 'BasisURL van het registratieformulier' to the new location.
 
-## Deployment Tasks for changes to registration form / migration to UnEc (i88)
+## Deployment Tasks for changes to registration form / migration to UnEc (i88) part of release 1.7.0
 
 # Change fields
 
