@@ -492,8 +492,8 @@ include 'show_errors.php';
 				?>
 			>
 			<label id="checkincassolabel" for="checkVoorwaarde"><?php
-				$onClickText = 'return popitup("https://www.unitedeconomy.nl/downloads/", "Voorwaarden")';
-				$linkAsText = "<a href='https://www.unitedeconomy.nl/downloads/' onclick='" . $onClickText . "'>" . lang('click.here') . "</a>";
+				$onClickText = 'return popitup("https://www.unitedeconomy.nl/wp-content/uploads/2023/11/Algemene-Voorwaarden-versie-14-november-202325d.pdf", "Voorwaarden")';
+				$linkAsText = "<a href='https://www.unitedeconomy.nl/wp-content/uploads/2023/11/Algemene-Voorwaarden-versie-14-november-202325d.pdf' onclick='" . $onClickText . "'>" . lang('click.here') . "</a>";
 				echo sprintf(lang('field.agree'), $linkAsText);
 			?></label>
 		</div>	
