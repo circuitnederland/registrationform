@@ -1,4 +1,10 @@
 # Changelog
+## 1.7.0 (2023-11-24)
+### Changed
+<ul>
+	<li>Migration from Circuit Nederland to United Economy.</li>
+</ul>
+
 ## 1.6.0 (2023-09-28)
 ### Improved
 <ul>

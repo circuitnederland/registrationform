@@ -21,7 +21,7 @@ $_SESSION['backURL'] = $_SERVER['REQUEST_URI'];
  * ways: 
  * 1) First, the form expects community specification via the url. In this way each 
  * community can make their own link to the registration form:
- * E.g.: https://circuitnederland.nl/register.php?community=Utrecht
+ * E.g.: https://unitedeconomy.nl/registreren/register.php?community=Utrecht
  * 
  * 2) If no community is specified via the url, then the form expects that it is directed
  * to here from index.php. It tries to read the posted data from 
@@ -201,7 +201,7 @@ include 'show_errors.php';
 						echo " checked";
 					}
 					echo ">";
-					echo "<label for='bedrijf'>bedrijf</label>";
+					echo "<label for='bedrijf'>zakelijk</label>";
 				}
 				if (!$noParticulieren) {
 					echo "<input id='particulier' type='radio' name='customerType' value='particulier'";
@@ -421,9 +421,13 @@ include 'show_errors.php';
 					showCustomField($customField, $fieldsBedrijven, $fieldsParticulieren, "dateNl", "", 10, "placeholder='DD-MM-JJJJ'");
 					break;
 
+				case "circ_payments":
+					showAcceptPayments($customField, $fieldsBedrijven, 'bedrijven');
+					break;
+					
 				case "lidmaatschapsbijdrage":
 					echo "<hr>";
-					echo "<h2>Lidmaatschapsbijdrage</h2>";
+					echo "<h2>Bijdrage</h2>";
 					showLidmaatschapStaffels($customField, $fieldsParticulieren, 'particulieren');
 					showLidmaatschapStaffels($customField, $fieldsBedrijven, 'bedrijven');
 					break;
@@ -432,7 +436,7 @@ include 'show_errors.php';
 					if ($lidmaatschapHeadingShown === False) {
 						$lidmaatschapHeadingShown = True;
 						echo "<hr>";
-						echo "<h2>Lidmaatschapsbijdrage</h2>";
+						echo "<h2>Bijdrage</h2>";
 					}
 					showLidmaatschap($customField, $fieldsParticulieren, $lidmaatschapsBedragenParticulier, $lidmaatschapsBedragenParticulierDefaultValue);
 					break;
@@ -441,7 +445,7 @@ include 'show_errors.php';
 					if ($lidmaatschapHeadingShown === False) {
 						$lidmaatschapHeadingShown = True;
 						echo "<hr>";
-						echo "<h2>Lidmaatschapsbijdrage</h2>";
+						echo "<h2>Bijdrage</h2>";
 					}
 					showLidmaatschap($customField, $fieldsBedrijven, $lidmaatschapsBedragenBedrijf, $lidmaatschapsBedragenBedrijfDefaultValue);
 					break;
@@ -488,23 +492,10 @@ include 'show_errors.php';
 				?>
 			>
 			<label id="checkincassolabel" for="checkVoorwaarde"><?php
-				$onClickText = 'return popitup("https://www.circuitnederland.nl/algemene-voorwaarden/", "Voorwaarden")';
-				$linkAsText = "<a href='https://www.circuitnederland.nl/algemene-voorwaarden/' onclick='" . $onClickText . "'>" . lang('click.here') . "</a>";
+				$onClickText = 'return popitup("https://www.unitedeconomy.nl/wp-content/uploads/2023/11/Algemene-Voorwaarden-versie-14-november-202325d.pdf", "Voorwaarden")';
+				$linkAsText = "<a href='https://www.unitedeconomy.nl/wp-content/uploads/2023/11/Algemene-Voorwaarden-versie-14-november-202325d.pdf' onclick='" . $onClickText . "'>" . lang('click.here') . "</a>";
 				echo sprintf(lang('field.agree'), $linkAsText);
 			?></label>
-		</div>	
-	</div>
-	
-	<div class="formRow checkbox">
-		<div class="value incasso">
-			<input id="checkincasso" type="checkbox" name="checkincasso" value="checkincasso" required
-				<?php 
-					if (isset($_SESSION["checkincasso"])) {
-						echo " checked"; 
-					}; 
-				?>
-			>
-			<label id="checkincassolabel" for="checkincasso"><?php echo lang('field.incasso')?></label>
 		</div>	
 	</div>
 	

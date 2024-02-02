@@ -54,7 +54,7 @@ class Constants {
     static final Map<String, String> techMessages = [
         topupSuccess: "Opwaarderen is gelukt. Je circulaire geld is bijgeschreven.",
         topupPending: "Opwaarderen is in behandeling. Zodra je betaling is verwerkt, worden je Circulaire Euro's bijgeschreven.",
-        topupFailed: "Opwaarderen is niet gelukt. Mogelijke oorzaken: je hebt de betaling via iDEAL geannuleerd of wij hebben voor de veiligheid, omdat we te lang geen activiteit van jouw kant merkten, automatisch het proces afgebroken. Als dit volgens jou een andere oorzaak betreft, neem dan alsjeblieft contact op met de administratie via info@circuitnederland.nl of 030-2314314.",
+        topupFailed: "Opwaarderen is niet gelukt. Mogelijke oorzaken: je hebt de betaling via iDEAL geannuleerd of wij hebben voor de veiligheid, omdat we te lang geen activiteit van jouw kant merkten, automatisch het proces afgebroken. Als dit volgens jou een andere oorzaak betreft, neem dan alsjeblieft contact op met de administratie via info@unitedeconomy.nl of 030-2314314.",
 		paymentTooOld: "De payment met paymentID #payment_id# van gebruiker #user# is langer geleden aangemaakt dan gebruikelijk. De activatie of opwaardeer-actie van de gebruiker is hierdoor mislukt.",
 		incorrectAmount: "Het door gebruiker #user# betaalde bedrag (#paidAmount#) in de payment (paymentID: #payment_id#) is anders dan het bedrag dat hij/zij zou moeten betalen (#expectedAmount#). De activatie of opwaardeer-actie van de gebruiker is hierdoor mislukt.",
 		wrongSource: "De payment met paymentId #payment_id# van gebruiker #user# heeft een verkeerde source in de metadata: '#source#' in plaats van 'registration' of 'topup'. De activatie of opwaardeer-actie van de gebruiker is hierdoor mislukt.",
@@ -65,8 +65,8 @@ class Constants {
         reusedIdealDetailRecord: "Het idealDetail userrecord voor user #user# met paymentId #payment_id# was al gevuld. Dit duidt op een poging om het opwaarderen te misbruiken.\r\n\r\nRecord inhoud: #idealDetailInfo#.",
         idealDetailRecordModified: "Het idealDetail userrecord voor user #user# met paymentId #payment_id# was ofwel gewijzigd ofwel niet aangemaakt door de user. Dit duidt op een poging om het opwaarderen te misbruiken.\r\n\r\nRecord inhoud: #idealDetailInfo#.",
 		webhookError: "Er is een exception opgetreden in het mollieWebhook script:\r\n\r\n#error#\r\n\r\nGegevens op dit moment:\r\nIP-adres: #ipAddress#\r\npayment id van Mollie: #paymentIdFromMollie#\r\nuserId: #user#",
-		generalError: "Er is iets misgegaan#moment#. Wil je alsjeblieft contact opnemen met de administratie via info@circuitnederland.nl of 030-2314314?",
-		generalErrorWithRetry: "Er is iets misgegaan#moment#. Wil je het alsjeblieft nog een keer proberen en als het probleem blijft dan contact opnemen met de administratie via info@circuitnederland.nl of 030-2314314?",
+		generalError: "Er is iets misgegaan#moment#. Wil je alsjeblieft contact opnemen met de administratie via info@unitedeconomy.nl of 030-2314314?",
+		generalErrorWithRetry: "Er is iets misgegaan#moment#. Wil je het alsjeblieft nog een keer proberen en als het probleem blijft dan contact opnemen met de administratie via info@unitedeconomy.nl of 030-2314314?",
 		techError: "Er is een exception opgetreden in een Cyclos script:\r\n\r\n#error#"
 	]
 }
@@ -547,7 +547,7 @@ class Utils{
         idealRecord.create(user, consName, iban, bic, paymentId, method, null, totalAmount, paid, source)
         def usr = binding.scriptHelper.wrap(user)
         if (!isIbansEqual(usr.iban, iban)){
-            sendMailToAdmin("Circuit Nederland: different bank account", prepareMessage("differentBankAccount", ["user": usr.name]), true)
+            sendMailToAdmin("United Economy: different bank account", prepareMessage("differentBankAccount", ["user": usr.name]), true)
         }
     }
 
@@ -568,14 +568,14 @@ class Utils{
 	 * Sends an e-mail to the admin with the given message and subject.
 	 */
     public void sendMailToAdmin(String subject, String msg, Boolean isOnCommit = false) {
-        sendMail("Admin Circuit Nederland", auth.adminMailAddress, subject, msg, isOnCommit)
+        sendMail("Admin United Economy", auth.adminMailAddress, subject, msg, isOnCommit)
     }
 
     /**
      * Sends an e-mail to the tech team with the given message and subject.
      */
     public void sendMailToTechTeam(String subject, String msg, Boolean isOnCommit = false) {
-        sendMail("Tech Team Circuit Nederland", binding.scriptParameters.techTeamMail, subject, msg, isOnCommit)
+        sendMail("Tech Team United Economy", binding.scriptParameters.techTeamMail, subject, msg, isOnCommit)
     }
 
     /**

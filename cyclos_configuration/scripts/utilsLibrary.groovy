@@ -79,14 +79,14 @@ class Utils {
 	 */
     public void sendMailToAdmin(String subject, String msg, Boolean isOnCommit = false, Boolean isHtml = false) {
         msg = "${dynamicMessage('adminMailSalutation')}\n\n${msg}\n\n${dynamicMessage('adminMailClosing')}"
-        sendMail("Admin Circuit Nederland", techDetail('mailAdmin'), subject, msg, isOnCommit, isHtml)
+        sendMail("Admin United Economy", techDetail('mailAdmin'), subject, msg, isOnCommit, isHtml)
     }
 
     /**
      * Sends an e-mail to the tech team with the given message and subject.
      */
     public void sendMailToTechTeam(String subject, String msg, Boolean isOnCommit = false) {
-        sendMail("Tech Team Circuit Nederland", techDetail('mailTechTeam'), subject, msg, isOnCommit)
+        sendMail("Tech Team United Economy", techDetail('mailTechTeam'), subject, msg, isOnCommit)
     }
 
     /**

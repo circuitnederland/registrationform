@@ -64,12 +64,12 @@ include 'show_errors.php';
 				<?php
 					/**
 					 * Create a drop down option for each community. Communities are retrieved from 
-					 * group names ending in " - particulieren"  or " - bedrijven". Circuit Nederland
+					 * group names ending in " - particulieren"  or " - bedrijven". United Economy
 					 * will be selected as default community.
 					 */
 					foreach ($communitiesFromServer as $community) {
-						if ($community == "Circuit Nederland") {
-							echo "<option selected='selected' class='selectOption' value='Circuit Nederland'>Circuit Nederland</option>";
+						if ($community == "United Economy") {
+							echo "<option selected='selected' class='selectOption' value='United Economy'>United Economy</option>";
 						} else {
 							echo "<option class='selectOption' value='" . $community . "'" .">" . $community . "</option>";
 						}
