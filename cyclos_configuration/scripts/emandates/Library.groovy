@@ -62,6 +62,7 @@ import net.emandates.merchant.library.CoreCommunicator
 import net.emandates.merchant.library.NewMandateRequest
 import net.emandates.merchant.library.SequenceType
 import net.emandates.merchant.library.StatusRequest
+import net.emandates.merchant.library.StatusResponse
 import net.emandates.merchant.library.DirectoryResponse.DebtorBank
 
 @TypeChecked
@@ -380,6 +381,19 @@ class EMandates {
 		// Now we need to check the status and update the record with this information.
 		return updateStatus(record)
 	}
+
+	/**
+	 * Perform the status request and return the response.
+	 */
+	StatusResponse retrieveStatus(String transactionId) {
+		StatusRequest req = new StatusRequest(transactionId)
+		StatusResponse resp = coreComm.getStatus(req)
+		if (resp.isError) {
+			throw new ValidationException(
+				resp.errorResponse?.consumerMessage ?: resp.errorResponse?.errorMessage)
+		}
+		return resp
+	}
 	
 	/**
 	 * Calls the web service to update the eMandate status for the given record
@@ -393,14 +407,9 @@ class EMandates {
 			return fields
 		}
 		
-		// Perform the request
+		// Retrieve the emandate status
 		def transactionId = fields.transactionId as String
-		def req = new StatusRequest(transactionId)
-		def resp = coreComm.getStatus(req)
-		if (resp.isError) {
-			throw new ValidationException(
-				resp.errorResponse?.consumerMessage ?: resp.errorResponse?.errorMessage)
-		}
+		def resp = retrieveStatus(transactionId)
 		
 		// Update the record fields
 		fields.status = resp.status.toLowerCase()
