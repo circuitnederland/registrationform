@@ -415,17 +415,21 @@ class EMandates {
 			fields.statusDate = resp.statusDateTimestamp.toGregorianCalendar().time
 		}
 		fields.rawMessage = resp.rawMessage
-		
+
+		// Update the user profile.
+		updateUserIBAN(fields)
+
 		return fields
 	}
 
 	/**
 	 * Store the IBAN from the eMandate in the user profile.
+	 * Note: in case we come here in the context of the registration wizard, there is no user yet and we simply don't do anything.
 	 */
 	void updateUserIBAN(Map fields) {
 		String status = (fields.status as CustomFieldPossibleValue).internalName
-		if ('success' != status || !fields.owner instanceof User) {
-			// The eMandate does not have a success status, or something is wrong with the user, don't try to update the IBAN and just return.
+		if ('success' != status || fields.owner == null || !fields.owner instanceof User) {
+			// The eMandate does not have a success status, or the owner is not known yet or not a user object, don't try to update the IBAN and just return.
 			return
 		}
 

@@ -1,7 +1,6 @@
 import org.cyclos.entities.system.CustomFieldPossibleValue
 import org.cyclos.entities.system.ExternalRedirectExecution
 import org.cyclos.entities.utils.EntityBackedParameterStorage
-import org.cyclos.model.ValidationException
 import org.cyclos.model.utils.RequestInfo
 
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -14,9 +13,6 @@ def eMandates = new EMandates(binding)
 def storage = new EntityBackedParameterStorage(objectMapper, execution)
 
 def fields = eMandates.callback(storage, transactionId)
-
-// Update the IBAN in the user profile.
-eMandates.updateUserIBAN(fields)
 
 // Inform the user about the result and return to the buy credits main operation screen (which only works in the app, on main the user returns to home).
 String status = (fields.status as CustomFieldPossibleValue).internalName
