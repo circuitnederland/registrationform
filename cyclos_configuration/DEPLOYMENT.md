@@ -30,6 +30,37 @@ Actions:
 - Aankopen via bankoverschrijving
 - Incassomachtiging (User parameter checked)
 
+## Deployment Tasks for next release
+
+# System record types
+
+## Text Messages
+
+Go to System > [System configuration] 'Record types' > 'Text messages' > Tab 'Fields' and create a new field:  
+- Display name: Transactie aan ontvanger geblokkeerd  
+- Internal name: circ_payment_blocked  
+- Data type: Multiple line text  
+- Information text: {As decided by business}  
+- Ignore value sanitization: Yes
+
+Go to System > [System records] 'Text messages' and fill in the new field with the message text as decided by business.
+
+# Scripts
+
+## Extension point script
+Go to System > [Tools] Scripts and add a new Script of type 'Extension point':  
+- Name: blockTransactionToNonTradingUser  
+- Included libraries: utils Library  
+- Script code executed when the data is validated, but not yet saved: paste the contents of scripts/extensionpoint_blockTransactionToNonTradingUser.groovy.
+
+# Extension points
+
+Go to System > [Tools] Extension points and add a new Extension Point of type Transaction:  
+- Name: block transactions to non-trading users  
+- Transfer types: Handelsrekening - Handelstransactie  
+- Events: Preview  
+- Scripts: blockTransactionToNonTradingUser  
+
 ## Deployment Tasks for changes to registration form / migration to UnEc - Round 3 (i88) part of release 1.7.0
 
 # Change mail addresses from xx@circuitnederland.nl to xx@unitedeconomy.nl
