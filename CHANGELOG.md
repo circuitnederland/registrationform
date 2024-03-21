@@ -1,4 +1,16 @@
 # Changelog
+## 1.8.0 (2024-03-21)
+### Added
+<ul>
+	<li>Added extension point to prevent payments to users who don't use their account.</li>
+</ul>
+
+### Changed
+<ul>
+	<li>Improvements to emandates functionality.</li>
+	<li>Adjusted Agreements URL in registration form.</li>
+</ul>
+
 ## 1.7.0 (2023-11-24)
 ### Changed
 <ul>
