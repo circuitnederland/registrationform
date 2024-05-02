@@ -29,15 +29,15 @@ class BuyCredits {
     String topupMsg
     String bankMsg
     
-    BuyCredits(Binding binding, User user) {
+    BuyCredits(Binding binding, User user, Utils utils) {
         this.binding = binding
         this.user = user
+        this.utils = utils
         init()
     }
 
     void init() {
         scriptHelper = binding.variables.scriptHelper as ScriptHelper
-        utils = new Utils(binding)
         vars = [:]
         topupCode = determineTopupSituation()
         String eMandateSituation = ('none' == topupCode) ? 'issueEMandate' : 'manageEMandate'
@@ -118,32 +118,43 @@ class BuyCredits {
     }
 }
 
-User user = binding.user
-BuyCredits buyCredits = new BuyCredits(binding, user)
-CustomOperation eMandateOperation = entityManagerHandler.find(CustomOperation, 'eMandate')
-eMandateOperation?.label = buyCredits.emandateBtnLabel
-
 String html = ''
-html += "<div>${buyCredits.topupMsg}</div><br>"
-html += "<div>${buyCredits.bankMsg}</div><br>"
+Long userId = null
+String topupCode = ''
+Utils utils = new Utils(binding)
+Boolean isEMTurnedOff = utils.techDetailBoolean('ddTurnedOff')
+if ( isEMTurnedOff ) {
+    // If emandate functionality is turned off temporarily, show the message explaining this is turned off.
+    html = "<div>${utils.dynamicMessage('bcEMandatesTurnedOff')}</div><br>"
+} else {
+    User user = binding.user
+    BuyCredits buyCredits = new BuyCredits(binding, user, utils)
+    CustomOperation eMandateOperation = entityManagerHandler.find(CustomOperation, 'eMandate')
+    eMandateOperation?.label = buyCredits.emandateBtnLabel
+    userId = user.id
+    topupCode = buyCredits.topupCode
+
+    html = "<div>${buyCredits.topupMsg}</div><br>"
+    html += "<div>${buyCredits.bankMsg}</div><br>"
+}
 
 return [
     content: html,
     actions: [
         topupViaDirectDebit: [
             parameters: [
-                user: user.id
+                user: userId
             ],
-            enabled: buyCredits.topupCode == 'success'
+            enabled: ! isEMTurnedOff && topupCode == 'success'
         ],
         buyViaBank: [
             enabled: true
         ],
         eMandate: [
             parameters: [
-                user: user.id
+                user: userId
             ],
-            enabled: true
+            enabled: ! isEMTurnedOff
         ]
     ]
 ]
