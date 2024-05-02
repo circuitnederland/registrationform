@@ -30,6 +30,31 @@ Actions:
 - Aankopen via bankoverschrijving
 - Incassomachtiging (User parameter checked)
 
+## Deployment Tasks for next release
+
+# System record types
+
+## Text Messages
+
+Go to System > [System configuration] 'Record types' > 'Technical details' > Tab 'Fields' and create a new field:  
+- Display name: Turn off  
+- Internal name: ddTurnedOff  
+- Data type: Boolean  
+- Information text: {As decided by business}  
+
+After adding the new field, go to the Sections tab, open the 'Direct Debit' section and add the new field in the 'Fields in this section' property.  
+
+Go to System > [System configuration] 'Record types' > 'Text messages' > Tab 'Fields' and create a new field:  
+- Display name: eMandates turned off  
+- Internal name: bcEMandatesTurnedOff  
+- Data type: Multiple line text  
+- Ignore value sanitization: Yes
+
+After adding the new field, go to the Sections tab, open the 'Buy credits' section and add the new field in the 'Fields in this section' property.  
+Move the 'Buy Credits' section to the top of the three sections, so it is easier to find. Move the new field to right under the 'Buy via bank' field.
+
+Go to System > [System records] 'Text messages' and fill in the new field with the message text as decided by business.
+
 ## Deployment Tasks for release 1.8.0
 
 # System record types
