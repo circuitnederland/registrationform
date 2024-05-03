@@ -59,6 +59,22 @@ Go to System > [System records] 'Text messages' and fill in the new field with t
 
 Go to Content > [Content management] Application translation > Circuit Nederland. Filter on 'Translation key': 'addressFields.CITY'. Change the Current translation of both 'MOBILE.ADDRESSES.addressFields.CITY' and 'USERS.ADDRESSES.addressFields.CITY' from 'Woonplaats' into 'Plaats'.
 
+## Profile fields
+
+Go to System > [User configuration] Profile fields > Bijdrage. On the 'Possible values' tab add four new options:  
+- Value: € 0,01 - Account zonder Utrechtse Euro betaalrekening (internal name: utrechtseeuro_bedrijven_0)  
+- Value: € 50 - bedrijven < 10 werknemers (internal name: utrechtseeuro_bedrijven_1)  
+- Value: € 150 - bedrijven < 50 werknemers (internal name: utrechtseeuro_bedrijven_2)  
+- Value: € 300 - bedrijven > 50 werknemers (internal name: utrechtseeuro_bedrijven_3)  
+
+Temporarily remove the validation on the Bijdrage profile field: set the Load values script from 'contribution scales' to 'None' on the Bijdrage profile field.  
+Go to Users > [Management] Bulk actions. Click 'Run new' > 'Change custom field value'. Run three bulk actions, each time with Group set to 'Utrechtse euro Bedrijven', but with different options for the 'Bijdrage':  
+- Filter 'Bijdrage' on the first option '€ 50 - bedrijven < 10 werknemers' > Set Custom field 'Bijdrage' to the '€ 50 - bedrijven < 10 werknemers' more below.  
+- Filter 'Bijdrage' on the first option '€ 150 - bedrijven < 50 werknemers' > Set Custom field 'Bijdrage' to the '€ 150 - bedrijven < 50 werknemers' more below.  
+- Filter 'Bijdrage' on the first option '€ 300 - bedrijven > 50 werknemers' > Set Custom field 'Bijdrage' to the '€ 300 - bedrijven > 50 werknemers' more below.
+
+Put the validation on the Bijdrage profile field back: set the Load values script back from 'None' to 'contribution scales' on the Bijdrage profile field.
+
 ## Deployment Tasks for release 1.8.0
 
 # System record types
