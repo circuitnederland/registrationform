@@ -55,6 +55,10 @@ Move the 'Buy Credits' section to the top of the three sections, so it is easier
 
 Go to System > [System records] 'Text messages' and fill in the new field with the message text as decided by business.
 
+## Application translations
+
+Go to Content > [Content management] Application translation > Circuit Nederland. Filter on 'Translation key': 'addressFields.CITY'. Change the Current translation of both 'MOBILE.ADDRESSES.addressFields.CITY' and 'USERS.ADDRESSES.addressFields.CITY' from 'Woonplaats' into 'Plaats'.
+
 ## Deployment Tasks for release 1.8.0
 
 # System record types
