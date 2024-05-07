@@ -1,4 +1,16 @@
 # Changelog
+## 1.9.0 (2024-05-07)
+### Added
+<ul>
+	<li>Added possibility to temporarily turn emandate functionality off in case of problems.</li>
+	<li>Added custom contribution scale for Utrecht companies including 1 cent option for users not using their account.</li>
+</ul>
+
+### Changed
+<ul>
+	<li>Textual changes to registration form and profile field.</li>
+</ul>
+
 ## 1.8.0 (2024-03-21)
 ### Added
 <ul>

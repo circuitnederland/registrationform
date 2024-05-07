@@ -30,7 +30,7 @@ Actions:
 - Aankopen via bankoverschrijving
 - Incassomachtiging (User parameter checked)
 
-## Deployment Tasks for next release
+## Deployment Tasks for release 1.9.0
 
 # System record types
 
