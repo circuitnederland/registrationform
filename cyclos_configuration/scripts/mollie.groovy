@@ -398,6 +398,8 @@ class Utils{
 		// so take the part between the euro sign and the dash (-) to determine the contribution amount.
 		String contrib = usr.lidmaatschapsbijdrage.value
 		String amount = contrib.substring(2, contrib.indexOf(" - "))
+        // If the amount is formatted with comma as cent separator, change this to a dot.
+        amount = amount.replace(",", ".")
 		return new BigDecimal(amount)
 	}
 
