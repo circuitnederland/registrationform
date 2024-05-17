@@ -1,4 +1,34 @@
 # Changelog
+## 1.9.0 (2024-05-07)
+### Added
+<ul>
+	<li>Added possibility to temporarily turn emandate functionality off in case of problems.</li>
+	<li>Added custom contribution scale for Utrecht companies including 1 cent option for users not using their account.</li>
+</ul>
+
+### Changed
+<ul>
+	<li>Textual changes to registration form and profile field.</li>
+</ul>
+
+## 1.8.0 (2024-03-21)
+### Added
+<ul>
+	<li>Added extension point to prevent payments to users who don't use their account.</li>
+</ul>
+
+### Changed
+<ul>
+	<li>Improvements to emandates functionality.</li>
+	<li>Adjusted Agreements URL in registration form.</li>
+</ul>
+
+## 1.7.0 (2023-11-24)
+### Changed
+<ul>
+	<li>Migration from Circuit Nederland to United Economy.</li>
+</ul>
+
 ## 1.6.0 (2023-09-28)
 ### Improved
 <ul>

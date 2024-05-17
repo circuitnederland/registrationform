@@ -79,14 +79,14 @@ class Utils {
 	 */
     public void sendMailToAdmin(String subject, String msg, Boolean isOnCommit = false, Boolean isHtml = false) {
         msg = "${dynamicMessage('adminMailSalutation')}\n\n${msg}\n\n${dynamicMessage('adminMailClosing')}"
-        sendMail("Admin Circuit Nederland", techDetail('mailAdmin'), subject, msg, isOnCommit, isHtml)
+        sendMail("Admin United Economy", techDetail('mailAdmin'), subject, msg, isOnCommit, isHtml)
     }
 
     /**
      * Sends an e-mail to the tech team with the given message and subject.
      */
     public void sendMailToTechTeam(String subject, String msg, Boolean isOnCommit = false) {
-        sendMail("Tech Team Circuit Nederland", techDetail('mailTechTeam'), subject, msg, isOnCommit)
+        sendMail("Tech Team United Economy", techDetail('mailTechTeam'), subject, msg, isOnCommit)
     }
 
     /**
@@ -124,14 +124,19 @@ class Utils {
      * If the field does not exist, returns the scriptParameter with the given code or the code itself.
      */
     @TypeChecked(SKIP)
-    private String _getRecordData(String recordTypeInternalName, String code) {
+    private Object _getRecordData(String recordTypeInternalName, String code) {
         // Only look up the record data if we have not done that already.
         if (!recordData[recordTypeInternalName]) {
             def recordType = binding.entityManagerHandler.find(SystemRecordType, recordTypeInternalName)
             def record = binding.recordService.getSingleFormRecord(recordType)
             recordData[recordTypeInternalName] = binding.scriptHelper.wrap(record)
         }
-        return recordData[recordTypeInternalName][code] ?: binding.scriptParameters[code] ?: code
+        // If the field exists, return its value. Use containsKey(), because a boolean field value might be Groovy-false.
+        if ( recordData[recordTypeInternalName].containsKey(code) ) {
+            return recordData[recordTypeInternalName][code]
+        }
+        // The field was not found, return either a scriptParameter with the same name, or the code itself.
+        return binding.scriptParameters[code] ?: code
     }
 
     /**
@@ -140,7 +145,7 @@ class Utils {
      * If neither exists, the code itself is returned.
      */
     String dynamicMessage(String code, Map<String, Object> vars = null) {
-        String messageHolder = _getRecordData('textMessages', code)
+        String messageHolder = (String) _getRecordData('textMessages', code)
         if (!vars) {
             return messageHolder
         }
@@ -153,6 +158,14 @@ class Utils {
      * If neither exists, the code itself is returned.
      */
     String techDetail(String code) {
-        return _getRecordData('techDetails', code)
+        return (String) _getRecordData('techDetails', code)
+    }
+
+    /**
+     * Returns the technical detail boolean with the given code, taken from the technical details system record or the scriptparameters.
+     * If neither exists, the code itself is returned.
+     */
+    Boolean techDetailBoolean(String code) {
+        return (Boolean) _getRecordData('techDetails', code)
     }
 }

@@ -62,6 +62,7 @@ import net.emandates.merchant.library.CoreCommunicator
 import net.emandates.merchant.library.NewMandateRequest
 import net.emandates.merchant.library.SequenceType
 import net.emandates.merchant.library.StatusRequest
+import net.emandates.merchant.library.StatusResponse
 import net.emandates.merchant.library.DirectoryResponse.DebtorBank
 
 @TypeChecked
@@ -380,6 +381,19 @@ class EMandates {
 		// Now we need to check the status and update the record with this information.
 		return updateStatus(record)
 	}
+
+	/**
+	 * Perform the status request and return the response.
+	 */
+	StatusResponse retrieveStatus(String transactionId) {
+		StatusRequest req = new StatusRequest(transactionId)
+		StatusResponse resp = coreComm.getStatus(req)
+		if (resp.isError) {
+			throw new ValidationException(
+				resp.errorResponse?.consumerMessage ?: resp.errorResponse?.errorMessage)
+		}
+		return resp
+	}
 	
 	/**
 	 * Calls the web service to update the eMandate status for the given record
@@ -393,14 +407,9 @@ class EMandates {
 			return fields
 		}
 		
-		// Perform the request
+		// Retrieve the emandate status
 		def transactionId = fields.transactionId as String
-		def req = new StatusRequest(transactionId)
-		def resp = coreComm.getStatus(req)
-		if (resp.isError) {
-			throw new ValidationException(
-				resp.errorResponse?.consumerMessage ?: resp.errorResponse?.errorMessage)
-		}
+		def resp = retrieveStatus(transactionId)
 		
 		// Update the record fields
 		fields.status = resp.status.toLowerCase()
@@ -415,17 +424,21 @@ class EMandates {
 			fields.statusDate = resp.statusDateTimestamp.toGregorianCalendar().time
 		}
 		fields.rawMessage = resp.rawMessage
-		
+
+		// Update the user profile.
+		updateUserIBAN(fields)
+
 		return fields
 	}
 
 	/**
 	 * Store the IBAN from the eMandate in the user profile.
+	 * Note: in case we come here in the context of the registration wizard, there is no user yet and we simply don't do anything.
 	 */
 	void updateUserIBAN(Map fields) {
 		String status = (fields.status as CustomFieldPossibleValue).internalName
-		if ('success' != status || !fields.owner instanceof User) {
-			// The eMandate does not have a success status, or something is wrong with the user, don't try to update the IBAN and just return.
+		if ('success' != status || fields.owner == null || !fields.owner instanceof User) {
+			// The eMandate does not have a success status, or the owner is not known yet or not a user object, don't try to update the IBAN and just return.
 			return
 		}
 

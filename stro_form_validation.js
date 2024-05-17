@@ -119,7 +119,7 @@ $(function() {
     // Het inlogwachtwoord moet minimaal 8 tekens lang zijn en minstens 1 kleine letter, 1 hoofdletter en 1 cijfer bevatten
     $.validator.addMethod("pwcheckminlength8", function (value) {    
         return /[a-z]/.test(value) && /[0-9]/.test(value) && /[A-Z]/.test(value) && /.{8,}/.test(value)
-    }, "Het inlogwachtwoord moet minimaal 8 tekens lang zijn en minstens 1 kleine letter, 1 hoofdletter en 1 cijfer bevatten.");
+    }, "Het wachtwoord moet minimaal 8 tekens lang zijn en minstens 1 kleine letter, 1 hoofdletter en 1 cijfer bevatten.");
     
     // Het wachtwoord moet 6 tekens lang zijn en mag alleen uit kleine letters bestaan: abcdefghijklmnopqrstuvwxyz 
     $.validator.addMethod("pwchecklength6onlylowercase", function (value) {

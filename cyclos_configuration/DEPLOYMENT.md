@@ -30,6 +30,105 @@ Actions:
 - Aankopen via bankoverschrijving
 - Incassomachtiging (User parameter checked)
 
+## Deployment Tasks for release 1.9.0
+
+# System record types
+
+## Text Messages
+
+Go to System > [System configuration] 'Record types' > 'Technical details' > Tab 'Fields' and create a new field:  
+- Display name: Turn off  
+- Internal name: ddTurnedOff  
+- Data type: Boolean  
+- Information text: {As decided by business}  
+
+After adding the new field, go to the Sections tab, open the 'Direct Debit' section and add the new field in the 'Fields in this section' property.  
+
+Go to System > [System configuration] 'Record types' > 'Text messages' > Tab 'Fields' and create a new field:  
+- Display name: eMandates turned off  
+- Internal name: bcEMandatesTurnedOff  
+- Data type: Multiple line text  
+- Ignore value sanitization: Yes
+
+After adding the new field, go to the Sections tab, open the 'Buy credits' section and add the new field in the 'Fields in this section' property.  
+Move the 'Buy Credits' section to the top of the three sections, so it is easier to find. Move the new field to right under the 'Buy via bank' field.
+
+Go to System > [System records] 'Text messages' and fill in the new field with the message text as decided by business.
+
+## Application translations
+
+Go to Content > [Content management] Application translation > Circuit Nederland. Filter on 'Translation key': 'addressFields.CITY'. Change the Current translation of both 'MOBILE.ADDRESSES.addressFields.CITY' and 'USERS.ADDRESSES.addressFields.CITY' from 'Woonplaats' into 'Plaats'.
+
+## Profile fields
+
+Go to System > [User configuration] Profile fields > Bijdrage. On the 'Possible values' tab add four new options:  
+- Value: € 0,01 - Account zonder Utrechtse Euro betaalrekening (internal name: utrechtseeuro_bedrijven_0)  
+- Value: € 50 - bedrijven < 10 werknemers (internal name: utrechtseeuro_bedrijven_1)  
+- Value: € 150 - bedrijven < 50 werknemers (internal name: utrechtseeuro_bedrijven_2)  
+- Value: € 300 - bedrijven > 50 werknemers (internal name: utrechtseeuro_bedrijven_3)  
+
+Temporarily remove the validation on the Bijdrage profile field: set the Load values script from 'contribution scales' to 'None' on the Bijdrage profile field.  
+Go to Users > [Management] Bulk actions. Click 'Run new' > 'Change custom field value'. Run three bulk actions, each time with Group set to 'Utrechtse euro Bedrijven', but with different options for the 'Bijdrage':  
+- Filter 'Bijdrage' on the first option '€ 50 - bedrijven < 10 werknemers' > Set Custom field 'Bijdrage' to the '€ 50 - bedrijven < 10 werknemers' more below.  
+- Filter 'Bijdrage' on the first option '€ 150 - bedrijven < 50 werknemers' > Set Custom field 'Bijdrage' to the '€ 150 - bedrijven < 50 werknemers' more below.  
+- Filter 'Bijdrage' on the first option '€ 300 - bedrijven > 50 werknemers' > Set Custom field 'Bijdrage' to the '€ 300 - bedrijven > 50 werknemers' more below.
+
+Put the validation on the Bijdrage profile field back: set the Load values script back from 'None' to 'contribution scales' on the Bijdrage profile field.
+
+## Deployment Tasks for release 1.8.0
+
+# System record types
+
+## Text Messages
+
+Go to System > [System configuration] 'Record types' > 'Text messages' > Tab 'Fields' and create a new field:  
+- Display name: Transactie aan ontvanger geblokkeerd  
+- Internal name: circ_payment_blocked  
+- Data type: Multiple line text  
+- Information text: {As decided by business}  
+- Ignore value sanitization: Yes
+
+Go to System > [System records] 'Text messages' and fill in the new field with the message text as decided by business.
+
+# Scripts
+
+## Extension point script
+Go to System > [Tools] Scripts and add a new Script of type 'Extension point':  
+- Name: blockTransactionToNonTradingUser  
+- Included libraries: utils Library  
+- Script code executed when the data is validated, but not yet saved: paste the contents of scripts/extensionpoint_blockTransactionToNonTradingUser.groovy.
+
+# Extension points
+
+Go to System > [Tools] Extension points and add a new Extension Point of type Transaction:  
+- Name: block transactions to non-trading users  
+- Transfer types: Handelsrekening - Handelstransactie  
+- Events: Preview  
+- Scripts: blockTransactionToNonTradingUser  
+
+## Deployment Tasks for changes to registration form / migration to UnEc - Round 3 (i88) part of release 1.7.0
+
+# Change mail addresses from xx@circuitnederland.nl to xx@unitedeconomy.nl
+- Mollie system record: Reports > [System records] 'Molly configuration (keep safe)': change the 'Email adres weer te geven in foutmelding', 'Schermmelding aan bezoeker bij openen link activatiemail zonder betaling' and 'Tekst voor het geval Mollie onbereikbaar is'.
+- EMandate: System > [System records] Technical details: change the 'Mail admin' and the 'Mail techTeam'.
+
+# Add ip of UnEc server to ip whitelist
+- System > [System configuration] Configuration > Default for NL > Tab Channels > Web services: Add the ip-address of the UnEc server to the 'IP address whitelist'.
+
+# Change the location of the registration form
+- Move the registration form files (php/css/js) to the UnEc server (test or prd).
+- Add a redirect from the old C3NL location to the new UnEc location.
+- Mollie system record: Reports > [System records] 'Molly configuration (keep safe)': change the 'BasisURL van het registratieformulier' to the new location.
+
+## Deployment Tasks for changes to registration form / migration to UnEc (i88) part of release 1.7.0
+
+# Change fields
+
+- The display name of the profile field Lidmaatschapsbijdrage: change into 'Bijdrage'.
+- The information text of the profile fields Lidmaatschapsbijdrage, Website, Circulaire betalingen and K.v.K. nummer: {text as decided by stakeholders}.
+- Go to the Global administration > System > [User configuration] Password types > Login password. Change the 'Public description': {text as decided by stakeholders}.
+- In the Product 'Algemeen voor bedrijven (behalve UE)' change the permission 'My profile fields': set 'At registration' to yes for the 'Circulaire betalingen' field.
+
 ## Deployment Tasks for release 1.6.0 (changes to profile fields (i84))
 
 # Scripts
