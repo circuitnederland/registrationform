@@ -7,7 +7,7 @@ import org.cyclos.model.users.groups.InitialGroupVO
 
 if ('email' == step.internalName) {
     def dto = userService.getPublicRegistrationData(
-        new InitialGroupVO(internalName: "${customValues.community.internalName}_${customValues.type.internalName}"), null).dto;
+        new InitialGroupVO(internalName: "${customValues.community.internalName}_${customValues.type.internalName}"), null, null).dto;
     storage.registration = dto
     
     return null
