@@ -3,32 +3,21 @@ Things to do manually in the Cyclos production-environment when deploying a new 
 
 ## Deployment Tasks for releasing eMandates/directDebits LIVE
 
-1. Add eMandate/directDebit permissions to the Product 'Algemeen (handelsrekening)':
-- [General] My profile fields: check 'Enabled' for 'Incassomachtiging vergrendeling'.  
-- [General] Records: Set the new Incasso record to 'Enable'.
-- [General] Custom operations: check 'Enabled' for 'Incassomachtiging beheer'.
-- [General] Custom operations: check 'Enabled' for the five new Record operations for managing directDebit user records.
+1. Create a new Member Product 'Opwaarderen simpel (tijdelijk)'. Set in the permission '[General] Custom operations' the [User] 'Saldo opwaarderen' to Enabled and Run self.
 
-2. Go to Content > [Content management] Menu and pages > Default for Nederland > Opwaarderen. Change the existing content text as decided by stakeholders, removing the text referring to the former iDEAL topup possibility.
+2. Add the new Product to the Group Sets of all communities that should NOT get the emandate functionality yet.
 
-3. Change the Custom operation 'Aankopen via bankoverschrijving':
-- Script paramaters:
-pageId = 6745336155068047248
+3. Add the Product 'Incassomachtiging / Opwaarderen' to the Group Sets of all communities that should get the emandate functionality.
 
-(this pageId refers to the original 'Opwaarderen' Floating page menu we changed above.)
+4. Remove the [User] 'Saldo opwaarderen' of the '[General] Custom operations' permission in the 'Algemeen (handelsrekening)' Product.
 
-4. Remove the Custom operation 'Saldo opwaarderen (BETA)', the 'Opwaarderen (BETA)' Floating menu page and the temporary Product 'Incassomachtiging (eMandate)'.
+When all communities use the emandates functionality, the old/temporary elements can be removed:  
+- Remove the 'Opwaarderen simpel (tijdelijk)' Product as it is not enabled in any Group or Group Set anymore.  
+- Remove the old 'Opwaarderen' Custom operation and rename the "Circulaire euro's aankopen (Nieuw)" Custom operation to "Circulaire euro's aankopen".  
+- Remove the old 'Opwaarderen' Menu floating page and rename the 'Opwaarderen (Nieuw) floating page to 'Opwaarderen'.  
+- Find users that still have the 'Incassomachtiging / Opwaarderen' Product individually assigned and remove the Product from them, since they now have it via their Group Set.
 
-5. Change the existing Custom operation 'Opwaarderen' (which is already enabled for all users in the Product 'Algemeen (handelsrekening)'):
-- Internal name: buyCredits
-- Custom submit label: empty (remove 'Opwaarderen'), since there will be no submit button.
-- Script: Saldo ophogen
-- Script parameters: empty
-
-Actions:
-- Opwaarderen via incasso (User parameter checked)
-- Aankopen via bankoverschrijving
-- Incassomachtiging (User parameter checked)
+When all communities use the emandates functionality, we could transfer all permissions from the 'Incassomachtiging / Opwaarderen' Product into a general Product, for example 'Algemeen (handelsrekening)', remove the 'Incassomachtiging / Opwaarderen' Product assignment from all Group Sets and after that remove the Product itself.
 
 ## Deployment Tasks for release 1.9.0
 
