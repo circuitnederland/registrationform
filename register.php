@@ -255,7 +255,7 @@ include 'show_errors.php';
 	<div class="formRow">
 		<div class="label"><?php echo lang('field.email')?> <span class="red">*</span></div>
 		<div class="value">
-			<input class="FormFields" id="emailFirst" type="email" name="email" maxlength="40" required
+			<input class="FormFields" id="emailFirst" type="email" name="email" maxlength="100" required
 				<?php 
 					if (isset($_SESSION["email"])) {
 						echo " value='" . $_SESSION["email"] . "'"; 
@@ -269,7 +269,7 @@ include 'show_errors.php';
 	<div class="formRow">
 		<div class="label"><?php echo lang('field.email.confirm')?> <span class="red">*</span></div>
 		<div class="value">
-			<input class="FormFields" type="email" name="email" maxlength="40" required equalTo='#emailFirst'
+			<input class="FormFields" type="email" name="email" maxlength="100" required equalTo='#emailFirst'
 				<?php 
 					if (isset($_SESSION["email"])) {
 						echo " value='" . $_SESSION["email"] . "'"; 
