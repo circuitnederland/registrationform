@@ -294,18 +294,6 @@ Set the registration wizard in the configuration: System > [System configuration
 - Registration wizard for medium screens: Registration wizard
 - Registration wizard for small screens: Registration wizard
 
-# Groups
-
-Correct the internal names of all groups that are open for public registration. The internal name should follow the convention {community}_{type}. For example utrechtseeuro_bedrijven, fryskeeuro_particulieren, etc.
-
-# Agreements
-
-Add a new agreement for United Economy:
-- Name: Ledencontract United Economy
-- Content: {as supplied by UnEc.}
-
-Add the new United Economy agreement to the Product 'Algemeen United Economy'. And also the general 'Algemene Voorwaarden' agreement.
-
 # Themes
 
 Go to Content > [Content management] Themes > 'Default for Nederland' > 'Circuit Nederland' theme and add the following to the 'Custom style' section:
@@ -324,10 +312,6 @@ Go to Content > [Content management] Themes > 'Default for Nederland' > 'Circuit
 Remove the extension points we used in the old registration process, involving an iDeal/Mollie payment: System > [Tools] > Extension points. Open the following extension points and uncheck the 'Enabled' checkbox:
 - activateUserCheckPayment
 - createUser
-
-## Change group properties
-
-In the groups 'United Economy - Bedrijven' and 'United Economy - Particulieren' remove the property 'Name on registration', which was set to resp. 'Bedrijven' and 'Particulieren'. Make those empty, so the group name is shown instead, in the group selection step in the wizard.
 
 # Workarounds
 
