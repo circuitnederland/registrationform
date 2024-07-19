@@ -1,4 +1,15 @@
 # Changelog
+## 1.10.0 (2024-07-19)
+### Added
+<ul>
+	<li>Emandates functionality, allowing users to topup their balance using direct debit.</li>
+</ul>
+
+### Changed
+<ul>
+	<li>Increase allowed length of email-addresses in the registration form.</li>
+</ul>
+
 ## 1.9.0 (2024-05-07)
 ### Added
 <ul>
