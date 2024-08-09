@@ -3,6 +3,8 @@ Setup Registration C3NL
 
 We use the Cyclos wizard functionality for the Circuit Nederland (C3NL) registration process.
 
+# I. Preparation phase
+
 # Scripts
 
 1. Type: Wizard
@@ -285,15 +287,6 @@ inschrijven
 inschrijven/{community}/{type}  
 inschrijven/{community}
 
-
-# Configuration
-
-Set the registration wizard in the configuration: System > [System configuration] Configurations > 'Default for Nederland', under the [Data visible to guests] section:
-- Possible groups for public registration: (select the bedrijven and particulieren groups of the active communities - make sure you don't select broker groups)
-- Registration wizard for large screens: Registration wizard
-- Registration wizard for medium screens: Registration wizard
-- Registration wizard for small screens: Registration wizard
-
 # Themes
 
 Go to Content > [Content management] Themes > 'Default for Nederland' > 'Circuit Nederland' theme and add the following to the 'Custom style' section:
@@ -304,14 +297,6 @@ Go to Content > [Content management] Themes > 'Default for Nederland' > 'Circuit
     color: #333;
 }
 ```
-
-# Changes to left-overs from the old registration process
-
-## Remove extension points
-
-Remove the extension points we used in the old registration process, involving an iDeal/Mollie payment: System > [Tools] > Extension points. Open the following extension points and uncheck the 'Enabled' checkbox:
-- activateUserCheckPayment
-- createUser
 
 # Workarounds
 
@@ -331,3 +316,21 @@ Adjust some of the translations via Content > [Content management] Application t
 - APP.TRANSLATIONS.address-region: Add a custom translation: "Provincie".
 - APP.TRANSLATIONS.address-city: Add a custom translation: "Plaats".
 - CONTENT_MANAGEMENT.EMAILS.activated.body.template: {Add a line with links to the apps as decided on by stakeholders}
+
+# 2. Go-live phase
+
+# Configuration
+
+Set the registration wizard in the configuration: System > [System configuration] Configurations > 'Default for Nederland', under the [Data visible to guests] section:
+- Possible groups for public registration: (select the bedrijven and particulieren groups of the active communities - make sure you don't select broker groups)
+- Registration wizard for large screens: Registration wizard
+- Registration wizard for medium screens: Registration wizard
+- Registration wizard for small screens: Registration wizard
+
+# Changes to left-overs from the old registration process
+
+## Remove extension points
+
+Remove the extension points we used in the old registration process, involving an iDeal/Mollie payment: System > [Tools] > Extension points. Open the following extension points and uncheck the 'Enabled' checkbox:
+- activateUserCheckPayment
+- createUser
