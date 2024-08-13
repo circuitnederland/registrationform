@@ -164,16 +164,19 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Show wizard fields: Type
 
 4. Type: Form fields
-- Name: E-mail activation
+- Name: E-mail input
 - Internal name: email
-- Title: E-mail verificatie
+- Title: E-mailadres
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show profile fields: Shows specific profile fields
 - Profile fields to show: E-mail
-- Require e-mail validation: Yes
 - Show privacy control for fields: Yes
 
-5. Type: Form fields
+5. Type: Email verification
+- Name: E-mail verification
+- Title: E-mail verificatie
+
+6. Type: Form fields
 - Name: Accountinfo Companies
 - Internal name: accountinfo_companies
 - Description: Step containing the required account fields like username and password.
@@ -186,7 +189,7 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Show password: Yes
 - Show security question: Yes
 
-6. Type: Form fields
+7. Type: Form fields
 - Name: Accountinfo Consumers
 - Internal name: accountinfo_consumers
 - Description: Step containing the required account fields like username and password.
@@ -199,7 +202,7 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Show password: Yes
 - Show security question: Yes
 
-7. Type: Form fields
+8. Type: Form fields
 - Name: eMandate Companies
 - Internal name: eMandate_companies
 - Description: Step to request an eMandate. For users with an eMandate we can make a direct debit to cash the contribution amount.
@@ -212,7 +215,7 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Show agreement: Yes
 - This step performs an external redirect: Yes
 
-8. Type: Form fields
+9. Type: Form fields
 - Name: eMandate Consumers
 - Internal name: eMandate_consumers
 - Description: Step to request an eMandate. For users with an eMandate we can make a direct debit to cash the contribution amount.
@@ -225,7 +228,7 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Show agreement: Yes
 - This step performs an external redirect: Yes
 
-9. Type: Form fields
+10. Type: Form fields
 - Name: Profile fields Companies
 - Internal name: profilefields_companies
 - Description: Profile fields for companies.
@@ -236,7 +239,7 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Profile fields to show: Contactpersoon Bedrijf, K.v.K. nummer
 - Show wizard fields: Geboortedatum
 
-10. Type: Form fields
+11. Type: Form fields
 - Name: Contact fields Companies
 - Description: Contact fields for companies.
 - Title: Contactgegevens
@@ -247,7 +250,7 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Phone numbers to show: Both mobile and land-line phones
 - Show privacy control for fields: Yes
 
-11. Type: Form fields
+12. Type: Form fields
 - Name: Contact fields Consumers
 - Internal name: contactfields_consumers
 - Description: Contact fields for consumers.
@@ -260,7 +263,7 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Show privacy control for fields: Yes
 - Show wizard fields: Profielfoto, Geboortedatum
 
-12. Type: Form fields
+13. Type: Form fields
 - Name: Company profile
 - Description: All other profile fields we did not retrieve in previous steps.
 - Title: Bedrijfsprofiel
@@ -270,7 +273,7 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Profile fields to show: Website, Branche informatie, Diensten/producten
 - Show wizard fields: Bedrijfslogo
 
-13. Type: Form fields *
+14. Type: Form fields *
 - Name: Ending
 
 * Note: this last empty step is not needed anymore when Cyclos release containing fix for CYCLOS-9653 is deployed to C3NL.
