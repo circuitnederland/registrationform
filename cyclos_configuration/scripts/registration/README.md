@@ -154,23 +154,22 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Internal name: community
 - Title: Kies uw community
 - Information text: (use html with explanatory text as decided on by stakeholders)
-- Show wizard fields: Community
+- Add fields: Community
 
 3. Type: Form fields
 - Name: Type
 - Internal name: type
 - Title: Schrijft u zich in als bedrijf of als particulier?
 - Information text: (use html with explanatory text as decided on by stakeholders)
-- Show wizard fields: Type
+- Add fields: Inschrijven als
 
 4. Type: Form fields
 - Name: E-mail input
 - Internal name: email
 - Title: E-mailadres
 - Information text: (use html with explanatory text as decided on by stakeholders)
-- Show profile fields: Shows specific profile fields
-- Profile fields to show: E-mail
-- Show privacy control for fields: Yes
+- Show manage field visibility: Yes
+- Add fields: E-mail
 
 5. Type: Email verification
 - Name: E-mail verification
@@ -183,11 +182,7 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Title: Accountgegevens
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Bedrijven groups)
-- Show profile fields: Shows specific profile fields
-- Profile fields to show: Login name
-- Show wizard fields: Bedrijfsnaam
-- Show password: Yes
-- Show security question: Yes
+- Add fields: Login name, Bedrijfsnaam, Password, Security question
 
 7. Type: Form fields
 - Name: Accountinfo Consumers
@@ -196,11 +191,7 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Title: Accountgegevens
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Particulieren groups)
-- Show profile fields: Shows specific profile fields
-- Profile fields to show: Login name
-- Show wizard fields: Volledige naam
-- Show password: Yes
-- Show security question: Yes
+- Add fields: Login name, Volledige naam, Password, Security question
 
 8. Type: Form fields
 - Name: eMandate Companies
@@ -209,11 +200,8 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Title: Digitale machtiging
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Bedrijven groups)
-- Show profile fields: Show specific profile fields
-- Profile fields to show: Lidmaatschapsbijdrage, Actiecode, Aankoop saldo
-- Show wizard fields: Bank, Tekeningsbevoegde
-- Show agreement: Yes
 - This step performs an external redirect: Yes
+- Add fields: Lidmaatschapsbijdrage, Actiecode, Aankoop saldo, Bank, Tekeningsbevoegde (wizard custom field), Agreements
 
 9. Type: Form fields
 - Name: eMandate Consumers
@@ -222,11 +210,8 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Title: Digitale machtiging
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Consumer groups)
-- Show profile fields: Show specific profile fields
-- Profile fields to show: Lidmaatschapsbijdrage, Actiecode, Aankoop saldo
-- Show wizard fields: Bank
-- Show agreement: Yes
 - This step performs an external redirect: Yes
+- Add fields: Lidmaatschapsbijdrage, Actiecode, Aankoop saldo, Bank, Agreements
 
 10. Type: Form fields
 - Name: Profile fields Companies
@@ -235,9 +220,7 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Title: Registratiegegevens
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Bedrijven groups)
-- Show profile fields: Show specific profile fields
-- Profile fields to show: Contactpersoon Bedrijf, K.v.K. nummer
-- Show wizard fields: Geboortedatum
+- Add fields: Contactpersoon Bedrijf, K.v.K. nummer, Geboortedatum (wizard custom field)
 
 11. Type: Form fields
 - Name: Contact fields Companies
@@ -245,10 +228,8 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Title: Contactgegevens
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Bedrijven groups)
-- Show profile fields: Show specific profile fields
-- Profile fields to show: Phone, Address
-- Phone numbers to show: Both mobile and land-line phones
-- Show privacy control for fields: Yes
+- Show manage field visibility: Yes
+- Add fields: Mobile phone, Landline phone, Address
 
 12. Type: Form fields
 - Name: Contact fields Consumers
@@ -257,11 +238,8 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Title: Contactgegevens
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Particulieren groups)
-- Show profile fields: Show specific profile fields
-- Profile fields to show: Phone, Address
-- Phone numbers to show: Both mobile and land-line phones
-- Show privacy control for fields: Yes
-- Show wizard fields: Profielfoto, Geboortedatum
+- Show manage field visibility: Yes
+- Add fields: Mobile phone, Landline phone, Address, Profielfoto, Geboortedatum (wizard custom field)
 
 13. Type: Form fields
 - Name: Company profile
@@ -269,9 +247,7 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Title: Bedrijfsprofiel
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Bedrijven groups)
-- Show profile fields: Show specific profile fields
-- Profile fields to show: Website, Branche informatie, Diensten/producten
-- Show wizard fields: Bedrijfslogo
+- Add fields: Website, Branche informatie, Diensten/producten, Bedrijfslogo
 
 14. Type: Form fields *
 - Name: Ending
