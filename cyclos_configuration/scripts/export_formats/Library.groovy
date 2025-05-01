@@ -249,9 +249,6 @@ class Camt053 implements ExportFormatting {
             }
             NtryDtls(){
                 TxDtls(){
-                    Refs(){
-                        EndToEndId('NONREF')
-                    }
                     RltdPties(){
                         Cdtr(){
                             Nm(formatOwner(trx.relatedAccount))
