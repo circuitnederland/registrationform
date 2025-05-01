@@ -168,7 +168,6 @@ class Camt053 implements ExportFormatting {
         def now = new Date()
         def msgCreation = dateFormat.format(now)
         def stmtId = MSG_ID_PREFIX + millis + "00001"
-        def electrSeqNr = new SimpleDateFormat("yyDDD").format(now)
         def dateBegin = entryDateFormat.format(beginDate)
         def dateEnd = entryDateFormat.format(endDate)
         def amountBegin = formatAmount(beginBalance)
@@ -189,7 +188,6 @@ class Camt053 implements ExportFormatting {
                 }
                 Stmt() {
                     Id(stmtId)
-                    ElctrncSeqNb(electrSeqNr)
                     CreDtTm(msgCreation)
                     Acct() {
                         Id() {
