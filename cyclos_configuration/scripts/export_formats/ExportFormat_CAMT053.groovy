@@ -1,6 +1,3 @@
-import java.nio.charset.StandardCharsets
-import org.cyclos.model.ValidationException
-
 Map<String, String> scriptParameters = binding.scriptParameters
 String currency = scriptParameters.currencyCode
 String iban = scriptParameters.iban
