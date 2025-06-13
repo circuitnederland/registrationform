@@ -451,8 +451,9 @@ include 'show_errors.php';
 					break;
 					
 				case "aankoop_saldo":
-					showAankoop(array(), $fieldsParticulieren, 'no_maximum');
-					showAankoop($fieldsBedrijven, array(), null);
+					// Never show aankoop_saldo. This was disabled due to Mollie, but for the new regwizard it might be enabled again, so make sure to never show it here.
+					// showAankoop(array(), $fieldsParticulieren, 'no_maximum');
+					// showAankoop($fieldsBedrijven, array(), null);
 					break;
 					
 				default: // for actiecode,   

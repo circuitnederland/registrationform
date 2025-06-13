@@ -1,7 +1,7 @@
 # Deployment Tasks per release
 Things to do manually in the Cyclos production-environment when deploying a new release of the PHP registrationform to production.
 
-## Deployment Tasks for releasing eMandates/directDebits LIVE
+## Deployment Tasks for release 1.10.0 (eMandates/directDebits go-live)
 
 1. Create a new Member Product 'Opwaarderen simpel (tijdelijk)'. Set in the permission '[General] Custom operations' the [User] 'Saldo opwaarderen' to Enabled and Run self.
 
