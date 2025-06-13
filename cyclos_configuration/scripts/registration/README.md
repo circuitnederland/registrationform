@@ -44,8 +44,8 @@ After this, go to System > Text messages and fill in the desired text message in
 
 # Profile fields
 
-Change the Information text of profile fields:
-- Website: remove the remark about required http(s), which is no longer needed now we use the wizard.
+Change the 'Website' profile field:
+- Information text: remove the text.
 
 Change the existing 'Aankoop saldo' profile field:
 - Information text: (use text as decided on by stakeholders)
@@ -101,7 +101,7 @@ unitedeconomy = bedrijven
 - Size: Medium
 - Required: Yes
 
-After saving the Type field, add Possible values 'Bedrijf' (internal name 'bedrijven') and 'Particulier' (internal name 'particulieren').
+After saving the Type field, add Possible values 'Zakelijk deelnemer' (internal name 'bedrijven') and 'Particulier' (internal name 'particulieren').
 
 4. Name Companies:
 - Display name: Bedrijfsnaam (can be changed)
@@ -146,7 +146,7 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 1. Type: Form fields
 - Name: Intro
 - Description: Introduction step, containing explanatory text only.
-- Title: Welkom bij Circuit Nederland
+- Title: Welkom bij United Economy
 - Information text: (use html with explanatory text as decided on by stakeholders)
 
 2. Type: Form fields
@@ -159,7 +159,7 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 3. Type: Form fields
 - Name: Type
 - Internal name: type
-- Title: Schrijft u zich in als bedrijf of als particulier?
+- Title: Schrijft u zich in als zakelijke deelnemer of als particulier?
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Add fields: Inschrijven als
 
@@ -182,7 +182,7 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Title: Accountgegevens
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Bedrijven groups)
-- Add fields: Login name, Bedrijfsnaam, Password, Security question
+- Add fields: Bedrijfsnaam, Login name, Password, Security question
 
 7. Type: Form fields
 - Name: Accountinfo Consumers
@@ -191,7 +191,7 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Title: Accountgegevens
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Particulieren groups)
-- Add fields: Login name, Volledige naam, Password, Security question
+- Add fields: Volledige naam, Login name, Password, Security question
 
 8. Type: Form fields
 - Name: eMandate Companies
@@ -220,7 +220,7 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Title: Registratiegegevens
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Bedrijven groups)
-- Add fields: Contactpersoon Bedrijf, K.v.K. nummer, Geboortedatum (wizard custom field)
+- Add fields: K.v.K. nummer, Contactpersoon Bedrijf, Geboortedatum (wizard custom field)
 
 11. Type: Form fields
 - Name: Contact fields Companies
@@ -277,9 +277,7 @@ Go to Content > [Content management] Themes > 'Default for Nederland' > 'Circuit
 }
 ```
 
-# Workarounds
-
-## Translations
+# Translations
 
 Adjust some of the translations via Content > [Content management] Application translation > Circuit Nederland:
 
@@ -295,6 +293,11 @@ Adjust some of the translations via Content > [Content management] Application t
 - APP.TRANSLATIONS.address-region: Add a custom translation: "Provincie".
 - APP.TRANSLATIONS.address-city: Add a custom translation: "Plaats".
 - CONTENT_MANAGEMENT.EMAILS.activated.body.template: {Add a line with links to the apps as decided on by stakeholders}
+- SYSTEM.WIZARDS.execution.code.emailSent.step, MOBILE.WIZARDS.verificationSent.email, APP.TRANSLATIONS.wizard-verification-sentToEmail: Change into "Vul hieronder de verificatiecode in die is verzonden naar {0}.".
+- CONTENT_MANAGEMENT.EMAILS.validation.subject: Change into "Bevestig uw e-mailadres voor United Economy".
+- CONTENT_MANAGEMENT.EMAILS.salutation.anonymous: Change into "Beste mijnheer/mevrouw,".
+- CONTENT_MANAGEMENT.EMAILS.validation.wizard.body: Change into "<p>De verificatiecode om uw e-mailadres te bevestigen is {1}.</p>".
+- SYSTEM.WIZARDS.execution.code.new, : Change into "Heeft u geen verificatiecode ontvangen? Vraag hier een nieuwe aan.".
 
 # 2. Go-live phase
 
