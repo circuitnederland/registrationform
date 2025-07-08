@@ -1062,16 +1062,16 @@ Commented by Roder and Andre because this caused a double validation. In case fo
 }
 
 /**
- * shows the new accept payments field.
+ * shows fields of type single selection.
  * @param unknown $key a string with the internal name of the field, either lidmaatschapparticulieren or lidmaatschapbedrijven
  * @param unknown $fields either $fieldsParticulieren or $fieldsBedrijven.
  * @param string $type either 'particulieren' or 'bedrijven'.
  */
-function showAcceptPayments($key, $fields, $type) {
+function showSelection($key, $fields, $type) {
 	$style = $type == 'particulieren' ? "retail-only" : "organisation-only";
 	showInformationText($key, $fields, $style);
 	echo "<div class='formRow $key $style'>";
-	echo "   <div class='label above circ_payments'>";
+	echo "   <div class='label above'>";
 	echo $fields[$key]['name']; 
 	showRequired($key, $fields);
 	echo "</div>";
@@ -1091,22 +1091,22 @@ function showAcceptPayments($key, $fields, $type) {
 	}
 	echo "		<div class='value radio above' >";
 	/**
-	 * run over all possible values for lidmaatschap en place a radio button for each of them. 
+	 * run over all possible values and place a radio button for each of them. 
 	 */
 	$counter = 1;
-	foreach ($options as $bedragName => $bedragValue) {
-		echo "<input id='" . $bedragName . "' type='radio' name='" . $key . "' value='" . $bedragName . "'";
+	foreach ($options as $optionName => $optionValue) {
+		echo "<input id='" . $optionName . "' type='radio' name='" . $key . "' value='" . $optionName . "'";
 		if (isset($_SESSION[$key])) {
-			if ($_SESSION[$key] == $bedragName) {
+			if ($_SESSION[$key] == $optionName) {
 				echo " checked"; // if selected previously, select it again
 			}
 		} else if (!empty($defaultValue)) {
-			if ($defaultValue == $bedragName) {
+			if ($defaultValue == $optionName) {
 				echo " checked"; //check default if nothing selected
 			}
 		};
 		echo ">";
-		echo "<label for='" . $bedragName . "'>" . $bedragValue . "</label>";
+		echo "<label for='" . $optionName . "'>" . $optionValue . "</label>";
 		$counter++;
 	}
 	echo "	</div>";

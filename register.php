@@ -422,7 +422,8 @@ include 'show_errors.php';
 					break;
 
 				case "circ_payments":
-					showAcceptPayments($customField, $fieldsBedrijven, 'bedrijven');
+				case "kiesmerk":
+					showSelection($customField, $fieldsBedrijven, 'bedrijven');
 					break;
 					
 				case "lidmaatschapsbijdrage":
