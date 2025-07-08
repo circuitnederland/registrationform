@@ -37,6 +37,10 @@ trait ExportFormatting {
         def conversionHandler = vars.conversionHandler as ConversionHandler
         AccountHistoryQuery query = vars.query as AccountHistoryQuery
         Account account = conversionHandler.convert(Account, query.account)
+        Map<String, String> scriptParameters = binding.scriptParameters
+        currencyCode = scriptParameters.currencyCode
+        def accountType = account.type.internalName ?: 'handelsrekening'
+        iban = scriptParameters["iban.${accountType}"]
         Date now = new Date()
         beginDate = conversionHandler.toDate(query.period?.begin) ?: account.creationDate
         endDate = conversionHandler.toDate(query.period?.end) ?: now
