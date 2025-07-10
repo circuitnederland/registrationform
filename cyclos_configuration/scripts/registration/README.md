@@ -295,7 +295,6 @@ Adjust some of the translations via Content > [Content management] Application t
 - CONTENT_MANAGEMENT.EMAILS.activated.body.template: {Add a line with links to the apps as decided on by stakeholders}
 - SYSTEM.WIZARDS.execution.code.emailSent.step, MOBILE.WIZARDS.verificationSent.email, APP.TRANSLATIONS.wizard-verification-sentToEmail: Change into "Vul hieronder de verificatiecode in die is verzonden naar {0}.".
 - CONTENT_MANAGEMENT.EMAILS.validation.subject: Change into "Bevestig uw e-mailadres voor United Economy".
-- CONTENT_MANAGEMENT.EMAILS.salutation.anonymous: Change into "Beste mijnheer/mevrouw,".
 - CONTENT_MANAGEMENT.EMAILS.validation.wizard.body: Change into "<p>De verificatiecode om uw e-mailadres te bevestigen is {1}.</p>".
 - SYSTEM.WIZARDS.execution.code.new, : Change into "Heeft u geen verificatiecode ontvangen? Vraag hier een nieuwe aan.".
 
