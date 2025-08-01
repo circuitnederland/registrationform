@@ -15,9 +15,11 @@ import org.cyclos.impl.system.ScriptHelper
 import org.cyclos.model.system.wizards.CustomWizardExecutionData
 import org.cyclos.model.system.wizards.CustomWizardVO
 import org.cyclos.model.system.wizards.StartCustomWizardParams
+import org.cyclos.utils.MapParameterStorage
 import org.cyclos.model.utils.ResponseInfo
 
 CustomWizardServiceLocal customWizardService = binding.customWizardService
+MapParameterStorage pathVariables = binding.pathVariables
 ScriptHelper scriptHelper = binding.scriptHelper
 SessionData sessionData = binding.sessionData
 
@@ -41,8 +43,7 @@ customValues.community = communityValue
 customValues.type = typeValue
 storage.customValues = customValues
 
-// If the community is known, skip the community step.
-// If the type is also known, go directly to the email step. If not, go to the type step.
+// If the community or type is known, skip these steps. The first step will still be the intro step.
 if (communityValue) {
     def steps = storage.steps
     steps[0].transitions[0].id = typeValue ? 'email' : 'type'
