@@ -143,40 +143,40 @@ After saving the Type field, add Possible values 'Zakelijk deelnemer' (internal 
 
 Create the following steps (use a surrounding `<div class="wizardstep"></div>` in each Information text):
 
-1. Type: Form fields
-- Name: Intro
+### Intro
+- Type: Form fields
 - Description: Introduction step, containing explanatory text only.
 - Title: Welkom bij United Economy
 - Information text: (use html with explanatory text as decided on by stakeholders)
 
-2. Type: Form fields
-- Name: Community
+### Community
+- Type: Form fields
 - Internal name: community
 - Title: Kies uw community
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Add fields: Community
 
-3. Type: Form fields
-- Name: Type
+### Type
+- Type: Form fields
 - Internal name: type
 - Title: Schrijft u zich in als zakelijke deelnemer of als particulier?
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Add fields: Inschrijven als
 
-4. Type: Form fields
-- Name: E-mail input
+### E-mail input
+- Type: Form fields
 - Internal name: email
 - Title: E-mailadres
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show manage field visibility: Yes
 - Add fields: E-mail
 
-5. Type: Email verification
-- Name: E-mail verification
+### Email verification
+- Type: E-mail verification
 - Title: E-mail verificatie
 
-6. Type: Form fields
-- Name: Accountinfo Companies
+### Accountinfo Companies
+- Type: Form fields
 - Internal name: accountinfo_companies
 - Description: Step containing the required account fields like username and password.
 - Title: Accountgegevens
@@ -184,8 +184,8 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Show only for specific groups: (select all Bedrijven groups)
 - Add fields: Bedrijfsnaam, Login name, Password, Security question
 
-7. Type: Form fields
-- Name: Accountinfo Consumers
+### Accountinfo Consumers
+- Type: Form fields
 - Internal name: accountinfo_consumers
 - Description: Step containing the required account fields like username and password.
 - Title: Accountgegevens
@@ -193,8 +193,8 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Show only for specific groups: (select all Particulieren groups)
 - Add fields: Volledige naam, Login name, Password, Security question
 
-8. Type: Form fields
-- Name: eMandate Companies
+### eMandate Companies 
+- Type: Form fields
 - Internal name: eMandate_companies
 - Description: Step to request an eMandate. For users with an eMandate we can make a direct debit to cash the contribution amount.
 - Title: Digitale machtiging
@@ -203,8 +203,8 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - This step performs an external redirect: Yes
 - Add fields: Lidmaatschapsbijdrage, Actiecode, Aankoop saldo, Bank, Tekeningsbevoegde (wizard custom field), Agreements
 
-9. Type: Form fields
-- Name: eMandate Consumers
+### eMandate Consumers
+- Type: Form fields
 - Internal name: eMandate_consumers
 - Description: Step to request an eMandate. For users with an eMandate we can make a direct debit to cash the contribution amount.
 - Title: Digitale machtiging
@@ -213,8 +213,8 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - This step performs an external redirect: Yes
 - Add fields: Lidmaatschapsbijdrage, Actiecode, Aankoop saldo, Bank, Agreements
 
-10. Type: Form fields
-- Name: Profile fields Companies
+### Profile fields Companies
+- Type: Form fields
 - Internal name: profilefields_companies
 - Description: Profile fields for companies.
 - Title: Registratiegegevens
@@ -222,8 +222,8 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Show only for specific groups: (select all Bedrijven groups)
 - Add fields: K.v.K. nummer, Contactpersoon Bedrijf, Geboortedatum (wizard custom field)
 
-11. Type: Form fields
-- Name: Contact fields Companies
+### Contact fields Companies
+- Type: Form fields
 - Description: Contact fields for companies.
 - Title: Contactgegevens
 - Information text: (use html with explanatory text as decided on by stakeholders)
@@ -231,8 +231,8 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Show manage field visibility: Yes
 - Add fields: Mobile phone, Landline phone, Address
 
-12. Type: Form fields
-- Name: Contact fields Consumers
+### Contact fields Consumers
+- Type: Form fields
 - Internal name: contactfields_consumers
 - Description: Contact fields for consumers.
 - Title: Contactgegevens
@@ -241,16 +241,16 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Show manage field visibility: Yes
 - Add fields: Mobile phone, Landline phone, Address, Profielfoto, Geboortedatum (wizard custom field)
 
-13. Type: Form fields
-- Name: Company profile
+### Company profile
+- Type: Form fields
 - Description: All other profile fields we did not retrieve in previous steps.
 - Title: Bedrijfsprofiel
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Bedrijven groups)
 - Add fields: Website, Branche informatie, Diensten/producten, Bedrijfslogo
 
-14. Type: Form fields *
-- Name: Ending
+### Ending
+- Type: Form fields *
 
 * Note: this last empty step is not needed anymore when Cyclos release containing fix for CYCLOS-9653 is deployed to C3NL.
 
