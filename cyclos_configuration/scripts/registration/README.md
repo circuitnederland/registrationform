@@ -71,7 +71,7 @@ Create a wizard of type 'Registration form': System > [Tools] Wizards > New > 'R
 
 ## Custom fields
 
-1. Bank:
+### Bank
 - Display name: Bank (can be changed)
 - Internal name: debtorBank *
 - Data type: Single selection
@@ -79,7 +79,7 @@ Create a wizard of type 'Registration form': System > [Tools] Wizards > New > 'R
 
 ****Note***: The internal name of the custom field (= 'debtorBank') will be used inside the eMandates script to update the dropdown containing the banks the user can choose from. So, if you must change it here, make sure to change it in the eMandates script as well.
 
-2. Community:
+### Community
 - Display name: Community (can be changed)
 - Internal name: community
 - Data type: Single selection
@@ -88,7 +88,7 @@ Create a wizard of type 'Registration form': System > [Tools] Wizards > New > 'R
 
 After saving the Community field, add Possible values for each of the current Group sets, i.e. All United, Arnhems Hert, etc. Open each value after saving and fill in the internal name with the community name without spaces in small caps, i.e. allunited, arnhemshert, utrechtseeuro, etc.
 
-3. Type:
+### Type
 - Display name: Inschrijven als (can be changed)
 - Internal name: type
 - Data type: Single selection
@@ -103,41 +103,56 @@ unitedeconomy = bedrijven
 
 After saving the Type field, add Possible values 'Zakelijk deelnemer' (internal name 'bedrijven') and 'Particulier' (internal name 'particulieren').
 
-4. Name Companies:
+### Name Companies
 - Display name: Bedrijfsnaam (can be changed)
 - Internal name: company_name
 - Data type: Single line text (= default)
 - Required: Yes
 
-5. Name Consumers:
+### Name Consumers
 - Display name: Volledige naam (can be changed)
 - Internal name: consumer_name
 - Data type: Single line text (= default)
 - Required: Yes
 
-6. Image Companies:
+### Image Companies
 - Display name: Bedrijfslogo (can be changed)
 - Internal name: company_image
 - Data type: Image
 
-6. Image Consumers:
+### Image Consumers
 - Display name: Profielfoto (can be changed)
 - Internal name: consumer_image
 - Data type: Image
 
-7. Authorized signatories Companies:
+### Authorized signatories Companies
 - Display name: Tekeningsbevoegde
 - Internal name: authorized_signatory
 - Data type: Single line text (= default)
 - Required: Yes
 
-8. Date of Birth:
+### Date of Birth
 - Display name: Geboortedatum
 - Internal name: date_of_birth
 - Data type: Date
 - Required: Yes
 - Validation script: check DateOfBirth
 - Validation parameters: minimumAge = 18
+
+### eMandate Status
+- Display name: Status digitale machtiging
+- Internal name: emandate_status
+- Data type: Single selection
+
+After saving the eMandate status field, add Possible values: 'Succesvol' (success), 'Geannuleerd' (cancelled), 'Verlopen' (expired), 'Open' (open), 'In afwachting van validatie' (pending).
+
+### Payment Method
+- Display name: Betaalmethode
+- Internal name: payment_method
+- Data type: Single selection
+- Required: Yes
+
+After saving the eMandate status field, add Possible values: 'Digitale machtiging afgeven voor automatische incasso' (emandate), 'Handmatig overmaken' (manual_payment).
 
 ## Steps
 
@@ -193,25 +208,48 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 - Show only for specific groups: (select all Particulieren groups)
 - Add fields: Volledige naam, Login name, Password, Security question
 
-### eMandate Companies 
+### Contribution Companies 
 - Type: Form fields
-- Internal name: eMandate_companies
-- Description: Step to request an eMandate. For users with an eMandate we can make a direct debit to cash the contribution amount.
-- Title: Digitale machtiging
+- Internal name: contribution_companies
+- Description: Step to choose contribution amount and payment method. Different Information text for companies.
+- Title: Lidmaatschapsbijdrage
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Bedrijven groups)
-- This step performs an external redirect: Yes
-- Add fields: Lidmaatschapsbijdrage, Actiecode, Aankoop saldo, Bank, Tekeningsbevoegde (wizard custom field), Agreements
+- Add fields: Lidmaatschapsbijdrage, Actiecode, Aankoop saldo, Betaalmethode (wizard custom field), Tekeningsbevoegde (wizard custom field), Agreements
 
-### eMandate Consumers
+### Contribution Consumers
 - Type: Form fields
-- Internal name: eMandate_consumers
-- Description: Step to request an eMandate. For users with an eMandate we can make a direct debit to cash the contribution amount.
-- Title: Digitale machtiging
+- Internal name: contribution_consumers
+- Description: Step to choose contribution amount and payment method. Different Information text for consumers.
+- Title: Lidmaatschapsbijdrage
 - Information text: (use html with explanatory text as decided on by stakeholders)
 - Show only for specific groups: (select all Consumer groups)
+- Add fields: Lidmaatschapsbijdrage, Actiecode, Aankoop saldo, Betaalmethode (wizard custom field), Agreements
+
+### eMandate
+- Type: Form fields
+- Internal name: emandate
+- Description: Step to request an eMandate. For users with a successful eMandate we can make a direct debit to cash the contribution amount.
+- Title: Digitale machtiging
+- Information text: (use html with explanatory text as decided on by stakeholders)
 - This step performs an external redirect: Yes
-- Add fields: Lidmaatschapsbijdrage, Actiecode, Aankoop saldo, Bank, Agreements
+- Add fields: Bank
+
+### eMandate Feedback
+- Type: Form fields
+- Internal name: emandate_feedback
+- Description: Step when user comes back from their bank where they issued an emandate. This step shows the status of the emandate (success, cancelled, etc).
+- Title: Status digitale machtiging
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Add fields: Status digitale machtiging (Read only: Yes)
+
+### Manual payment
+- Type: Form fields
+- Internal name: manual_payment
+- Description: Step only shown if user choose manual payment in Contribution step.
+- Title: Handmatig overmaken lidmaatschapsbijdrage
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Add fields: iban
 
 ### Profile fields Companies
 - Type: Form fields
@@ -224,6 +262,7 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 
 ### Contact fields Companies
 - Type: Form fields
+- Internal name: contactfields_companies
 - Description: Contact fields for companies.
 - Title: Contactgegevens
 - Information text: (use html with explanatory text as decided on by stakeholders)
@@ -243,6 +282,7 @@ Create the following steps (use a surrounding `<div class="wizardstep"></div>` i
 
 ### Company profile
 - Type: Form fields
+- Internal name: company_profile
 - Description: All other profile fields we did not retrieve in previous steps.
 - Title: Bedrijfsprofiel
 - Information text: (use html with explanatory text as decided on by stakeholders)

@@ -13,36 +13,15 @@ if ('email' == step.internalName) {
     return null
 }
 
-// We ask companies for their company name and consumers for their full name.
-// Because we want different labels for companies and consumers, we use two wizard custom fields.
-// After the accountinfo step, we store this info in the Cyclos Name field of the user that will be created by the registration wizard.
-if ('accountinfo_companies' == previousStep.internalName) {
-    registration.name = customValues.company_name
-    storage.registration = registration
-    return null
-}
-if ('accountinfo_consumers' == previousStep.internalName) {
-    registration.name = customValues.consumer_name
-    storage.registration = registration
-    return null
+// Before we go to the emandate step, check if the user choose manual payment instead of emandate. If so, skip to the manual payment step.
+// The internal names of the possible values of the payment method custom wizard field are the same as those of the corresponding steps,
+// so we can just return the chosen payment method field internal name to return the correct step.
+if ('emandate' == step.internalName) {
+    return customValues.payment_method.internalName
 }
 
-// Fill the authorized_signatory profile field.
-// We need to do this via a wizard field, because we want it to be required during registration.
-// Making the profile field itself required is problematic for existing users, because this would mean they can not change their profile anymore.
-if ('eMandate_companies' == previousStep.internalName) {
-    def usr = scriptHelper.wrap(registration)
-    usr.authorized_signatory = customValues.authorized_signatory
-    storage.registration = registration
-    return null
-}
-
-// Fill the date of birth profile field.
-// We need to do this via a wizard field, because we want it to be required during registration.
-// Making the profile field itself required is problematic for existing users, because this would mean they can not change their profile anymore.
-if ('profilefields_companies' == previousStep.internalName || 'contactfields_consumers' == previousStep.internalName) {
-    def usr = scriptHelper.wrap(registration)
-    usr.geboortedatum = customValues.date_of_birth
-    storage.registration = registration
-    return null
+// If the user choose emandate as their payment method, skip the manual payment step after showing the emandate feedback step.
+// Note: consumers will automatically see the first step for consumers after the profilefields_companies step we return here instead.
+if (previousStep.internalName == 'emandate_feedback') {
+    return 'profilefields_companies'
 }

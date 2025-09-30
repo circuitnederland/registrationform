@@ -9,6 +9,24 @@ CustomWizardExecution execution = binding.execution
 ScriptHelper scriptHelper = binding.scriptHelper
 User user = binding.user
 Map<String, Object> customValues = binding.customValues
+def usr = scriptHelper.wrap(user)
+
+// Fill the user name.
+// We ask companies for their company name and consumers for their full name.
+// Because we want different labels for companies and consumers, we use two wizard custom fields.
+user.name = customValues.company_name ?: customValues.consumer_name
+
+// Fill the authorized_signatory profile field.
+// We need to do this via a wizard field, because we want it to be required during registration.
+// Making the profile field itself required is problematic for existing users, because this would mean they can not change their profile anymore.
+if (customValues.authorized_signatory) {
+	usr.authorized_signatory = customValues.authorized_signatory
+}
+
+// Fill the date of birth profile field.
+// We need to do this via a wizard field, because we want it to be required during registration.
+// Making the profile field itself required is problematic for existing users, because this would mean they can not change their profile anymore.
+usr.geboortedatum = customValues.date_of_birth
 
 // Fill the user's image field with the wizard custom field containing the image that is specific for the chosen type (consumer or company).
 def tempImageList = ('bedrijven' == customValues.type.internalName) ? customValues.company_image : customValues.consumer_image
