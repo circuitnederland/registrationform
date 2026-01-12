@@ -1,0 +1,357 @@
+Setup Registration C3NL
+==
+
+We use the Cyclos wizard functionality for the Circuit Nederland (C3NL) registration process.
+
+# I. Preparation phase
+
+# Scripts
+
+1. Type: Wizard
+- Name: registration Wizard
+- Included libraries: eMandates Library, utils Library
+- 'Script code executed when the wizard finishes': paste the contents of Wizard_Finish.groovy.
+- 'Script code executed on transitions between steps': paste the contents of Wizard_PrefillData_StepTransition.groovy.
+- 'Script code executed before the user is redirected to an external site': paste the contents of Wizard_ExternalRedirect.groovy.
+- 'Script code executed when the external site redirects the user back to Cyclos': paste the contents of Wizard_Callback.groovy.
+
+2. Type: Custom web service
+- Name: registration Wizard Preparation
+- Script code: paste the contents of WebService_PrepareRegistrationWizard.groovy.
+
+3. Type: Load custom field values
+- Name: restrict community groups in registration
+- Run with all permissions: No
+- Script code that returns the possible values when either creating or editing an entity: paste the contents of LoadCustomFieldValues_WizardType.groovy.
+
+4. Type: Custom field validation
+- Name: check DateOfBirth
+- Run with all permissions: No
+- Included libraries: utils Library
+- Script code: paste the contents of FieldValidation_DateOfBirth.groovy.
+
+# Text messages
+
+Add a new field to the system record 'Text messages':
+- Display name: Registration Too Young
+- Internal name: regTooYoung
+- Data type: Multiple line text
+- Ignore value sanitization: Yes
+
+Add a new Section to the system record 'Text messages': 'Registration' and add the new regTooYoung field to it.
+
+After this, go to System > Text messages and fill in the desired text message in the new regTooYoung field, using #minimumAge# as a dynamic variable.
+
+# Profile fields
+
+Change the 'Website' profile field:
+- Information text: remove the text.
+
+Change the existing 'Aankoop saldo' profile field:
+- Information text: (use text as decided on by stakeholders)
+- Allowed values range: change the maximum value from 10000,00 to 50,00.
+
+# Products
+
+Change the Product 'Algemeen (handelsrekening)':
+- My profile fields: Set 'Enabled' and 'At registration' to 'Yes' for the profile field 'Aankoop saldo'.
+- Description: add a line to describe the Aankoop saldo field is added at registration.
+
+# Wizard
+
+Create a wizard of type 'Registration form': System > [Tools] Wizards > New > 'Registration form'.
+
+## Details
+
+- Name: Registration wizard (can be changed)
+- Internal name: registration *
+- Script: registration Wizard
+
+****Note***: The internal name of the wizard (= 'registration') will be used inside the eMandates script to update the dropdown containing the banks the user can choose from. So, if you must change it here, make sure to change it in the eMandates script as well.
+
+## Custom fields
+
+### Bank
+- Display name: Bank (can be changed)
+- Internal name: debtorBank *
+- Data type: Single selection
+- Required: Yes
+
+****Note***: The internal name of the custom field (= 'debtorBank') will be used inside the eMandates script to update the dropdown containing the banks the user can choose from. So, if you must change it here, make sure to change it in the eMandates script as well.
+
+### Community
+- Display name: Community (can be changed)
+- Internal name: community
+- Data type: Single selection
+- Size: Medium
+- Required: Yes
+
+After saving the Community field, add Possible values for each of the current Group sets, i.e. All United, Arnhems Hert, etc. Open each value after saving and fill in the internal name with the community name without spaces in small caps, i.e. allunited, arnhemshert, utrechtseeuro, etc.
+
+### Type
+- Display name: Inschrijven als (can be changed)
+- Internal name: type
+- Data type: Single selection
+- Load values script: restrict community groups in registration
+- Load values script parameters: {the type to show for each community that should not have both types visible, for example:}
+```
+allunited = particulieren
+unitedeconomy = bedrijven
+```
+- Size: Medium
+- Required: Yes
+
+After saving the Type field, add Possible values 'Zakelijk deelnemer' (internal name 'bedrijven') and 'Particulier' (internal name 'particulieren').
+
+### Name Companies
+- Display name: Bedrijfsnaam (can be changed)
+- Internal name: company_name
+- Data type: Single line text (= default)
+- Required: Yes
+
+### Name Consumers
+- Display name: Volledige naam (can be changed)
+- Internal name: consumer_name
+- Data type: Single line text (= default)
+- Required: Yes
+
+### Image Companies
+- Display name: Bedrijfslogo (can be changed)
+- Internal name: company_image
+- Data type: Image
+
+### Image Consumers
+- Display name: Profielfoto (can be changed)
+- Internal name: consumer_image
+- Data type: Image
+
+### Authorized signatories Companies
+- Display name: Tekeningsbevoegde
+- Internal name: authorized_signatory
+- Data type: Single line text (= default)
+- Required: Yes
+
+### Date of Birth
+- Display name: Geboortedatum
+- Internal name: date_of_birth
+- Data type: Date
+- Required: Yes
+- Validation script: check DateOfBirth
+- Validation parameters: minimumAge = 18
+
+### eMandate Status
+- Display name: Status digitale machtiging
+- Internal name: emandate_status
+- Data type: Single selection
+
+After saving the eMandate status field, add Possible values: 'Succesvol' (success), 'Geannuleerd' (cancelled), 'Verlopen' (expired), 'Open' (open), 'In afwachting van validatie' (pending).
+
+### Payment Method
+- Display name: Betaalmethode
+- Internal name: payment_method
+- Data type: Single selection
+- Required: Yes
+
+After saving the eMandate status field, add Possible values: 'Digitale machtiging afgeven voor automatische incasso' (emandate), 'Handmatig overmaken' (manual_payment).
+
+## Steps
+
+Create the following steps (use a surrounding `<div class="wizardstep"></div>` in each Information text):
+
+### Intro
+- Type: Form fields
+- Description: Introduction step, containing explanatory text only.
+- Title: Welkom bij United Economy
+- Information text: (use html with explanatory text as decided on by stakeholders)
+
+### Community
+- Type: Form fields
+- Internal name: community
+- Title: Kies uw community
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Add fields: Community
+
+### Type
+- Type: Form fields
+- Internal name: type
+- Title: Schrijft u zich in als zakelijke deelnemer of als particulier?
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Add fields: Inschrijven als
+
+### E-mail input
+- Type: Form fields
+- Internal name: email
+- Title: E-mailadres
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Show manage field visibility: Yes
+- Add fields: E-mail
+
+### Email verification
+- Type: E-mail verification
+- Title: E-mail verificatie
+
+### Accountinfo Companies
+- Type: Form fields
+- Internal name: accountinfo_companies
+- Description: Step containing the required account fields like username and password.
+- Title: Accountgegevens
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Show only for specific groups: (select all Bedrijven groups)
+- Add fields: Bedrijfsnaam, Login name, Password, Security question
+
+### Accountinfo Consumers
+- Type: Form fields
+- Internal name: accountinfo_consumers
+- Description: Step containing the required account fields like username and password.
+- Title: Accountgegevens
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Show only for specific groups: (select all Particulieren groups)
+- Add fields: Volledige naam, Login name, Password, Security question
+
+### Contribution Companies 
+- Type: Form fields
+- Internal name: contribution_companies
+- Description: Step to choose contribution amount and payment method. Different Information text for companies.
+- Title: Lidmaatschapsbijdrage
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Show only for specific groups: (select all Bedrijven groups)
+- Add fields: Lidmaatschapsbijdrage, Actiecode, Aankoop saldo, Betaalmethode (wizard custom field), Tekeningsbevoegde (wizard custom field), Agreements
+
+### Contribution Consumers
+- Type: Form fields
+- Internal name: contribution_consumers
+- Description: Step to choose contribution amount and payment method. Different Information text for consumers.
+- Title: Lidmaatschapsbijdrage
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Show only for specific groups: (select all Consumer groups)
+- Add fields: Lidmaatschapsbijdrage, Actiecode, Aankoop saldo, Betaalmethode (wizard custom field), Agreements
+
+### eMandate
+- Type: Form fields
+- Internal name: emandate
+- Description: Step to request an eMandate. For users with a successful eMandate we can make a direct debit to cash the contribution amount.
+- Title: Digitale machtiging
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- This step performs an external redirect: Yes
+- Add fields: Bank
+
+### eMandate Feedback
+- Type: Form fields
+- Internal name: emandate_feedback
+- Description: Step when user comes back from their bank where they issued an emandate. This step shows the status of the emandate (success, cancelled, etc).
+- Title: Status digitale machtiging
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Add fields: Status digitale machtiging (Read only: Yes)
+
+### Manual payment
+- Type: Form fields
+- Internal name: manual_payment
+- Description: Step only shown if user choose manual payment in Contribution step.
+- Title: Handmatig overmaken lidmaatschapsbijdrage
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Add fields: iban
+
+### Profile fields Companies
+- Type: Form fields
+- Internal name: profilefields_companies
+- Description: Profile fields for companies.
+- Title: Registratiegegevens
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Show only for specific groups: (select all Bedrijven groups)
+- Add fields: K.v.K. nummer, Contactpersoon Bedrijf, Geboortedatum (wizard custom field)
+
+### Contact fields Companies
+- Type: Form fields
+- Internal name: contactfields_companies
+- Description: Contact fields for companies.
+- Title: Contactgegevens
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Show only for specific groups: (select all Bedrijven groups)
+- Show manage field visibility: Yes
+- Add fields: Mobile phone, Landline phone, Address
+
+### Contact fields Consumers
+- Type: Form fields
+- Internal name: contactfields_consumers
+- Description: Contact fields for consumers.
+- Title: Contactgegevens
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Show only for specific groups: (select all Particulieren groups)
+- Show manage field visibility: Yes
+- Add fields: Mobile phone, Landline phone, Address, Profielfoto, Geboortedatum (wizard custom field)
+
+### Company profile
+- Type: Form fields
+- Internal name: company_profile
+- Description: All other profile fields we did not retrieve in previous steps.
+- Title: Bedrijfsprofiel
+- Information text: (use html with explanatory text as decided on by stakeholders)
+- Show only for specific groups: (select all Bedrijven groups)
+- Add fields: Website, Branche informatie, Diensten/producten, Bedrijfslogo
+
+### Ending
+- Type: Form fields *
+
+* Note: this last empty step is not needed anymore when Cyclos release containing fix for CYCLOS-9653 is deployed to C3NL.
+
+# Custom web service
+
+- Name: registration Wizard Startup
+- Description: Start a registration wizard, optionally with community and type already filled in if these are given in the request URL.
+- Http method: GET
+- Run as: Guest
+- Script: registration Wizard Preparation
+- Url mappings:  
+inschrijven  
+inschrijven/{community}/{type}  
+inschrijven/{community}
+
+# Themes
+
+Go to Content > [Content management] Themes > 'Default for Nederland' > 'Circuit Nederland' theme and add the following to the 'Custom style' section:
+
+```
+/* Wizard step Information text color, added July 2022, SB */
+.wizardstep {
+    color: #333;
+}
+```
+
+# Translations
+
+Adjust some of the translations via Content > [Content management] Application translation > Circuit Nederland:
+
+- Translation key USERS.USERS.publicRegistration.securityQuestion.question: change "Vraag" into "Beveiligingsvraag"
+- APP.TRANSLATIONS.user-securityQuestion.empty: Change "Laat dit veld leeg" into "Selecteer een optie"
+- USERS.USERS.publicRegistration.securityQuestion.leaveBlank: Change "Laat dit veld leeg" into "Selecteer een optie"
+- APP.TRANSLATIONS.securityQuestion-answer:  Change "Uw antwoord" into "Antwoord op beveiligingsvraag"
+- USERS.USERS.publicRegistration.securityQuestion.answer: Change "Antwoord" into "Antwoord op beveiligingsvraag"
+- APP.TRANSLATIONS.field-privacy-public.tooltip: Change "Dit veld is zichtbaar door anderen. Klik op maken." into "Dit veld is zichtbaar voor anderen. Klik op dit icoontje om het privé te maken."
+- APP.TRANSLATIONS.field-privacy-private.tooltip: Change "Dit veld is privé. Klik op toestaan om het te bekijken." into "Dit veld is privé. Klik op dit icoontje om het voor andere deelnemers zichtbaar te maken."
+- USERS.PHONES.type.LANDLINE: Remove the current translation "Vast telefoonnummer" by clicking the button 'Restore original translation' (which is "Vaste telefoon").
+- APP.TRANSLATIONS.address-line1: Add a custom translation: "Adres".
+- APP.TRANSLATIONS.address-region: Add a custom translation: "Provincie".
+- APP.TRANSLATIONS.address-city: Add a custom translation: "Plaats".
+- CONTENT_MANAGEMENT.EMAILS.activated.body.template: {Add a line with links to the apps as decided on by stakeholders}
+- SYSTEM.WIZARDS.execution.code.emailSent.step, MOBILE.WIZARDS.verificationSent.email, APP.TRANSLATIONS.wizard-verification-sentToEmail: Change into "Vul hieronder de verificatiecode in die is verzonden naar {0}.".
+- CONTENT_MANAGEMENT.EMAILS.validation.subject: Change into "Bevestig uw e-mailadres voor United Economy".
+- CONTENT_MANAGEMENT.EMAILS.validation.wizard.body: Change into "<p>De verificatiecode om uw e-mailadres te bevestigen is {1}.</p>".
+- SYSTEM.WIZARDS.execution.code.new, : Change into "Heeft u geen verificatiecode ontvangen? Vraag hier een nieuwe aan.".
+
+# 2. Go-live phase
+
+# Configuration
+
+Set the registration wizard in the configuration: System > [System configuration] Configurations > 'Default for Nederland', under the [Data visible to guests] section:
+- Possible groups for public registration: (select the bedrijven and particulieren groups of the active communities - make sure you don't select broker groups)
+- Registration wizard for large screens: Registration wizard
+- Registration wizard for medium screens: Registration wizard
+- Registration wizard for small screens: Registration wizard
+
+# Changes to left-overs from the old registration process
+
+## Remove extension points
+
+Remove the extension points we used in the old registration process, involving an iDeal/Mollie payment: System > [Tools] > Extension points. Open the following extension points and uncheck the 'Enabled' checkbox:
+- activateUserCheckPayment
+- createUser
